@@ -5,10 +5,12 @@ import { type as textUnicode } from 'ot-text-unicode';
 import { ErrorBoundary } from './ErrorBoundary';
 import { SecureTextArea } from './SecureTextArea';
 import { sanitizeDocumentTitle } from '../utils/input-sanitizer';
+import { useDocumentPermissions } from '../hooks/useDocumentPermissions';
 
 export function DocumentEditor(): JSX.Element {
   const { docId } = useParams({ from: '/documents/$docId' });
   const doc = useShareDB(docId);
+  const { perms, loading, error } = useDocumentPermissions(docId);
   const [content, setContent] = useState('');
 
   useEffect(() => {
@@ -27,7 +29,7 @@ export function DocumentEditor(): JSX.Element {
 
   const handleContentChange = (newContent: string) => {
     // Content is already sanitized by SecureTextArea
-    if (doc) {
+    if (doc && perms?.canWrite) {
       const diff = textUnicode.diff(content, newContent);
       if (diff) {
         doc.submitOp([{ p: ['content'], t: 'text-unicode', o: diff }]);
@@ -36,9 +38,15 @@ export function DocumentEditor(): JSX.Element {
     setContent(newContent);
   };
 
-  if (!doc) {
+  if (loading || !doc) {
     return <div>Loading...</div>;
   }
+
+  if (error || !perms?.canRead) {
+    return <div>Access Denied</div>;
+  }
+
+  const isReadOnly = !perms.canWrite;
 
   return (
     <ErrorBoundary>
@@ -51,6 +59,7 @@ export function DocumentEditor(): JSX.Element {
           placeholder="Document Title"
           onChange={(e) => handleTitleChange(e.target.value)}
           style={{ marginBottom: '10px', width: '100%', padding: '8px' }}
+          readOnly={isReadOnly}
         />
         
         <SecureTextArea
@@ -59,6 +68,7 @@ export function DocumentEditor(): JSX.Element {
           placeholder="Start typing your document..."
           maxLength={50000}
           rows={20}
+          readOnly={isReadOnly}
         />
       </div>
     </ErrorBoundary>

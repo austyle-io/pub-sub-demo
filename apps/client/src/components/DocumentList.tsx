@@ -5,6 +5,23 @@ import type { Document } from '@shared/schemas/document';
 import { Link } from '@tanstack/react-router';
 import { ErrorBoundary } from './ErrorBoundary';
 import { sanitizeDocumentTitle, sanitizeText } from '../utils/input-sanitizer';
+import { useDocumentPermissions } from '../hooks/useDocumentPermissions';
+
+function DocumentListItem({ doc }: { doc: Document }) {
+  const { perms, loading } = useDocumentPermissions(doc.id);
+
+  if (loading || !perms?.canRead) {
+    return null;
+  }
+
+  return (
+    <li key={doc.id}>
+      <Link to="/documents/$docId" params={{ docId: doc.id }}>
+        {sanitizeText(doc.title)}
+      </Link>
+    </li>
+  );
+}
 
 export function DocumentList(): JSX.Element {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -56,11 +73,7 @@ export function DocumentList(): JSX.Element {
         {error && <p style={{ color: 'red' }}>{error}</p>}
         <ul>
           {documents.map((doc) => (
-            <li key={doc.id}>
-              <Link to="/documents/$docId" params={{ docId: doc.id }}>
-                {sanitizeText(doc.title)}
-              </Link>
-            </li>
+            <DocumentListItem key={doc.id} doc={doc} />
           ))}
         </ul>
       </div>
