@@ -4,12 +4,18 @@
  */
 
 import type { EventEmitter } from 'node:events';
-import type { Duplex } from 'node:stream';
 import type { IncomingMessage } from 'node:http';
+import type { Duplex } from 'node:stream';
 import type { WebSocket } from 'ws';
 
 // JSON types for document data
-export type JSONValue = string | number | boolean | null | JSONObject | JSONArray;
+export type JSONValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JSONObject
+  | JSONArray;
 export type JSONObject = { [key: string]: JSONValue };
 export type JSONArray = JSONValue[];
 
@@ -55,10 +61,10 @@ export type StringDeleteOp = {
 };
 
 // Union of all operation types
-export type Op = 
-  | AddNumOp 
-  | ObjectInsertOp 
-  | ObjectDeleteOp 
+export type Op =
+  | AddNumOp
+  | ObjectInsertOp
+  | ObjectDeleteOp
   | ObjectReplaceOp
   | StringInsertOp
   | StringDeleteOp;
@@ -79,29 +85,36 @@ export type ShareDBAdapter = {
     op: RawOp,
     snapshot: Snapshot,
     options: unknown,
-    callback: (err?: Error) => void
+    callback: (err?: Error) => void,
   ): void;
   getSnapshot(
     collection: string,
     id: string,
     fields: unknown,
     options: unknown,
-    callback: (err?: Error, snapshot?: Snapshot) => void
+    callback: (err?: Error, snapshot?: Snapshot) => void,
   ): void;
   getSnapshotBulk(
     collection: string,
     ids: string[],
     fields: unknown,
     options: unknown,
-    callback: (err?: Error, snapshots?: Record<string, Snapshot>) => void
+    callback: (err?: Error, snapshots?: Record<string, Snapshot>) => void,
   ): void;
   // Additional methods exist but omitted for brevity
 };
 
 export type PubSubAdapter = {
   close(callback?: (err?: Error) => void): void;
-  publish(channel: string, message: unknown, callback?: (err?: Error) => void): void;
-  subscribe(channel: string, callback: (err?: Error, message?: unknown) => void): void;
+  publish(
+    channel: string,
+    message: unknown,
+    callback?: (err?: Error) => void,
+  ): void;
+  subscribe(
+    channel: string,
+    callback: (err?: Error, message?: unknown) => void,
+  ): void;
   // Additional methods exist but omitted for brevity
 };
 
@@ -129,7 +142,10 @@ export type Context = {
 };
 
 // Middleware function type
-export type Middleware = (context: Context, next: (err?: Error) => void) => void;
+export type Middleware = (
+  context: Context,
+  next: (err?: Error) => void,
+) => void;
 
 // Snapshot type
 export type Snapshot<T = DocumentData> = {
@@ -169,7 +185,11 @@ export type Doc = EventEmitter & {
   type: string | null;
 
   create(data: DocumentData, callback?: (err?: Error) => void): void;
-  create(data: DocumentData, type: string, callback?: (err?: Error) => void): void;
+  create(
+    data: DocumentData,
+    type: string,
+    callback?: (err?: Error) => void,
+  ): void;
   fetch(callback?: (err?: Error) => void): void;
   del(callback?: (err?: Error) => void): void;
   submitOp(op: Op[], callback?: (err?: Error) => void): void;
@@ -182,19 +202,19 @@ export type Doc = EventEmitter & {
 export type Connection = EventEmitter & {
   id: string;
   agent?: Agent;
-  
+
   get(collection: string, id: string): Doc;
   createFetchQuery(
     collection: string,
     query: unknown,
     options?: unknown,
-    callback?: (err?: Error, results?: Doc[]) => void
+    callback?: (err?: Error, results?: Doc[]) => void,
   ): Query;
   createSubscribeQuery(
     collection: string,
     query: unknown,
     options?: unknown,
-    callback?: (err?: Error, results?: Doc[]) => void
+    callback?: (err?: Error, results?: Doc[]) => void,
   ): Query;
   close(): void;
 };
@@ -204,23 +224,21 @@ export type Query = EventEmitter & {
   ready: boolean;
   results: Doc[];
   extra: unknown;
-  
+
   destroy(): void;
 };
 
 // Main ShareDB class type
 export type ShareDB = EventEmitter & {
-  db: ShareDBAdapter;
-  pubsub: PubSubAdapter;
-  extraDbs: Record<string, ShareDBAdapter>;
-  milestoneDb?: MilestoneDBAdapter;
-  
-  constructor: (options?: ShareDBOptions) => ShareDB;
   connect(connection?: Connection, req?: IncomingMessage): Connection;
   listen(stream: Duplex, request?: IncomingMessage): Agent;
   close(callback?: (err?: Error) => void): void;
   use(action: string, fn: Middleware): void;
-  addProjection(name: string, collection: string, fields: Record<string, boolean>): void;
+  addProjection(
+    name: string,
+    collection: string,
+    fields: Record<string, boolean>,
+  ): void;
 };
 
 // WebSocketJSONStream type
@@ -231,4 +249,6 @@ export type WebSocketJSONStream = Duplex & {
 // Factory function types
 export type ShareDBConstructor = new (options?: ShareDBOptions) => ShareDB;
 export type ShareDBMongoFactory = (url: string) => ShareDBAdapter;
-export type WebSocketJSONStreamConstructor = new (ws: WebSocket) => WebSocketJSONStream;
+export type WebSocketJSONStreamConstructor = new (
+  ws: WebSocket,
+) => WebSocketJSONStream;

@@ -124,7 +124,7 @@ describe('JWT Utilities', () => {
   });
 
   describe('JWT Secret Handling', () => {
-    it('should throw when JWT_SECRET is not set', () => {
+    it('should throw error when JWT_SECRET is not set', () => {
       const originalSecret = process.env['JWT_SECRET'];
       delete process.env['JWT_SECRET'];
 
@@ -132,7 +132,7 @@ describe('JWT Utilities', () => {
         signAccessToken(testPayload);
       }).toThrow('JWT_SECRET environment variable is not set');
 
-      // Restore for other tests
+      // Restore original secret
       process.env['JWT_SECRET'] = originalSecret;
     });
   });

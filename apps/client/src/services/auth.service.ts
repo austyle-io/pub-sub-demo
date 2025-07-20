@@ -4,9 +4,10 @@ import type {
   LoginRequest,
   RefreshTokenRequest,
 } from '@collab-edit/shared';
+import { isApiError, isAuthResponse } from '@collab-edit/shared';
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+  import.meta.env.VITE_API_URL ?? 'http://localhost:3001/api';
 
 class AuthService {
   async login(data: LoginRequest): Promise<AuthResponse> {
@@ -20,13 +21,20 @@ class AuthService {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Login failed');
+      const errorData = await response.json();
+      if (!isApiError(errorData)) {
+        throw new Error('Invalid error response format');
+      }
+      throw new Error(errorData.error ?? 'Login failed');
     }
 
-    const authResponse = await response.json();
-    this.storeTokens(authResponse);
-    return authResponse;
+    const authResponseData = await response.json();
+    if (!isAuthResponse(authResponseData)) {
+      throw new Error('Invalid authentication response format');
+    }
+
+    this.storeTokens(authResponseData);
+    return authResponseData;
   }
 
   async signup(data: CreateUserRequest): Promise<AuthResponse> {
@@ -40,13 +48,20 @@ class AuthService {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Signup failed');
+      const errorData = await response.json();
+      if (!isApiError(errorData)) {
+        throw new Error('Invalid error response format');
+      }
+      throw new Error(errorData.error ?? 'Signup failed');
     }
 
-    const authResponse = await response.json();
-    this.storeTokens(authResponse);
-    return authResponse;
+    const authResponseData = await response.json();
+    if (!isAuthResponse(authResponseData)) {
+      throw new Error('Invalid authentication response format');
+    }
+
+    this.storeTokens(authResponseData);
+    return authResponseData;
   }
 
   async refreshToken(refreshToken: string): Promise<AuthResponse> {
@@ -62,13 +77,20 @@ class AuthService {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Token refresh failed');
+      const errorData = await response.json();
+      if (!isApiError(errorData)) {
+        throw new Error('Invalid error response format');
+      }
+      throw new Error(errorData.error ?? 'Token refresh failed');
     }
 
-    const authResponse = await response.json();
-    this.storeTokens(authResponse);
-    return authResponse;
+    const authResponseData = await response.json();
+    if (!isAuthResponse(authResponseData)) {
+      throw new Error('Invalid authentication response format');
+    }
+
+    this.storeTokens(authResponseData);
+    return authResponseData;
   }
 
   logout(): void {

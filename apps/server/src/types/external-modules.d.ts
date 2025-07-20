@@ -15,7 +15,7 @@ declare module 'sharedb' {
       pubsub?: unknown;
       milestoneDb?: unknown;
     });
-    
+
     use(action: string, fn: Middleware): void;
     listen(stream: Duplex, req?: unknown): void;
     connect(): Connection;
@@ -50,8 +50,8 @@ declare module 'sharedb-mongo' {
 }
 
 declare module '@teamwork/websocket-json-stream' {
-  import { Duplex } from 'node:stream';
-  import { WebSocket } from 'ws';
+  import type { Duplex } from 'node:stream';
+  import type { WebSocket } from 'ws';
 
   class WebSocketJSONStream extends Duplex {
     constructor(ws: WebSocket);

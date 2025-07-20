@@ -3,7 +3,7 @@ import { MongoClient } from 'mongodb';
 
 export async function isMongoDbAvailable(): Promise<boolean> {
   const mongoUrl =
-    process.env['MONGO_URL'] || 'mongodb://localhost:27017/collab_demo';
+    process.env['MONGO_URL'] ?? 'mongodb://localhost:27017/collab_demo';
   const client = new MongoClient(mongoUrl, {
     serverSelectionTimeoutMS: 2000, // 2 second timeout
   });

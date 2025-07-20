@@ -4,13 +4,14 @@ import {
   validateUpdateDocumentRequest,
 } from '@collab-edit/shared';
 import { type Request, type Response, Router } from 'express';
-import { type Db } from 'mongodb';
+import type { Db } from 'mongodb';
 import { v4 as uuid } from 'uuid';
 import { authenticate } from '../middleware/passport';
 import { getShareDB } from '../services/sharedb.service';
+import type { Op } from '../types/sharedb';
 import { getDatabase } from '../utils/database';
 import { checkDocumentPermission } from '../utils/permissions';
-import type { Op } from '../types/sharedb';
+import { getValidatedDocumentData, isDocumentData } from '../utils/type-guards';
 
 // Type for ShareDB documents stored in MongoDB
 type ShareDBDocument = {
@@ -107,14 +108,19 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 
     // Transform the ShareDB document format to our API format
     const formattedDocs = documents.map((doc) => {
-      const shareDoc = doc as unknown as ShareDBDocument;
-      return {
-        id: shareDoc.data.id,
-        title: shareDoc.data.title,
-        createdAt: shareDoc.data.createdAt,
-        updatedAt: shareDoc.data.updatedAt,
-        isOwner: shareDoc.data.acl.owner === req.user?.sub,
-      };
+      // Validate the document structure with runtime type guard
+      if (!isDocumentData(doc) || !('data' in doc)) {
+        throw new Error('Invalid document structure from database');
+      }
+
+      const docWithData = doc as { data: unknown };
+      const validatedDoc = getValidatedDocumentData(docWithData.data);
+
+      if (!validatedDoc) {
+        throw new Error('Invalid document data structure from database');
+      }
+
+      return validatedDoc;
     });
 
     return res.json(formattedDocs);
@@ -225,10 +231,20 @@ router.patch('/:id', authenticate, async (req: Request, res: Response) => {
       }
 
       // Update title and updatedAt timestamp
-      const docData = doc.data as Document;
+      const validatedDoc = getValidatedDocumentData(doc.data);
+      if (!validatedDoc) {
+        res.status(500).json({ message: 'Invalid document data' });
+        resolve();
+        return;
+      }
+
       const op: Op[] = [
-        { p: ['title'], od: docData.title, oi: title },
-        { p: ['updatedAt'], od: docData.updatedAt, oi: new Date().toISOString() },
+        { p: ['title'], od: validatedDoc.title, oi: title },
+        {
+          p: ['updatedAt'],
+          od: validatedDoc.updatedAt,
+          oi: new Date().toISOString(),
+        },
       ];
 
       doc.submitOp(op, (submitErr) => {
@@ -272,7 +288,9 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   const isAdmin = req.user.role === 'admin';
 
   if (!isOwner && !isAdmin) {
-    return res.status(403).json({ message: 'Only owners can delete documents' });
+    return res
+      .status(403)
+      .json({ message: 'Only owners can delete documents' });
   }
 
   const shareDB = getShareDB();
@@ -297,79 +315,97 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
 /**
  * Update document permissions (ACL)
  */
-router.put('/:id/permissions', authenticate, async (req: Request, res: Response) => {
-  if (!req.user) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
+router.put(
+  '/:id/permissions',
+  authenticate,
+  async (req: Request, res: Response) => {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
 
-  const { id } = req.params;
-  const { editors = [], viewers = [] } = req.body;
+    const { id } = req.params;
+    const { editors = [], viewers = [] } = req.body;
 
-  if (!id) {
-    return res.status(400).json({ message: 'Document ID is required' });
-  }
+    if (!id) {
+      return res.status(400).json({ message: 'Document ID is required' });
+    }
 
-  // Validate input
-  if (!Array.isArray(editors) || !Array.isArray(viewers)) {
-    return res.status(400).json({ message: 'Editors and viewers must be arrays' });
-  }
+    // Validate input
+    if (!Array.isArray(editors) || !Array.isArray(viewers)) {
+      return res
+        .status(400)
+        .json({ message: 'Editors and viewers must be arrays' });
+    }
 
-  // Only owners and admins can change permissions
-  const db: Db = getDatabase();
-  const collection = db.collection<ShareDBDocument>('o_documents');
-  const docData = await collection.findOne({ 'data.id': id });
+    // Only owners and admins can change permissions
+    const db: Db = getDatabase();
+    const collection = db.collection<ShareDBDocument>('o_documents');
+    const docData = await collection.findOne({ 'data.id': id });
 
-  if (!docData) {
-    return res.status(404).json({ message: 'Document not found' });
-  }
+    if (!docData) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
 
-  const isOwner = docData.data.acl.owner === req.user.sub;
-  const isAdmin = req.user.role === 'admin';
+    const isOwner = docData.data.acl.owner === req.user.sub;
+    const isAdmin = req.user.role === 'admin';
 
-  if (!isOwner && !isAdmin) {
-    return res.status(403).json({ message: 'Only owners can change permissions' });
-  }
+    if (!isOwner && !isAdmin) {
+      return res
+        .status(403)
+        .json({ message: 'Only owners can change permissions' });
+    }
 
-  const shareDB = getShareDB();
-  const connection = shareDB.connect();
-  const doc = connection.get('documents', id);
+    const shareDB = getShareDB();
+    const connection = shareDB.connect();
+    const doc = connection.get('documents', id);
 
-  return new Promise<void>((resolve) => {
-    doc.fetch((err?: Error) => {
-      if (err) {
-        console.error('Failed to fetch document:', err);
-        res.status(500).json({ message: 'Failed to fetch document' });
-        resolve();
-        return;
-      }
-
-      if (!doc.data) {
-        res.status(404).json({ message: 'Document not found' });
-        resolve();
-        return;
-      }
-
-      // Update ACL
-      const docData = doc.data as Document;
-      const op: Op[] = [
-        { p: ['acl', 'editors'], od: docData.acl.editors, oi: editors },
-        { p: ['acl', 'viewers'], od: docData.acl.viewers, oi: viewers },
-        { p: ['updatedAt'], od: docData.updatedAt, oi: new Date().toISOString() },
-      ];
-
-      doc.submitOp(op, (submitErr) => {
-        if (submitErr) {
-          console.error('Failed to update permissions:', submitErr);
-          res.status(500).json({ message: 'Failed to update permissions' });
+    return new Promise<void>((resolve) => {
+      doc.fetch((err?: Error) => {
+        if (err) {
+          console.error('Failed to fetch document:', err);
+          res.status(500).json({ message: 'Failed to fetch document' });
           resolve();
           return;
         }
 
-        res.json({ message: 'Permissions updated successfully' });
-        resolve();
+        if (!doc.data) {
+          res.status(404).json({ message: 'Document not found' });
+          resolve();
+          return;
+        }
+
+        // Update ACL
+        const validatedDoc = getValidatedDocumentData(doc.data);
+        if (!validatedDoc) {
+          res.status(500).json({ message: 'Invalid document data' });
+          resolve();
+          return;
+        }
+
+        const op: Op[] = [
+          { p: ['acl', 'editors'], od: validatedDoc.acl.editors, oi: editors },
+          { p: ['acl', 'viewers'], od: validatedDoc.acl.viewers, oi: viewers },
+          {
+            p: ['updatedAt'],
+            od: validatedDoc.updatedAt,
+            oi: new Date().toISOString(),
+          },
+        ];
+
+        doc.submitOp(op, (submitErr) => {
+          if (submitErr) {
+            console.error('Failed to update permissions:', submitErr);
+            res.status(500).json({ message: 'Failed to update permissions' });
+            resolve();
+            return;
+          }
+
+          res.json({ message: 'Permissions updated successfully' });
+          resolve();
+        });
       });
     });
-  });
-});
+  },
+);
 
 export default router;

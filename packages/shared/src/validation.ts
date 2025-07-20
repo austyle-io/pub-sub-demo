@@ -56,8 +56,8 @@ export function getValidationErrors(
   if (!validator.errors) return [];
 
   return validator.errors.map((error: ErrorObject) => ({
-    field: error.instancePath || error.schemaPath,
-    message: error.message || 'Validation failed',
+    field: error.instancePath ?? error.schemaPath,
+    message: error.message ?? 'Validation failed',
   }));
 }
 
@@ -74,5 +74,6 @@ export function validateOrThrow<T>(
     error.validationErrors = errors;
     throw error;
   }
+  // Safe assertion: validator confirms data matches type T
   return data as T;
 }

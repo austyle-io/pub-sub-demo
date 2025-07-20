@@ -27,7 +27,7 @@ export const ErrorResponseSchema = Type.Object({
     description: 'Error message',
   }),
   details: Type.Optional(
-    Type.Any({
+    Type.Unknown({
       description: 'Additional error details',
     }),
   ),

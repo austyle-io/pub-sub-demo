@@ -1,9 +1,9 @@
 import {
-  type CreateUserRequest,
   type ErrorResponse,
   getValidationErrors,
-  type LoginRequest,
-  type RefreshTokenRequest,
+  isCreateUserRequest,
+  isLoginRequest,
+  isRefreshTokenRequest,
   validateCreateUserRequest,
   validateLoginRequest,
   validateRefreshTokenRequest,
@@ -28,7 +28,7 @@ router.post(
   async (req: Request, res: Response): Promise<Response> => {
     try {
       // Validate request
-      if (!validateCreateUserRequest(req.body)) {
+      if (!isCreateUserRequest(req.body)) {
         const errors = getValidationErrors(validateCreateUserRequest);
         const errorResponse: ErrorResponse = {
           error: 'Validation failed',
@@ -37,10 +37,8 @@ router.post(
         return res.status(400).json(errorResponse);
       }
 
-      // Create user
-      const authResponse = await authService.createUser(
-        req.body as CreateUserRequest,
-      );
+      // Create user - type guard ensures type safety
+      const authResponse = await authService.createUser(req.body);
       return res.status(201).json(authResponse);
     } catch (error) {
       const errorResponse: ErrorResponse = {
@@ -68,7 +66,7 @@ router.post(
   async (req: Request, res: Response): Promise<Response> => {
     try {
       // Validate request
-      if (!validateLoginRequest(req.body)) {
+      if (!isLoginRequest(req.body)) {
         const errors = getValidationErrors(validateLoginRequest);
         const errorResponse: ErrorResponse = {
           error: 'Validation failed',
@@ -77,8 +75,8 @@ router.post(
         return res.status(400).json(errorResponse);
       }
 
-      // Login user
-      const authResponse = await authService.login(req.body as LoginRequest);
+      // Login user - type guard ensures type safety
+      const authResponse = await authService.login(req.body);
       return res.json(authResponse);
     } catch (error) {
       const errorResponse: ErrorResponse = {
@@ -106,7 +104,7 @@ router.post(
   async (req: Request, res: Response): Promise<Response> => {
     try {
       // Validate request
-      if (!validateRefreshTokenRequest(req.body)) {
+      if (!isRefreshTokenRequest(req.body)) {
         const errors = getValidationErrors(validateRefreshTokenRequest);
         const errorResponse: ErrorResponse = {
           error: 'Validation failed',
@@ -115,9 +113,10 @@ router.post(
         return res.status(400).json(errorResponse);
       }
 
-      // Refresh tokens
-      const body = req.body as RefreshTokenRequest;
-      const authResponse = await authService.refreshTokens(body.refreshToken);
+      // Refresh tokens - type guard ensures type safety
+      const authResponse = await authService.refreshTokens(
+        req.body.refreshToken,
+      );
       return res.json(authResponse);
     } catch (error) {
       const errorResponse: ErrorResponse = {

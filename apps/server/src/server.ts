@@ -12,13 +12,13 @@ import { connectToDatabase } from './utils/database';
  * Main Express application. Sets up middleware, routes, and ShareDB server.
  */
 const app: Express = express();
-const PORT = process.env['PORT'] || 3001;
+const PORT = process.env['PORT'] ?? 3001;
 const shareDBService = initializeShareDB();
 
 // Middleware
 app.use(
   cors({
-    origin: process.env['CLIENT_URL'] || 'http://localhost:3000',
+    origin: process.env['CLIENT_URL'] ?? 'http://localhost:3000',
     credentials: true,
   }),
 );
