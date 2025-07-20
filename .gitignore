@@ -63,3 +63,9 @@ data/
 
 # Generated files
 openapi.json
+
+# Gemini SA keys
+.config/gcloud/keys/*
+
+# Gemini CLI env
+.gemini/
