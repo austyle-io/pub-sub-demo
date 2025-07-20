@@ -2,6 +2,9 @@ import { useParams } from '@tanstack/react-router';
 import { useShareDB } from '../hooks/useShareDB';
 import { useState, useEffect } from 'react';
 import { type as textUnicode } from 'ot-text-unicode';
+import { ErrorBoundary } from './ErrorBoundary';
+import { SecureTextArea } from './SecureTextArea';
+import { sanitizeDocumentTitle } from '../utils/input-sanitizer';
 
 export function DocumentEditor(): JSX.Element {
   const { docId } = useParams({ from: '/documents/$docId' });
@@ -17,8 +20,13 @@ export function DocumentEditor(): JSX.Element {
     }
   }, [doc]);
 
-  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newContent = event.target.value;
+  const handleTitleChange = (newTitle: string) => {
+    const sanitizedTitle = sanitizeDocumentTitle(newTitle);
+    // Update document title logic
+  };
+
+  const handleContentChange = (newContent: string) => {
+    // Content is already sanitized by SecureTextArea
     if (doc) {
       const diff = textUnicode.diff(content, newContent);
       if (diff) {
@@ -33,15 +41,26 @@ export function DocumentEditor(): JSX.Element {
   }
 
   return (
-    <div>
-      <h2>Document Editor</h2>
-      <p>Editing document with ID: {docId}</p>
-      <textarea
-        value={content}
-        onChange={handleChange}
-        rows={20}
-        style={{ width: '100%' }}
-      />
-    </div>
+    <ErrorBoundary>
+      <div>
+        <h2>Document Editor</h2>
+        <p>Editing document with ID: {docId}</p>
+        
+        <input
+          type="text"
+          placeholder="Document Title"
+          onChange={(e) => handleTitleChange(e.target.value)}
+          style={{ marginBottom: '10px', width: '100%', padding: '8px' }}
+        />
+        
+        <SecureTextArea
+          value={content}
+          onChange={handleContentChange}
+          placeholder="Start typing your document..."
+          maxLength={50000}
+          rows={20}
+        />
+      </div>
+    </ErrorBoundary>
   );
 }

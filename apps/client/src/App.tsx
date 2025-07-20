@@ -3,6 +3,7 @@ import { LoginForm } from './components/LoginForm';
 import { UserInfo } from './components/UserInfo';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useEffect } from 'react';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 /**
  * Main application content: handles authentication state and renders UI accordingly.
@@ -44,9 +45,11 @@ function AppContent(): JSX.Element {
  */
 function App(): JSX.Element {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

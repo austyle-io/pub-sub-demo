@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { useAuthFetch } from '../hooks/useAuthFetch';
 import type { Document } from '@shared/schemas/document';
 import { Link } from '@tanstack/react-router';
+import { ErrorBoundary } from './ErrorBoundary';
+import { sanitizeDocumentTitle, sanitizeText } from '../utils/input-sanitizer';
 
 export function DocumentList(): JSX.Element {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -29,10 +31,11 @@ export function DocumentList(): JSX.Element {
   const createDocument = async () => {
     const title = prompt('Enter document title:');
     if (title) {
+      const sanitizedTitle = sanitizeDocumentTitle(title);
       try {
         const response = await authFetch('/api/documents', {
           method: 'POST',
-          body: JSON.stringify({ title }),
+          body: JSON.stringify({ title: sanitizedTitle }),
         });
         if (!response.ok) {
           throw new Error('Failed to create document');
@@ -46,19 +49,21 @@ export function DocumentList(): JSX.Element {
   };
 
   return (
-    <div>
-      <h2>Documents</h2>
-      <button onClick={createDocument}>Create Document</button>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <ul>
-        {documents.map((doc) => (
-          <li key={doc.id}>
-            <Link to="/documents/$docId" params={{ docId: doc.id }}>
-              {doc.title}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <ErrorBoundary>
+      <div>
+        <h2>Documents</h2>
+        <button onClick={createDocument}>Create Document</button>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+        <ul>
+          {documents.map((doc) => (
+            <li key={doc.id}>
+              <Link to="/documents/$docId" params={{ docId: doc.id }}>
+                {sanitizeText(doc.title)}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </ErrorBoundary>
   );
 }
