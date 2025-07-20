@@ -1,0 +1,24 @@
+{
+  "name": "Pub-Sub-Demo-Dev",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "server",
+  "workspaceFolder": "/workspace",
+  "forwardPorts": [3000, 3001],
+  "otherServices": ["client", "mongo"],
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "typescript.tsdk": "node_modules/typescript/lib"
+      },
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-typescript-next",
+        "mongodb.mongodb-vscode"
+      ]
+    }
+  },
+  "postCreateCommand": "pnpm install",
+  "runServices": ["mongo", "server", "client"]
+}

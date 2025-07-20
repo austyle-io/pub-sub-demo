@@ -1,0 +1,7 @@
+.git
+node_modules
+dist
+coverage
+**/pnpm-store
+.vscode
+.DS_Store

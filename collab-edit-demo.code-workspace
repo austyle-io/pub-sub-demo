@@ -1,0 +1,31 @@
+{
+  "folders": [
+    {
+      "path": "apps/client",
+      "name": "Client"
+    },
+    {
+      "path": "apps/server",
+      "name": "Server"
+    },
+    {
+      "path": "packages/shared",
+      "name": "Shared"
+    },
+    {
+      "path": ".",
+      "name": "Root"
+    }
+  ],
+  "settings": {
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/dist": true
+    },
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/dist": true
+    }
+  }
+}

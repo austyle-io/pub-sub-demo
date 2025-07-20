@@ -1,0 +1,23 @@
+# Development Patterns and Tooling
+
+## Monorepo & Turborepo
+- Uses pnpm workspaces with Turborepo to orchestrate parallel builds, tests, linting, and type-checking across packages.
+
+## Package Management
+- pnpm for fast installs and strict node_modules isolation.
+
+## Build & Bundle
+- Frontend (`apps/client`): Vite + TypeScript, configured in `vite.config.ts`.
+- Backend (`apps/server`): Compiled via TypeScript compiler; raw Node.js entrypoint.
+
+## Testing
+- Vitest configuration per package: front-end, back-end, shared.
+- Tests defined alongside source in `__tests__` directories.
+
+## Linting & Formatting
+- Prettier for code formatting (`format` scripts).
+- Shared ESLint/TSLint rules via Turborepo tasks (`lint`, `type-check`).
+
+## Documentation
+- JSDoc-based inline code documentation.
+- Generate API docs via `jsdoc -c jsdoc.json` into `docs/jsdoc`.

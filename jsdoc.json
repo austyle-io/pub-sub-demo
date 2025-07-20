@@ -1,0 +1,12 @@
+{
+  "source": {
+    "include": ["apps", "packages/shared/src"],
+    "includePattern": ".+\\.(ts|tsx)$",
+    "excludePattern": "(^|\\/)_(.*)"
+  },
+  "opts": {
+    "destination": "./docs/jsdoc",
+    "recurse": true,
+    "readme": "README.md"
+  }
+}

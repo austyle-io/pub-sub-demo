@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  server:
+    build:
+      context: ..
+      dockerfile: apps/server/Dockerfile.dev
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "3001:3001"
+    volumes:
+      - ..:/workspace:cached
+      - /workspace/node_modules
+      - /workspace/apps/server/node_modules
+      - /workspace/apps/client/node_modules
+      - /workspace/packages/shared/node_modules
+    environment:
+      NODE_ENV: development
+      MONGO_URL: mongodb://root:example@mongo:27017/pub-sub-demo?authSource=admin
+      JWT_SECRET: dev-secret-key-change-in-production
+
+  client:
+    build:
+      context: ..
+      dockerfile: apps/client/Dockerfile.dev
+    depends_on:
+      - server
+    ports:
+      - "3000:3000"
+    volumes:
+      - ..:/workspace:cached
+      - /workspace/node_modules
+      - /workspace/apps/server/node_modules
+      - /workspace/apps/client/node_modules
+      - /workspace/packages/shared/node_modules
+    environment:
+      NODE_ENV: development
+      VITE_API_URL: http://server:3001
+
+volumes:
+  mongo_data:
