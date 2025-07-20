@@ -7,6 +7,7 @@ import {
   authMachine,
 } from '../machines/auth.machine';
 import { isJwtPayload } from '@collab-edit/shared';
+import { tokenManager } from '../utils/token-manager';
 
 type AuthContextValue = AuthState & {
   login: (data: LoginRequest) => void;
@@ -40,10 +41,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Set up token refresh before expiry
   useEffect(() => {
-    if (!state.context.accessToken) return undefined;
+    const accessToken = tokenManager.getAccessToken();
+    if (!accessToken) return undefined;
 
     try {
-      const tokenParts = state.context.accessToken.split('.');
+      const tokenParts = accessToken.split('.');
       if (tokenParts.length !== 3) return undefined;
 
       const rawPayload = JSON.parse(atob(tokenParts[1] ?? ''));

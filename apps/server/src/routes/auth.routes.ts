@@ -79,7 +79,21 @@ router.post(
 
       // Login user - type guard ensures type safety
       const authResponse = await authService.login(req.body);
-      return res.json(authResponse);
+
+      // Set HTTP-only cookie for refresh token
+      res.cookie('refreshToken', authResponse.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: '/api/auth/refresh'
+      });
+
+      // Return only access token to client
+      return res.json({
+        accessToken: authResponse.accessToken,
+        user: authResponse.user
+      });
     } catch (error) {
       const errorMessage = sanitizeApiError(error);
       const errorResponse: ErrorResponse = {
@@ -106,21 +120,29 @@ router.post(
   '/refresh',
   async (req: Request, res: Response): Promise<Response> => {
     try {
-      // Validate request
-      if (!isRefreshTokenRequest(req.body)) {
-        const errors = getValidationErrors(validateRefreshTokenRequest);
-        const errorResponse: ErrorResponse = {
-          error: 'Validation failed',
-          details: errors,
-        };
-        return res.status(400).json(errorResponse);
+      const refreshToken = req.cookies.refreshToken;
+      if (!refreshToken) {
+        return res.status(401).json({ error: 'No refresh token provided' });
       }
 
       // Refresh tokens - type guard ensures type safety
       const authResponse = await authService.refreshTokens(
-        req.body.refreshToken,
+        refreshToken,
       );
-      return res.json(authResponse);
+
+      // Update refresh token cookie
+      res.cookie('refreshToken', authResponse.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: '/api/auth/refresh'
+      });
+
+      return res.json({
+        accessToken: authResponse.accessToken,
+        user: authResponse.user
+      });
     } catch (error) {
       const errorMessage = sanitizeApiError(error);
       const errorResponse: ErrorResponse = {
@@ -136,5 +158,10 @@ router.post(
     }
   },
 );
+
+router.post('/logout', (_req, res) => {
+  res.clearCookie('refreshToken', { path: '/api/auth/refresh' });
+  res.status(204).send();
+});
 
 export default router;

@@ -1,3 +1,4 @@
+import cookieParser from 'cookie-parser';
 import 'dotenv/config';
 import http from 'node:http';
 import cors from 'cors';
@@ -65,6 +66,7 @@ app.use(
     credentials: true,
   }),
 );
+app.use(cookieParser());
 app.use(express.json());
 app.use(passport.initialize());
 

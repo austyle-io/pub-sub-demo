@@ -2,9 +2,9 @@ import type {
   AuthResponse,
   CreateUserRequest,
   LoginRequest,
-  RefreshTokenRequest,
 } from '@collab-edit/shared';
-import { isApiError, isAuthResponse } from '@collab-edit/shared';
+import { isApiError, isAuthResponse, sanitizeApiError } from '@collab-edit/shared';
+import { tokenManager } from '../utils/token-manager';
 
 const API_BASE_URL =
   import.meta.env.VITE_API_URL ?? 'http://localhost:3001/api';
@@ -20,21 +20,21 @@ class AuthService {
       credentials: 'include',
     });
 
+    const responseData = await response.json();
+
     if (!response.ok) {
-      const errorData = await response.json();
-      if (!isApiError(errorData)) {
+      if (!isApiError(responseData)) {
         throw new Error('Invalid error response format');
       }
-      throw new Error(errorData.error ?? 'Login failed');
+      throw new Error(sanitizeApiError(responseData.error ?? 'Login failed'));
     }
 
-    const authResponseData = await response.json();
-    if (!isAuthResponse(authResponseData)) {
+    if (!isAuthResponse(responseData)) {
       throw new Error('Invalid authentication response format');
     }
 
-    this.storeTokens(authResponseData);
-    return authResponseData;
+    tokenManager.setAccessToken(responseData.accessToken);
+    return responseData;
   }
 
   async signup(data: CreateUserRequest): Promise<AuthResponse> {
@@ -47,79 +47,56 @@ class AuthService {
       credentials: 'include',
     });
 
+    const responseData = await response.json();
+
     if (!response.ok) {
-      const errorData = await response.json();
-      if (!isApiError(errorData)) {
+      if (!isApiError(responseData)) {
         throw new Error('Invalid error response format');
       }
-      throw new Error(errorData.error ?? 'Signup failed');
+      throw new Error(sanitizeApiError(responseData.error ?? 'Signup failed'));
     }
 
-    const authResponseData = await response.json();
-    if (!isAuthResponse(authResponseData)) {
+    if (!isAuthResponse(responseData)) {
       throw new Error('Invalid authentication response format');
     }
 
-    this.storeTokens(authResponseData);
-    return authResponseData;
+    tokenManager.setAccessToken(responseData.accessToken);
+    return responseData;
   }
 
-  async refreshToken(refreshToken: string): Promise<AuthResponse> {
-    const request: RefreshTokenRequest = { refreshToken };
-
+  async refreshToken(): Promise<AuthResponse> {
     const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(request),
       credentials: 'include',
     });
 
+    const responseData = await response.json();
+
     if (!response.ok) {
-      const errorData = await response.json();
-      if (!isApiError(errorData)) {
+      if (!isApiError(responseData)) {
         throw new Error('Invalid error response format');
       }
-      throw new Error(errorData.error ?? 'Token refresh failed');
+      throw new Error(sanitizeApiError(responseData.error ?? 'Token refresh failed'));
     }
 
-    const authResponseData = await response.json();
-    if (!isAuthResponse(authResponseData)) {
+    if (!isAuthResponse(responseData)) {
       throw new Error('Invalid authentication response format');
     }
 
-    this.storeTokens(authResponseData);
-    return authResponseData;
+    tokenManager.setAccessToken(responseData.accessToken);
+    return responseData;
   }
 
   logout(): void {
-    this.clearTokens();
+    tokenManager.clearTokens();
+    fetch(`${API_BASE_URL}/auth/logout`, {
+      method: 'POST',
+      credentials: 'include',
+    });
   }
 
   getAccessToken(): string | null {
-    return sessionStorage.getItem('accessToken');
-  }
-
-  getStoredTokens(): {
-    accessToken: string | null;
-    refreshToken: string | null;
-  } {
-    // In production, consider more secure storage options
-    const accessToken = sessionStorage.getItem('accessToken');
-    const refreshToken = sessionStorage.getItem('refreshToken');
-    return { accessToken, refreshToken };
-  }
-
-  private storeTokens(authResponse: AuthResponse): void {
-    // Store tokens in sessionStorage (cleared when browser closes)
-    sessionStorage.setItem('accessToken', authResponse.accessToken);
-    sessionStorage.setItem('refreshToken', authResponse.refreshToken);
-  }
-
-  private clearTokens(): void {
-    sessionStorage.removeItem('accessToken');
-    sessionStorage.removeItem('refreshToken');
+    return tokenManager.getAccessToken();
   }
 }
 
