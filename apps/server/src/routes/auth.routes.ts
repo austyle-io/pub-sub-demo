@@ -7,6 +7,7 @@ import {
   validateCreateUserRequest,
   validateLoginRequest,
   validateRefreshTokenRequest,
+  sanitizeApiError,
 } from '@collab-edit/shared';
 import { type Request, type Response, Router } from 'express';
 import { AuthService } from '../services/auth.service';
@@ -41,12 +42,13 @@ router.post(
       const authResponse = await authService.createUser(req.body);
       return res.status(201).json(authResponse);
     } catch (error) {
+      const errorMessage = sanitizeApiError(error);
       const errorResponse: ErrorResponse = {
-        error: error instanceof Error ? error.message : 'Failed to create user',
+        error: errorMessage,
       };
 
       // Check for duplicate user
-      if (error instanceof Error && error.message === 'User already exists') {
+      if (errorMessage === 'User already exists') {
         return res.status(409).json(errorResponse);
       }
 
@@ -79,12 +81,13 @@ router.post(
       const authResponse = await authService.login(req.body);
       return res.json(authResponse);
     } catch (error) {
+      const errorMessage = sanitizeApiError(error);
       const errorResponse: ErrorResponse = {
-        error: error instanceof Error ? error.message : 'Login failed',
+        error: errorMessage,
       };
 
       // Invalid credentials should return 401
-      if (error instanceof Error && error.message === 'Invalid credentials') {
+      if (errorMessage === 'Invalid credentials') {
         return res.status(401).json(errorResponse);
       }
 
@@ -119,12 +122,13 @@ router.post(
       );
       return res.json(authResponse);
     } catch (error) {
+      const errorMessage = sanitizeApiError(error);
       const errorResponse: ErrorResponse = {
-        error: error instanceof Error ? error.message : 'Token refresh failed',
+        error: errorMessage,
       };
 
       // Invalid token should return 401
-      if (error instanceof Error && error.message === 'Invalid refresh token') {
+      if (errorMessage === 'Invalid refresh token') {
         return res.status(401).json(errorResponse);
       }
 

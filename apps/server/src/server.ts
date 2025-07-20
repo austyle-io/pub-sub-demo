@@ -3,6 +3,8 @@ import http from 'node:http';
 import cors from 'cors';
 import express, { type Express } from 'express';
 import passport from 'passport';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import authRoutes from './routes/auth.routes';
 import docRoutes from './routes/doc.routes';
 import { initializeShareDB } from './services/sharedb.service';
@@ -14,6 +16,47 @@ import { connectToDatabase } from './utils/database';
 const app: Express = express();
 const PORT = process.env['PORT'] ?? 3001;
 const shareDBService = initializeShareDB();
+
+// Security headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-eval'"], // For dev only
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'", "ws://localhost:3001"], // WebSocket
+    },
+  },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  }
+}));
+
+// Rate limiting
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // limit each IP to 5 auth requests per windowMs
+  message: 'Too many authentication attempts',
+  skipSuccessfulRequests: true,
+});
+
+app.use('/api/', generalLimiter);
+app.use('/api/auth/', authLimiter);
+
+// Request size limits
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Middleware
 app.use(
