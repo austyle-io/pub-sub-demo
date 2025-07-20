@@ -39,6 +39,8 @@ export function configurePassport(): void {
 }
 
 // Type augmentation for Express Request
+// Note: TypeScript requires 'interface' for declaration merging.
+// This is the only valid way to extend Express types.
 declare global {
   namespace Express {
     interface User extends JwtPayload {}

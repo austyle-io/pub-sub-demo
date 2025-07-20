@@ -11,18 +11,16 @@
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
     "test": "turbo run test",
-    "lint": "turbo run lint",
-    "type-check": "turbo run type-check",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "generate:openapi": "pnpm --filter @collab-edit/shared run generate:openapi",
-    "docs:jsdoc": "jsdoc -c jsdoc.json"
+    "lint": "biome check .",
+    "lint:fix": "biome check --apply .",
+    "format": "biome format --write .",
+    "generate:openapi": "pnpm --filter @collab-edit/shared run generate:openapi"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.1.2",
+    "@types/sharedb": "^5.1.0",
     "turbo": "^2.3.3",
-    "prettier": "^3.4.2",
-    "typescript": "^5.7.2",
-    "jsdoc": "^4.0.2"
+    "typescript": "^5.7.2"
   },
   "engines": {
     "node": ">=18.0.0",

@@ -4,13 +4,13 @@ import { parse } from 'node:url';
 import type { JwtPayload } from '@collab-edit/shared';
 import { verifyAccessToken } from '@collab-edit/shared';
 
-export interface AuthenticatedRequest extends IncomingMessage {
+export type AuthenticatedRequest = IncomingMessage & {
   user?: {
     sub: string;
     email: string;
     role: string;
   };
-}
+};
 
 export function authenticateWebSocket(
   req: IncomingMessage,

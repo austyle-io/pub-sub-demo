@@ -10,22 +10,34 @@ import {
   authenticateWebSocket,
 } from '../middleware/websocket-auth';
 import { checkDocumentPermission } from '../utils/permissions';
+import type { 
+  ShareDB as ShareDBType, 
+  Context, 
+  ShareDBConstructor,
+  ShareDBMongoFactory,
+  WebSocketJSONStreamConstructor
+} from '../types/sharedb';
 
 let shareDBService: ShareDBService;
+
+// Type assertions for untyped modules
+const ShareDBClass = ShareDB as unknown as ShareDBConstructor;
+const shareDBMongo = ShareDBMongo as unknown as ShareDBMongoFactory;
+const WSJSONStream = WebSocketJSONStream as unknown as WebSocketJSONStreamConstructor;
 
 /**
  * Service to configure and attach ShareDB for real-time document collaboration.
  */
 export class ShareDBService {
-  private backend: ShareDB;
+  private backend: ShareDBType;
   private wss: WebSocketServer;
 
   constructor() {
     // Initialize ShareDB with MongoDB
     const mongoUrl =
       process.env['MONGO_URL'] || 'mongodb://localhost:27017/collab_demo';
-    this.backend = new ShareDB({
-      db: ShareDBMongo(mongoUrl),
+    this.backend = new ShareDBClass({
+      db: shareDBMongo(mongoUrl),
     });
 
     // Create WebSocket server
@@ -40,9 +52,9 @@ export class ShareDBService {
    */
   private setupMiddleware(): void {
     // Connect middleware - attach user info to agent
-    this.backend.use('connect', (context, next) => {
-      const req = context.req as AuthenticatedRequest;
-      if (req.user) {
+    this.backend.use('connect', (context: Context, next) => {
+      const req = context.req as AuthenticatedRequest | undefined;
+      if (req?.user && context.agent.custom) {
         context.agent.custom = {
           userId: req.user.sub,
           email: req.user.email,
@@ -53,8 +65,9 @@ export class ShareDBService {
     });
 
     // Submit middleware - check write permissions
-    this.backend.use('submit', async (context, next) => {
-      const { userId, role } = context.agent.custom || {};
+    this.backend.use('submit', async (context: Context, next) => {
+      const customData = context.agent.custom as { userId?: string; role?: string } | undefined;
+      const { userId, role } = customData || {};
 
       if (!userId) {
         return next(new Error('Unauthorized: No user ID'));
@@ -81,8 +94,9 @@ export class ShareDBService {
     });
 
     // Read middleware - check read permissions
-    this.backend.use('readSnapshots', async (context, next) => {
-      const { userId, role } = context.agent.custom || {};
+    this.backend.use('readSnapshots', async (context: Context, next) => {
+      const customData = context.agent.custom as { userId?: string; role?: string } | undefined;
+      const { userId, role } = customData || {};
 
       if (!userId) {
         return next(new Error('Unauthorized: No user ID'));
@@ -135,7 +149,7 @@ export class ShareDBService {
 
     // Handle WebSocket connections
     this.wss.on('connection', (ws: WebSocket, req: AuthenticatedRequest) => {
-      const stream = new WebSocketJSONStream(ws);
+      const stream = new WSJSONStream(ws);
       this.backend.listen(stream, req);
     });
   }
@@ -144,7 +158,7 @@ export class ShareDBService {
    * Access the underlying ShareDB backend instance.
    * @returns configured ShareDB backend
    */
-  getShareDB(): ShareDB {
+  getShareDB(): ShareDBType {
     return this.backend;
   }
 }
@@ -156,7 +170,7 @@ export function initializeShareDB(): ShareDBService {
   return shareDBService;
 }
 
-export function getShareDB(): ShareDB {
+export function getShareDB(): ShareDBType {
   if (!shareDBService) {
     throw new Error('ShareDB service has not been initialized');
   }

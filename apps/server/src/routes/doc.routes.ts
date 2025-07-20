@@ -10,6 +10,15 @@ import { authenticate } from '../middleware/passport';
 import { getShareDB } from '../services/sharedb.service';
 import { getDatabase } from '../utils/database';
 import { checkDocumentPermission } from '../utils/permissions';
+import type { Op } from '../types/sharedb';
+
+// Type for ShareDB documents stored in MongoDB
+type ShareDBDocument = {
+  _id: string;
+  _v: number;
+  _type: string;
+  data: Document;
+};
 
 const router: Router = Router();
 
@@ -97,13 +106,16 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       .toArray();
 
     // Transform the ShareDB document format to our API format
-    const formattedDocs = documents.map((doc) => ({
-      id: doc['data'].id,
-      title: doc['data'].title,
-      createdAt: doc['data'].createdAt,
-      updatedAt: doc['data'].updatedAt,
-      isOwner: doc['data'].acl.owner === req.user?.sub,
-    }));
+    const formattedDocs = documents.map((doc) => {
+      const shareDoc = doc as unknown as ShareDBDocument;
+      return {
+        id: shareDoc.data.id,
+        title: shareDoc.data.title,
+        createdAt: shareDoc.data.createdAt,
+        updatedAt: shareDoc.data.updatedAt,
+        isOwner: shareDoc.data.acl.owner === req.user?.sub,
+      };
+    });
 
     return res.json(formattedDocs);
   } catch (error) {
@@ -142,7 +154,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
   const doc = connection.get('documents', id);
 
   return new Promise<void>((resolve) => {
-    doc.fetch((err: Error) => {
+    doc.fetch((err?: Error) => {
       if (err) {
         console.error('Failed to fetch document:', err);
         res.status(500).json({ message: 'Failed to fetch document' });
@@ -198,7 +210,7 @@ router.patch('/:id', authenticate, async (req: Request, res: Response) => {
   const doc = connection.get('documents', id);
 
   return new Promise<void>((resolve) => {
-    doc.fetch((err: Error) => {
+    doc.fetch((err?: Error) => {
       if (err) {
         console.error('Failed to fetch document:', err);
         res.status(500).json({ message: 'Failed to fetch document' });
@@ -213,9 +225,10 @@ router.patch('/:id', authenticate, async (req: Request, res: Response) => {
       }
 
       // Update title and updatedAt timestamp
-      const op = [
-        { p: ['title'], od: doc.data.title, oi: title },
-        { p: ['updatedAt'], od: doc.data.updatedAt, oi: new Date().toISOString() },
+      const docData = doc.data as Document;
+      const op: Op[] = [
+        { p: ['title'], od: docData.title, oi: title },
+        { p: ['updatedAt'], od: docData.updatedAt, oi: new Date().toISOString() },
       ];
 
       doc.submitOp(op, (submitErr) => {
@@ -248,14 +261,14 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
 
   // Only owners and admins can delete documents
   const db: Db = getDatabase();
-  const collection = db.collection('o_documents');
+  const collection = db.collection<ShareDBDocument>('o_documents');
   const docData = await collection.findOne({ 'data.id': id });
 
   if (!docData) {
     return res.status(404).json({ message: 'Document not found' });
   }
 
-  const isOwner = docData['data']?.acl?.owner === req.user.sub;
+  const isOwner = docData.data.acl.owner === req.user.sub;
   const isAdmin = req.user.role === 'admin';
 
   if (!isOwner && !isAdmin) {
@@ -267,7 +280,7 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   const doc = connection.get('documents', id);
 
   return new Promise<void>((resolve) => {
-    doc.del((err: Error) => {
+    doc.del((err?: Error) => {
       if (err) {
         console.error('Failed to delete document:', err);
         res.status(500).json({ message: 'Failed to delete document' });
@@ -303,14 +316,14 @@ router.put('/:id/permissions', authenticate, async (req: Request, res: Response)
 
   // Only owners and admins can change permissions
   const db: Db = getDatabase();
-  const collection = db.collection('o_documents');
+  const collection = db.collection<ShareDBDocument>('o_documents');
   const docData = await collection.findOne({ 'data.id': id });
 
   if (!docData) {
     return res.status(404).json({ message: 'Document not found' });
   }
 
-  const isOwner = docData['data']?.acl?.owner === req.user.sub;
+  const isOwner = docData.data.acl.owner === req.user.sub;
   const isAdmin = req.user.role === 'admin';
 
   if (!isOwner && !isAdmin) {
@@ -322,7 +335,7 @@ router.put('/:id/permissions', authenticate, async (req: Request, res: Response)
   const doc = connection.get('documents', id);
 
   return new Promise<void>((resolve) => {
-    doc.fetch((err: Error) => {
+    doc.fetch((err?: Error) => {
       if (err) {
         console.error('Failed to fetch document:', err);
         res.status(500).json({ message: 'Failed to fetch document' });
@@ -337,10 +350,11 @@ router.put('/:id/permissions', authenticate, async (req: Request, res: Response)
       }
 
       // Update ACL
-      const op = [
-        { p: ['acl', 'editors'], od: doc.data.acl.editors, oi: editors },
-        { p: ['acl', 'viewers'], od: doc.data.acl.viewers, oi: viewers },
-        { p: ['updatedAt'], od: doc.data.updatedAt, oi: new Date().toISOString() },
+      const docData = doc.data as Document;
+      const op: Op[] = [
+        { p: ['acl', 'editors'], od: docData.acl.editors, oi: editors },
+        { p: ['acl', 'viewers'], od: docData.acl.viewers, oi: viewers },
+        { p: ['updatedAt'], od: docData.updatedAt, oi: new Date().toISOString() },
       ];
 
       doc.submitOp(op, (submitErr) => {
