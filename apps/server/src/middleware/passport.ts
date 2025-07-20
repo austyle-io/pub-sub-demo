@@ -1,15 +1,7 @@
-import type { JwtPayload } from '@collab-edit/shared';
+import { type JwtPayload, getAccessTokenSecret } from '@collab-edit/shared';
 import type { NextFunction, Request, Response } from 'express';
 import passport from 'passport';
 import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
-
-const getSecret = (): string => {
-  const secret = process.env['JWT_SECRET'];
-  if (!secret) {
-    throw new Error('JWT_SECRET environment variable is not set');
-  }
-  return secret;
-};
 
 let isConfigured = false;
 
@@ -18,7 +10,7 @@ export function configurePassport(): void {
 
   const jwtOptions = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-    secretOrKey: getSecret(),
+    secretOrKey: getAccessTokenSecret(),
     issuer: 'collab-edit',
     audience: 'collab-edit-api',
   };

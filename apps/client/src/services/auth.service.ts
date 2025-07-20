@@ -97,6 +97,10 @@ class AuthService {
     this.clearTokens();
   }
 
+  getAccessToken(): string | null {
+    return sessionStorage.getItem('accessToken');
+  }
+
   getStoredTokens(): {
     accessToken: string | null;
     refreshToken: string | null;

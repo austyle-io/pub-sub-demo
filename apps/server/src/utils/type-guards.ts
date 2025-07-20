@@ -1,4 +1,4 @@
-import type { Document } from '@collab-edit/shared';
+import { isDocument, isValidDocumentData } from '@collab-edit/shared';
 import isNil from 'lodash.isnil';
 import isObject from 'lodash.isobject';
 import isString from 'lodash.isstring';
@@ -8,24 +8,7 @@ import type { AuthenticatedRequest } from '../middleware/websocket-auth';
 /**
  * Type guard to check if an unknown value is a Document
  */
-export function isDocument(value: unknown): value is Document {
-  if (isNil(value) || !isObject(value)) {
-    return false;
-  }
-
-  // Safe assertion after type checking
-  const doc = value as Record<string, unknown>;
-
-  return (
-    isString(doc['id']) &&
-    isString(doc['title']) &&
-    isString(doc['content']) &&
-    !isNil(doc['acl']) &&
-    isObject(doc['acl']) &&
-    isString(doc['createdAt']) &&
-    isString(doc['updatedAt'])
-  );
-}
+export { isDocument };
 
 /**
  * Runtime type guard for ShareDB Context from unknown middleware parameter
@@ -120,7 +103,7 @@ export function isDocumentData(value: unknown): value is DocumentData {
  * Safe getter for document data with validation
  */
 export function getValidatedDocumentData(data: unknown): Document | null {
-  if (isDocument(data)) {
+  if (isValidDocumentData(data)) {
     return data;
   }
   return null;
@@ -132,7 +115,7 @@ export function getValidatedDocumentData(data: unknown): Document | null {
 export function createValidatedDocument(data: DocumentData): Document {
   const doc = data satisfies Record<string, unknown>;
 
-  if (isDocument(doc)) {
+  if (isValidDocumentData(doc)) {
     return doc;
   }
 
