@@ -1,12 +1,21 @@
+import { Outlet, useNavigate } from '@tanstack/react-router';
 import { LoginForm } from './components/LoginForm';
 import { UserInfo } from './components/UserInfo';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { useEffect } from 'react';
 
 /**
  * Main application content: handles authentication state and renders UI accordingly.
  */
 function AppContent(): JSX.Element {
   const { isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate({ to: '/documents' });
+    }
+  }, [isAuthenticated, navigate]);
 
   if (isLoading) {
     return (
@@ -21,10 +30,7 @@ function AppContent(): JSX.Element {
       {isAuthenticated ? (
         <>
           <UserInfo />
-          <div style={{ marginTop: '20px' }}>
-            <h2>Welcome to Collaborative Editor</h2>
-            <p>Create or select a document to start editing.</p>
-          </div>
+          <Outlet />
         </>
       ) : (
         <LoginForm />
