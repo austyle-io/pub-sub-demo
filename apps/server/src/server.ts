@@ -1,4 +1,9 @@
 import cookieParser from 'cookie-parser';
+import { validateEnvironment } from './config/env-validator';
+
+// Add at the very top, before other imports that might use env vars
+const config = validateEnvironment();
+
 import 'dotenv/config';
 import http from 'node:http';
 import cors from 'cors';
@@ -6,6 +11,7 @@ import express, { type Express } from 'express';
 import passport from 'passport';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth.routes';
 import docRoutes from './routes/doc.routes';
 import { initializeShareDB } from './services/sharedb.service';
