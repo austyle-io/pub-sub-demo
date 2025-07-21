@@ -127,6 +127,10 @@ export function validateEnv(): Env {
     return 'development';
   })();
 
+  // Set the JWT secrets in process.env for shared package to access
+  process.env['JWT_ACCESS_SECRET'] = finalAccessSecret;
+  process.env['JWT_REFRESH_SECRET'] = finalRefreshSecret;
+
   const validatedConfig: Env = {
     JWT_ACCESS_SECRET: finalAccessSecret,
     JWT_REFRESH_SECRET: finalRefreshSecret,

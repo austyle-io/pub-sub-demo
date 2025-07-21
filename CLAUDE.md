@@ -43,6 +43,9 @@ Comprehensive coding standards (41 rule files)
 - Node.js v24 has stricter ESM resolution rules
 - bcrypt native bindings cause issues when imported in client bundle
 - Environment variables not loading due to import order in server.ts
+- ES module imports require .js extension in TypeScript compiled output
+- Shared package subpath exports not resolving correctly
+- JWT env vars not accessible to shared package utilities
 
 **Solutions Applied:**
 - Removed vite-tsconfig-paths from client dependencies
@@ -52,6 +55,16 @@ Comprehensive coding standards (41 rule files)
 - Cleaned up client package.json to remove all server-specific dependencies
 - Added .env file to server directory for proper env loading
 - Created docker-compose.yml for consistent development environment
+- Added .js extension to ES module imports in server.ts
+- Set JWT_ACCESS_SECRET and JWT_REFRESH_SECRET in process.env from single JWT_SECRET
+- Used direct import path for password utilities as temporary workaround
+
+**Authentication Implementation Lessons:**
+- JWT utilities in shared package need access to process.env variables
+- Server env validation must set process.env values for shared package to access
+- Error sanitization can hide real issues during development
+- Rate limiting can interfere with auth endpoint tests
+- ShareDB authorization requires proper user context on WebSocket connections
 
 ## Core TypeScript/JavaScript Patterns (16 rules)
 

@@ -6,6 +6,7 @@ const SAFE_ERROR_MESSAGES = {
   'Insufficient permissions': 'Access denied',
   'Document not found': 'Document not found',
   'Network error': 'Connection error',
+  'User already exists': 'User already exists',
 } as const;
 
 type SafeErrorKey = keyof typeof SAFE_ERROR_MESSAGES;

@@ -50,6 +50,9 @@ router.post(
       const authResponse = await authService.createUser(req.body);
       return res.status(201).json(authResponse);
     } catch (error) {
+      // Temporary logging for debugging
+      console.error('Signup error:', error);
+      
       const errorMessage = sanitizeApiError(error);
       const errorResponse: ErrorResponse = {
         error: errorMessage,

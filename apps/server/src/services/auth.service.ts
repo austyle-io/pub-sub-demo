@@ -9,7 +9,8 @@ import {
   type User,
   verifyRefreshToken,
 } from '@collab-edit/shared';
-import { hashPassword, verifyPassword } from '@collab-edit/shared/server';
+// Import password utilities directly
+import { hashPassword, verifyPassword } from '../../node_modules/@collab-edit/shared/dist/auth/password.js';
 import { getUsersCollection } from '../utils/database';
 
 export class AuthService {

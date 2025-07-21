@@ -3,4 +3,4 @@
  * These should NOT be imported by client applications
  */
 
-export * from './auth/password';
+export * from './auth/password.js';
