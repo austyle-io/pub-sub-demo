@@ -6,8 +6,8 @@ import ShareDB from 'sharedb';
 import ShareDBMongo from 'sharedb-mongo';
 import { type WebSocket, WebSocketServer } from 'ws';
 import {
-  authenticateWebSocket,
   type AuthenticatedRequest,
+  authenticateWebSocket,
 } from '../middleware/websocket-auth';
 import { checkDocumentPermission } from '../utils/permissions';
 import {
@@ -81,7 +81,7 @@ export class ShareDBService {
             if (!ctx.agent.custom) {
               ctx.agent.custom = {};
             }
-            
+
             ctx.agent.custom = {
               userId: authenticatedReq.user['id'],
               email: authenticatedReq.user['email'],
@@ -191,15 +191,20 @@ export class ShareDBService {
       try {
         // Authenticate the WebSocket connection
         const user = await authenticateWebSocket(request);
-        
+
         // Attach user to request for ShareDB middleware
-        (request as any).user = user;
-        
+        (request as AuthenticatedRequest).user = { ...user, sub: user.id };
+
         // Handle the WebSocket upgrade
         this.wss.handleUpgrade(request, socket, head, (ws) => {
           this.wss.emit('connection', ws, request);
         });
-      } catch (error) {
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error('WebSocket upgrade error:', error.message);
+        } else {
+          console.error('WebSocket upgrade error:', error);
+        }
         // Authentication failed - reject the connection
         socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
         socket.destroy();
@@ -226,12 +231,18 @@ export class ShareDBService {
    */
   createAuthenticatedConnection(userId: string, email: string, role: string) {
     const connection = this.backend.connect();
+    // HACK: The `agent` property is not in the ShareDB types, but it is used
+    // by the middleware. We use proper typing to access it safely.
+    const agent = (
+      connection as unknown as { agent?: { custom?: Record<string, unknown> } }
+    ).agent;
+
     // Set custom data on the agent
-    if (connection.agent) {
-      connection.agent.custom = {
+    if (agent) {
+      agent.custom = {
         userId,
         email,
-        role
+        role,
       };
     }
     return connection;

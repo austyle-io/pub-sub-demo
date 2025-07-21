@@ -3,6 +3,7 @@ import { signAccessToken } from '@collab-edit/shared';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { app, server } from '../server';
+import { closeDatabaseConnection, connectToDatabase } from '../utils/database';
 import { isMongoDbAvailable } from './test-helpers';
 
 const mongoDbAvailable = await isMongoDbAvailable();
@@ -12,19 +13,20 @@ let ownerToken: string;
 let viewerToken: string;
 let unauthorizedToken: string;
 
-afterAll(() => {
+afterAll(async () => {
+  await closeDatabaseConnection();
   server.close();
 });
 
-beforeAll(() => {
+beforeAll(async () => {
   // Environment variables are set globally in setup.ts
+  await connectToDatabase();
 
   // Editor token
   const payload: JwtPayload = {
     sub: '123e4567-e89b-12d3-a456-426614174000',
     email: 'test@example.com',
     role: 'editor',
-    exp: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
     iat: Math.floor(Date.now() / 1000),
   };
   token = signAccessToken(payload);
@@ -34,7 +36,6 @@ beforeAll(() => {
     sub: '123e4567-e89b-12d3-a456-426614174001',
     email: 'owner@example.com',
     role: 'editor',
-    exp: Math.floor(Date.now() / 1000) + 60 * 60,
     iat: Math.floor(Date.now() / 1000),
   };
   ownerToken = signAccessToken(ownerPayload);
@@ -93,6 +94,8 @@ describe.skipIf(!mongoDbAvailable)('GET /api/documents/:id/permissions', () => {
         editors: [],
         viewers: ['123e4567-e89b-12d3-a456-426614174002'], // viewer user ID
       });
+
+    // ShareDB-based permission checking eliminates the need for delays
   });
 
   it('should return permissions for document owner', async () => {

@@ -9,6 +9,7 @@ import {
 } from '@collab-edit/shared';
 import { type Request, type Response, Router } from 'express';
 import { AuthService } from '../services/auth.service';
+import { authLogger } from '../services/logger';
 import { validateEnv } from '../types/env';
 
 /**
@@ -48,11 +49,29 @@ router.post(
 
       // Create user - type guard ensures type safety
       const authResponse = await authService.createUser(req.body);
-      return res.status(201).json(authResponse);
+
+      // Set HTTP-only cookie for refresh token
+      res.cookie('refreshToken', authResponse.refreshToken, {
+        httpOnly: true,
+        secure: env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: '/api/auth/refresh',
+      });
+
+      // Return only access token to client (consistent with login)
+      return res.status(201).json({
+        accessToken: authResponse.accessToken,
+        user: authResponse.user,
+      });
     } catch (error) {
-      // Temporary logging for debugging
-      console.error('Signup error:', error);
-      
+      // Structured logging for signup errors
+      authLogger.error('Signup failed', {
+        email: req.body?.email,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+
       const errorMessage = sanitizeApiError(error);
       const errorResponse: ErrorResponse = {
         error: errorMessage,

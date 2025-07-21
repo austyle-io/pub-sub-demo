@@ -131,7 +131,7 @@ export function DocumentEditor(): React.JSX.Element {
           od: doc.data.title ?? '', // Object delete (old value)
         },
       ];
-      
+
       try {
         doc.submitOp(op);
       } catch (error) {
@@ -154,7 +154,7 @@ export function DocumentEditor(): React.JSX.Element {
           od: doc.data.content ?? '', // Object delete (old value)
         },
       ];
-      
+
       try {
         doc.submitOp(op);
       } catch (error) {

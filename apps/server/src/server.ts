@@ -1,19 +1,19 @@
-import 'dotenv/config';
-import { validateEnv } from './types/env';
+import "dotenv/config";
+import http from "node:http";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import express, { type Express } from "express";
+import rateLimit from "express-rate-limit";
+import helmet from "helmet";
+import passport from "passport";
+import authRoutes from "./routes/auth.routes";
+import docRoutes from "./routes/doc.routes";
+import { initializeShareDB } from "./services/sharedb.service";
+import { validateEnv } from "./types/env";
+import { connectToDatabase } from "./utils/database";
 
 // Validate and get typed environment variables at startup
 const env = validateEnv();
-import http from 'node:http';
-import cookieParser from 'cookie-parser';
-import cors from 'cors';
-import express, { type Express } from 'express';
-import rateLimit from 'express-rate-limit';
-import helmet from 'helmet';
-import passport from 'passport';
-import authRoutes from './routes/auth.routes';
-import docRoutes from './routes/doc.routes';
-import { initializeShareDB } from './services/sharedb.service';
-import { connectToDatabase } from './utils/database';
 
 /**
  * Main Express application. Sets up middleware, routes, and ShareDB server.
@@ -30,8 +30,8 @@ app.use(
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", "'unsafe-eval'"], // For dev only
         styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", 'data:', 'https:'],
-        connectSrc: ["'self'", 'ws://localhost:3001'], // WebSocket
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'", "ws://localhost:3001"], // WebSocket
       },
     },
     hsts: {
@@ -39,38 +39,42 @@ app.use(
       includeSubDomains: true,
       preload: true,
     },
-  }),
+  })
 );
 
-// Rate limiting
+// Rate limiting - more lenient in test environment
+const isTestEnvironment = env.NODE_ENV === "test";
+
 const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP',
+  windowMs: isTestEnvironment ? 1000 : 15 * 60 * 1000, // 1 second in tests, 15 minutes in production
+  max: isTestEnvironment ? 1000 : 100, // Much higher limit in tests
+  message: "Too many requests from this IP",
   standardHeaders: true,
   legacyHeaders: false,
+  skip: isTestEnvironment ? () => true : undefined, // Skip rate limiting in tests
 });
 
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // limit each IP to 5 auth requests per windowMs
-  message: 'Too many authentication attempts',
+  windowMs: isTestEnvironment ? 1000 : 15 * 60 * 1000, // 1 second in tests, 15 minutes in production
+  max: isTestEnvironment ? 100 : 5, // Much higher limit in tests
+  message: "Too many authentication attempts",
   skipSuccessfulRequests: true,
+  skip: isTestEnvironment ? () => true : undefined, // Skip rate limiting in tests
 });
 
-app.use('/api/', generalLimiter);
-app.use('/api/auth/', authLimiter);
+app.use("/api/", generalLimiter);
+app.use("/api/auth/", authLimiter);
 
 // Request size limits
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 // Middleware
 app.use(
   cors({
     origin: env.CLIENT_URL,
     credentials: true,
-  }),
+  })
 );
 app.use(cookieParser());
 app.use(express.json());
@@ -79,12 +83,12 @@ app.use(passport.initialize());
 // Passport will be configured on first use
 
 // Routes
-app.get('/health', (_req, res) => {
-  res.json({ status: 'ok', environment: 'development' });
+app.get("/health", (_req, res) => {
+  res.json({ status: "ok", environment: "development" });
 });
 
-app.use('/api/auth', authRoutes);
-app.use('/api/documents', docRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/documents", docRoutes);
 
 const server = http.createServer(app);
 
@@ -105,7 +109,7 @@ async function startServer(): Promise<void> {
       console.log(`WebSocket server ready for ShareDB connections`);
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error("Failed to start server:", error);
     process.exit(1);
   }
 }

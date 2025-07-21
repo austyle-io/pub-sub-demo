@@ -69,10 +69,27 @@ Comprehensive coding standards (41 rule files)
 - Added .env file to server directory for proper env loading
 - Created docker-compose.yml for consistent development environment
 - Added .js extension to ES module imports in server.ts
-- Set JWT_ACCESS_SECRET and JWT_REFRESH_SECRET in process.env from single JWT_SECRET
-- Used direct import path for password utilities as temporary workaround
+- Set JWT_ACCESS_SECRET and JWT_REFR
 
-**Authentication Implementation Lessons:**
+### Key Lessons Learned (2025-01-21):
+1. **ShareDB Authorization Architecture**
+   - Backend connections need explicit user context
+   - Must initialize agent.custom before setting properties
+   - Create separate methods for authenticated backend connections
+
+2. **ShareDB Document Structure**
+   - Initial create operations store data in `create.data`
+   - Document ID is in root `d` field, not nested
+   - Queries must match exact storage structure
+   - Documents can have data in either `create.data` or `data` field depending on lifecycle
+
+3. **Debugging Approach**
+   - Direct MongoDB queries essential for understanding data structure
+   - Add logging at each transformation step
+   - Test API endpoints in isolation before integration tests
+   - Use try-catch in array transformations to handle partial failures
+
+### Authentication Implementation Lessons:
 - JWT utilities in shared package need access to process.env variables
 - Server env validation must set process.env values for shared package to access
 - Error sanitization can hide real issues during development
@@ -87,6 +104,19 @@ Comprehensive coding standards (41 rule files)
 - Use try-catch in array transformations to handle partial failures
 - Log transformation errors for debugging empty API responses
 - Test with direct database queries to verify data structure
+
+### Testing Environment Configuration (2025-01-21):
+**Rate Limiting Resolution:**
+- Rate limiting middleware must be conditionally applied based on NODE_ENV
+- Test environment requires `NODE_ENV=test` to bypass rate limiting
+- Created helper scripts for consistent test execution
+- Rate limiting was blocking authentication tests with 429 errors
+
+**Document API Fixes:**
+- Fixed list documents endpoint to properly query ShareDB structure
+- Corrected document transformation to handle both `create.data` and `data` fields
+- Added extensive logging for debugging empty API responses
+- Fixed permission queries to use correct document ID field (`d` not `_id`)
 
 ## Core TypeScript/JavaScript Patterns (16 rules)
 

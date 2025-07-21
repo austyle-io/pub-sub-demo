@@ -5,7 +5,7 @@ async function test() {
   // Create a new user
   const timestamp = Date.now();
   const email = `testuser${timestamp}@example.com`;
-  
+
   console.log('1. Registering user:', email);
   const regRes = await fetch(`${baseUrl}/auth/register`, {
     method: 'POST',
@@ -13,52 +13,52 @@ async function test() {
     body: JSON.stringify({
       email,
       password: 'Secure123!',
-      role: 'editor'
-    })
+      role: 'editor',
+    }),
   });
-  
+
   if (!regRes.ok) {
     console.error('Registration failed:', await regRes.text());
     return;
   }
-  
+
   const { accessToken, user } = await regRes.json();
   console.log('   ✓ Registered, userId:', user.id);
-  
+
   // Create a document
   console.log('\n2. Creating document...');
   const createRes = await fetch(`${baseUrl}/documents`, {
     method: 'POST',
-    headers: { 
+    headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${accessToken}`
+      Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify({
       title: 'Test Doc',
-      content: 'Test content'
-    })
+      content: 'Test content',
+    }),
   });
-  
+
   if (!createRes.ok) {
     console.error('Create failed:', await createRes.text());
     return;
   }
-  
+
   const doc = await createRes.json();
   console.log('   ✓ Created document:', doc.id);
-  
+
   // List documents
   console.log('\n3. Listing documents...');
   const listRes = await fetch(`${baseUrl}/documents`, {
-    headers: { 
-      'Authorization': `Bearer ${accessToken}`
-    }
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
   });
-  
+
   console.log('   Status:', listRes.status);
   const listText = await listRes.text();
   console.log('   Response:', listText);
-  
+
   try {
     const list = JSON.parse(listText);
     console.log('   Parsed count:', list.length);

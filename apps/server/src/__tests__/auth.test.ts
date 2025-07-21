@@ -41,11 +41,17 @@ describe.skipIf(!mongoDbAvailable)('Auth Endpoints', () => {
         .expect(201);
 
       expect(res.body).toHaveProperty('accessToken');
-      expect(res.body).toHaveProperty('refreshToken');
       expect(res.body).toHaveProperty('user');
       expect(res.body.user.email).toBe(newUser.email);
       expect(res.body.user.role).toBe('editor');
       expect(res.body.user).not.toHaveProperty('password');
+
+      // Check that refresh token is set as HTTP-only cookie
+      const cookies = res.headers['set-cookie'] as string[] | undefined;
+      const refreshTokenCookie = cookies?.find((cookie: string) =>
+        cookie.startsWith('refreshToken='),
+      );
+      expect(refreshTokenCookie).toBeDefined();
     });
 
     it('should reject duplicate email', async () => {
@@ -113,9 +119,15 @@ describe.skipIf(!mongoDbAvailable)('Auth Endpoints', () => {
         .expect(200);
 
       expect(res.body).toHaveProperty('accessToken');
-      expect(res.body).toHaveProperty('refreshToken');
       expect(res.body).toHaveProperty('user');
       expect(res.body.user.email).toBe(loginData.email);
+
+      // Check that refresh token is set as HTTP-only cookie
+      const cookies = res.headers['set-cookie'] as string[] | undefined;
+      const refreshTokenCookie = cookies?.find((cookie: string) =>
+        cookie.startsWith('refreshToken='),
+      );
+      expect(refreshTokenCookie).toBeDefined();
     });
 
     it('should reject invalid password', async () => {
@@ -154,27 +166,44 @@ describe.skipIf(!mongoDbAvailable)('Auth Endpoints', () => {
         })
         .expect(201);
 
-      const { refreshToken } = loginRes.body;
+      // Extract refresh token from cookie
+      const cookies = loginRes.headers['set-cookie'] as string[] | undefined;
+      const refreshTokenCookie = cookies?.find((cookie: string) =>
+        cookie.startsWith('refreshToken='),
+      );
+      expect(refreshTokenCookie).toBeDefined();
 
-      // Refresh tokens
+      // Wait 1 second to ensure different iat timestamp
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Refresh tokens using cookie
+      if (!refreshTokenCookie) {
+        throw new Error('refreshTokenCookie not found');
+      }
+
       const res = await request(app)
         .post('/api/auth/refresh')
-        .send({ refreshToken })
+        .set('Cookie', refreshTokenCookie)
         .expect(200);
 
       expect(res.body).toHaveProperty('accessToken');
-      expect(res.body).toHaveProperty('refreshToken');
       expect(res.body).toHaveProperty('user');
 
-      // New tokens should be different
+      // New access token should be different
       expect(res.body.accessToken).not.toBe(loginRes.body.accessToken);
-      expect(res.body.refreshToken).not.toBe(loginRes.body.refreshToken);
+
+      // Should set a new refresh token cookie
+      const newCookies = res.headers['set-cookie'] as string[] | undefined;
+      const newRefreshTokenCookie = newCookies?.find((cookie: string) =>
+        cookie.startsWith('refreshToken='),
+      );
+      expect(newRefreshTokenCookie).toBeDefined();
     });
 
     it('should reject invalid refresh token', async () => {
       const res = await request(app)
         .post('/api/auth/refresh')
-        .send({ refreshToken: 'invalid-token' })
+        .set('Cookie', 'refreshToken=invalid-token')
         .expect(401);
 
       expect(res.body.error).toBe('Invalid refresh token');
