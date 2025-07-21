@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import {
   type AuthResponse,
   type CreateUserRequest,
@@ -10,7 +11,6 @@ import {
   verifyPassword,
   verifyRefreshToken,
 } from '@collab-edit/shared';
-import { v4 as uuidv4 } from 'uuid';
 import { getUsersCollection } from '../utils/database';
 
 export class AuthService {
@@ -28,7 +28,7 @@ export class AuthService {
     const now = new Date().toISOString();
 
     const newUser: User = {
-      id: uuidv4(),
+      id: randomUUID(),
       email: data.email,
       password: hashedPassword,
       role: 'editor', // Default role

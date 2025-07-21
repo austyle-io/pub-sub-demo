@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import {
   type Document,
   validateCreateDocumentRequest,
@@ -5,7 +6,6 @@ import {
 } from '@collab-edit/shared';
 import { type Request, type Response, Router } from 'express';
 import type { Db } from 'mongodb';
-import { v4 as uuid } from 'uuid';
 import { authenticate } from '../middleware/passport';
 import { getShareDB } from '../services/sharedb.service';
 import type { Op } from '../types/sharedb';
@@ -35,7 +35,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
 
   const shareDB = getShareDB();
   const connection = shareDB.connect();
-  const id = uuid();
+  const id = randomUUID();
   const doc = connection.get('documents', id);
 
   if (!req.user) {
