@@ -1,9 +1,8 @@
+import 'dotenv/config';
 import { validateEnv } from './types/env';
 
 // Validate and get typed environment variables at startup
 const env = validateEnv();
-
-import 'dotenv/config';
 import http from 'node:http';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';

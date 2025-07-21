@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:5.0
+    container_name: collab-demo-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: collab_demo
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  server:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile.dev
+    container_name: collab-demo-server
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/workspace
+      - /workspace/node_modules
+    environment:
+      - JWT_SECRET=${JWT_SECRET:-dev-secret}
+      - MONGO_URL=mongodb://mongo:27017/collab_demo
+      - PORT=3001
+      - CLIENT_URL=http://localhost:3000
+      - NODE_ENV=development
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  client:
+    build:
+      context: .
+      dockerfile: apps/client/Dockerfile.dev
+    container_name: collab-demo-client
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/workspace
+      - /workspace/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:3001/api
+      - NODE_ENV=development
+    depends_on:
+      - server
+
+volumes:
+  mongo-data:
