@@ -1,73 +1,85 @@
-import type {
-  CreateUserRequest,
-  LoginRequest,
-  RefreshTokenRequest,
-  JwtPayload,
-  AuthResponse,
-  User,
-} from "./schemas";
+import isNil from 'lodash.isnil';
+import isObject from 'lodash.isobject';
+import isString from 'lodash.isstring';
 import {
   validateCreateUserRequest,
   validateLoginRequest,
   validateRefreshTokenRequest,
-} from "../validation";
-import isNil from "lodash.isnil";
-import isObject from "lodash.isobject";
-import isString from "lodash.isstring";
+} from '../validation';
+import type {
+  AuthResponse,
+  CreateUserRequest,
+  JwtPayload,
+  LoginRequest,
+  RefreshTokenRequest,
+  User,
+} from './schemas';
 
 /**
- * Runtime type guard for JWT payload from JSON.parse
+ * Runtime type guard for JWT payload objects.
  */
 export function isJwtPayload(value: unknown): value is JwtPayload {
   if (isNil(value) || !isObject(value)) {
     return false;
   }
-
   const payload = value as Record<string, unknown>;
   return (
-    isString(payload["sub"]) &&
-    isString(payload["email"]) &&
-    isString(payload["role"]) &&
-    typeof payload["exp"] === "number" &&
-    typeof payload["iat"] === "number"
+    isString(payload['sub']) &&
+    isString(payload['email']) &&
+    isString(payload['role']) &&
+    typeof payload['exp'] === 'number' &&
+    typeof payload['iat'] === 'number'
   );
 }
 
 /**
- * Runtime type guard for API error responses
+ * Runtime type guard for generic API error objects.
  */
 export function isApiError(
-  value: unknown
+  value: unknown,
 ): value is { error: string; details?: unknown } {
-  if (isNil(value) || !isObject(value)) {
-    return false;
-  }
-
-  const error = value as Record<string, unknown>;
-  return isString(error["error"]);
+  return isObject(value) && isString((value as Record<string, unknown>)['error']);
 }
 
 /**
- * Runtime type guard for authentication response from API
+ * Runtime type guard for authentication responses.
  */
 export function isAuthResponse(value: unknown): value is AuthResponse {
-  if (isNil(value) || !isObject(value)) {
-    return false;
-  }
-
-  const response = value as Record<string, unknown>;
+  if (!isObject(value)) return false;
+  const resp = value as Record<string, unknown>;
   return (
-    isString(response["accessToken"]) &&
-    isString(response["refreshToken"]) &&
-    !isNil(response["user"]) &&
-    isObject(response["user"]) &&
-    isValidUser(response["user"])
+    isString(resp['accessToken']) &&
+    isString(resp['refreshToken']) &&
+    isValidUser(resp['user'])
   );
 }
 
-// Type guard validators
+//---------------------------------------------
+// Additional helpers / validators
+//---------------------------------------------
+export const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+export const isValidUser = (obj: unknown): obj is User => {
+  if (!isObject(obj)) return false;
+  const u = obj as Record<string, unknown>;
+  const id = u['id'];
+  const email = u['email'];
+  const role = u['role'];
+  return (
+    isString(id) &&
+    id.length > 0 &&
+    isString(email) &&
+    isValidEmail(email) &&
+    isString(role) &&
+    ['viewer', 'editor', 'owner', 'admin'].includes(role)
+  );
+};
+
 export function isCreateUserRequest(
-  value: unknown
+  value: unknown,
 ): value is CreateUserRequest {
   return validateCreateUserRequest(value);
 }
@@ -77,23 +89,7 @@ export function isLoginRequest(value: unknown): value is LoginRequest {
 }
 
 export function isRefreshTokenRequest(
-  value: unknown
+  value: unknown,
 ): value is RefreshTokenRequest {
   return validateRefreshTokenRequest(value);
 }
-
-export const isValidEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-};
-
-export const isValidUser = (obj: unknown): obj is User => {
-  if (!isObject(obj)) return false;
-
-  const user = obj as Record<string, unknown>;
-  return (
-    isString(user['id']) && user['id'].length > 0 &&
-    isString(user['email']) && isValidEmail(user['email'] as string) &&
-    isString(user['role']) && ['viewer', 'editor', 'owner', 'admin'].includes(user['role'] as string)
-  );
-};

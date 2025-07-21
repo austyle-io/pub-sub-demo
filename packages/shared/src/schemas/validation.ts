@@ -17,8 +17,10 @@ export const isValidDocumentData = (obj: unknown): obj is Document => {
 
   const doc = obj as Record<string, unknown>;
   return (
-    isString(doc['id']) && doc['id'].length > 0 &&
-    isString(doc['title']) && (doc['title'] as string).trim().length > 0 &&
+    isString(doc['id']) &&
+    (doc['id'] as string).length > 0 &&
+    isString(doc['title']) &&
+    (doc['title'] as string).trim().length > 0 &&
     isString(doc['content']) &&
     isValidACL(doc['acl'])
   );
