@@ -2,6 +2,44 @@
 
 Comprehensive coding standards (41 rule files)
 
+## Project-Specific Lessons Learned (2025-01-21)
+
+### ShareDB Real-time Implementation
+
+**WebSocket Authentication Pattern:**
+- Pass JWT tokens as query parameters for WebSocket connections: `ws://host?token=${token}`
+- Authenticate during the WebSocket upgrade handshake, not after connection
+- Reject unauthorized connections with proper HTTP response: `socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n')`
+
+**ShareDB OT Operations:**
+- Use json0 OT type for document operations
+- Operations require both `oi` (object insert) and `od` (object delete) for replacements
+- Path notation: `[{ p: ['fieldName'], oi: newValue, od: oldValue }]`
+- Always listen for 'op' events to sync remote changes
+
+**Module System Compatibility:**
+- Mixed ESM/CommonJS environments require careful package.json configuration
+- Use explicit exports field with both "require" and "import" entries
+- Remove "type": "module" when supporting CommonJS consumers
+- Build before running to ensure dist files exist
+
+**ShareDB Type Guards:**
+- ShareDB documents need runtime validation due to lack of TypeScript types
+- Check for required methods: `on`, `removeListener`, `submitOp`, `destroy`
+- Validate document data structure before use
+
+### Development Environment Issues
+
+**Known Problems:**
+- vite-tsconfig-paths v5 is ESM-only, incompatible with Vite's CommonJS config loading
+- tsx struggles with workspace package resolution in mixed module environments
+- Node.js v24 has stricter ESM resolution rules
+
+**Workarounds:**
+- Remove vite-tsconfig-paths from Vite config when it causes issues
+- Build packages before running dev servers
+- Use compiled output instead of tsx for complex module setups
+
 ## Core TypeScript/JavaScript Patterns (16 rules)
 
 **Type Safety Enforcement:**
