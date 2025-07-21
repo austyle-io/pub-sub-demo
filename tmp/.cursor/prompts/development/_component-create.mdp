@@ -1,0 +1,130 @@
+<!-- title: Create Component -->
+<!-- description: Create a new React component following AuStdX standards and patterns -->
+
+# Component Development Prompt
+
+Create a new {{COMPONENT_TYPE}} component for {{FEATURE}} following AuStdX standards.
+
+## Requirements
+
+### Component Structure
+- Use arrow function syntax: `export const ComponentName = () => {}`
+- Keep file size between 50-150 lines
+- Extract logic into custom hooks when needed
+- Break complex JSX into sub-components
+- Follow single responsibility principle
+
+### TypeScript Standards
+- Define explicit types for all props (no implicit any)
+- Use `type` declarations, never `interface`
+- Create proper type exports for reusability
+- Ensure 95%+ type coverage
+
+### Code Patterns
+- Use `isNil()` and `isEmpty()` from lodash for null/undefined checks
+- Implement `Record<Option, T>` lookup patterns instead of switch statements
+- Apply intermediate variables for operations with 3+ steps
+- Never use `React.FC` type annotation
+- Import React hooks directly: `import { useState, useEffect } from 'react'`
+
+### Styling
+- Use Tailwind CSS v4 classes
+- Follow the design system conventions
+- Ensure responsive design
+- Consider dark mode support
+
+### Error Handling
+- Implement proper error boundaries where appropriate
+- Add loading states for async operations
+- Handle edge cases gracefully
+- Log errors with structured format (Pino)
+
+### Performance
+- Apply memoization for expensive computations
+- Use React.memo for components with stable props
+- Lazy load heavy components
+- Target <100ms interaction response time
+
+## Reference Patterns
+
+Look at these examples for patterns:
+- Simple components: `src/lib/components/`
+- Complex components: `src/lib/modules/map/components/`
+- Custom hooks: `src/lib/modules/map/hooks/`
+- State management: `src/lib/stores/`
+
+## File Organization
+
+Place the component in the appropriate directory:
+- Shared components: `src/lib/components/{{ComponentName}}/`
+- Feature-specific: `src/lib/modules/{{feature}}/components/`
+- Route components: `src/routes/`
+
+Include these files:
+- `{{ComponentName}}.tsx` - Main component
+- `{{ComponentName}}.test.tsx` - Unit tests
+- `{{ComponentName}}.stories.tsx` - Storybook stories (if applicable)
+- `index.ts` - Barrel export
+
+## Example Structure
+
+```typescript
+// src/lib/components/ExampleComponent/ExampleComponent.tsx
+import { useState, useMemo } from 'react'
+import { isNil, isEmpty } from 'lodash'
+import type { ExampleProps } from './types'
+
+export const ExampleComponent = ({ data, onAction }: ExampleProps) => {
+    const [state, setState] = useState<StateType>()
+    
+    // Use Record pattern for lookups
+    const statusConfig: Record<Status, StatusConfig> = {
+        pending: { color: 'yellow', icon: 'clock' },
+        success: { color: 'green', icon: 'check' },
+        error: { color: 'red', icon: 'x' }
+    }
+    
+    // Memoize expensive computations
+    const processedData = useMemo(() => {
+        if (isEmpty(data)) return []
+        
+        // Use intermediate variables for clarity
+        const filtered = data.filter(item => !isNil(item.value))
+        const sorted = filtered.sort((a, b) => a.value - b.value)
+        const transformed = sorted.map(transformItem)
+        
+        return transformed
+    }, [data])
+    
+    // Extract complex logic to custom hooks
+    const { loading, error, result } = useDataProcessing(processedData)
+    
+    if (loading) return <LoadingSpinner />
+    if (error) return <ErrorDisplay error={error} />
+    
+    return (
+        <div className="component-wrapper">
+            {/* Component JSX */}
+        </div>
+    )
+}
+```
+
+## Testing Requirements
+
+Create comprehensive tests:
+- Unit tests with Vitest (<50ms execution time)
+- Test happy paths and edge cases
+- Mock external dependencies properly
+- Achieve high coverage without testing implementation details
+- Use `any` type only in test files for mocking
+
+## Documentation
+
+Add clear documentation:
+- JSDoc comments for complex logic
+- Props documentation with examples
+- README if component is complex
+- Storybook stories for visual documentation
+
+Remember to follow all patterns in `.cursor/rules/` and maintain our high quality standards!

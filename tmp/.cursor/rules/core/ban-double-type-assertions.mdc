@@ -1,0 +1,119 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# 🚫 Ban Double Type Assertions (`as unknown as ...`)
+
+## Rules
+
+- **NEVER use double type assertions** (`as unknown as TargetType`)
+- **Use type guards instead** for narrowing unknown values
+- **Use Zod validation** for external data validation
+- **Document any single type assertions** with clear justification
+- **Prefer runtime validation** over bypassing type safety
+
+## Why This Matters
+
+| Problem                       | Explanation                                                                                                           |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| **Silences the type checker** | Jumping to `unknown` erases structural information; the second assertion re-introduces a _completely unchecked_ type. |
+| **Hides real bugs**           | Mismatched shapes, nullability issues, or branded/unit types slip through to runtime.                                 |
+| **Hurts maintainability**     | Future readers can't trust the types; refactors and code-nav tools break.                                             |
+| **Signals technical debt**    | Usually means the boundary types or data-validation strategy needs fixing, not bypassing.                             |
+
+> "If you have to tell the compiler _'forget everything you know'_, your types are wrong."
+
+## ❌ Forbidden Patterns
+
+```typescript
+// ❌ BANNED - Double type assertion
+const result = (data as unknown) as TargetType;
+
+// ❌ BANNED - Multi-step assertions
+const result = data as any as unknown as TargetType;
+const value = input as unknown as string;
+```
+
+## ✅ Required Patterns
+
+### Type Guards with Runtime Validation
+
+```typescript
+// ✅ GOOD - Type guard with validation
+const isValidUser = (data: unknown): data is User => {
+    return (
+        typeof data === "object" &&
+        data !== null &&
+        "name" in data &&
+        "email" in data &&
+        typeof (data as any).name === "string" &&
+        typeof (data as any).email === "string"
+    );
+};
+
+const processData = (data: unknown) => {
+    if (isValidUser(data)) {
+        // data is now properly typed as User
+        console.log(data.name);
+    }
+};
+```
+
+### Zod Schema Validation
+
+```typescript
+// ✅ BEST - Zod validation
+import { z } from "zod";
+
+const UserSchema = z.object({
+    name: z.string(),
+    email: z.string().email(),
+});
+
+type User = z.infer<typeof UserSchema>;
+
+const processData = (data: unknown) => {
+    const result = UserSchema.safeParse(data);
+    if (result.success) {
+        // result.data is properly typed as User
+        console.log(result.data.name);
+    }
+};
+```
+
+## Rare Exceptions
+
+In the extremely rare case where you must use type assertions:
+
+```typescript
+// ✅ ACCEPTABLE - Single assertion with clear justification
+// @ts-expect-error - Third-party library returns exact interface, satisfies not compatible
+const thirdPartyOptions: ThirdPartyLibraryOptions = rawOptions as ThirdPartyLibraryOptions;
+
+// ✅ ACCEPTABLE - Test data with simplified types
+// @ts-expect-error - Test data uses simplified types for readability
+const mockUser: User = testData as User;
+```
+
+## Recent Improvements
+
+**✅ Achievement**: As of our latest type safety audit, all double type assertions have been eliminated from the codebase.
+
+**Key Fixes Applied**:
+- `src/lib/utils/global-usage-examples.ts` - Removed unsafe environment variable casting
+- `.storybook/vitest.setup.ts` - Enhanced process object mocking with safer assignment
+- `src/lib/hooks/logging/useLogGenerator.ts` - Replaced double assertion with proper type guards
+
+**Reference Documentation**:
+- `docs/03_development/type-assertion-to-satisfies-report.md` - Conversion guide
+- `docs/03_development/type-safety-improvements-summary.md` - Complete audit results
+
+## Benefits
+
+- **Type Safety**: Eliminates silent type errors
+- **Runtime Safety**: Validates data at boundaries
+- **Maintainability**: Code remains understandable and refactorable
+- **Debugging**: Type errors surface at appropriate boundaries
+- **Team Consistency**: Clear patterns for handling unknown data
+- **Zero Double Assertions**: Codebase is completely free of `as unknown as T` patterns

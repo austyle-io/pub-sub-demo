@@ -1,0 +1,253 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Code Formatting
+
+Rules for consistent code formatting and layout.
+
+## Rules
+
+-   Prefer compact, single-line function signatures when parameters fit reasonably
+-   Use single-line return statements for simple expressions
+-   Compact JSX attributes on one line when readable
+-   Prefer concise over verbose when it doesn't hurt readability
+
+## Function Signatures
+
+```typescript
+// ✅ GOOD - Compact single-line when reasonable
+const createUser = (name: string, email: string, role: UserRole = "user") => {
+    return { name, email, role, id: generateId() };
+};
+
+const validateInput = (value: string, required = true) => value.trim().length > 0 || !required;
+
+// ✅ GOOD - Multi-line when parameters are complex or numerous
+const processUserData = (
+    userData: CreateUserRequest,
+    validationRules: ValidationRule[],
+    options: ProcessingOptions = {},
+    callbacks?: {
+        onSuccess?: (user: User) => void;
+        onError?: (error: Error) => void;
+    },
+) => {
+    // Implementation
+};
+
+// ❌ BAD - Unnecessarily verbose for simple functions
+const createUser = (name: string, email: string, role: UserRole = "user") => {
+    return {
+        name,
+        email,
+        role,
+        id: generateId(),
+    };
+};
+```
+
+## Return Statements
+
+```typescript
+// ✅ GOOD - Single-line returns for simple expressions
+const getFullName = (user: User) => `${user.firstName} ${user.lastName}`;
+const isAdult = (age: number) => age >= 18;
+const isEmpty = (arr: unknown[]) => arr.length === 0;
+
+// ✅ GOOD - Multi-line returns for complex logic
+const processOrder = (order: Order) => {
+    const taxAmount = calculateTax(order.subtotal);
+    const shippingCost = calculateShipping(order.items);
+    const total = order.subtotal + taxAmount + shippingCost;
+
+    return {
+        ...order,
+        taxAmount,
+        shippingCost,
+        total,
+        processedAt: new Date().toISOString(),
+    };
+};
+
+// ❌ BAD - Multi-line for simple expressions
+const getFullName = (user: User) => {
+    return `${user.firstName} ${user.lastName}`;
+};
+```
+
+## JSX Formatting
+
+```typescript
+// ✅ GOOD - Compact attributes when readable
+const Button = ({ title, onClick, variant = 'primary' }: ButtonProps) => (
+  <button onClick={onClick} className={`btn btn-${variant}`}>
+    {title}
+  </button>
+);
+
+const UserCard = ({ user, onEdit }: UserCardProps) => (
+  <div className="user-card p-4 border rounded">
+    <img src={user.avatar} alt={user.name} className="w-12 h-12 rounded-full" />
+    <h3 className="font-semibold">{user.name}</h3>
+    <button onClick={onEdit} className="btn btn-sm">Edit</button>
+  </div>
+);
+
+// ✅ GOOD - Multi-line when attributes are complex
+const ComplexForm = ({ onSubmit, validationRules, initialValues }: FormProps) => (
+  <form
+    onSubmit={onSubmit}
+    className="space-y-4 p-6 bg-white border border-gray-200 rounded-lg shadow-sm"
+    noValidate
+    data-testid="user-form"
+  >
+    <FormField
+      name="email"
+      type="email"
+      label="Email Address"
+      required
+      validation={validationRules.email}
+      initialValue={initialValues?.email}
+      className="w-full"
+    />
+  </form>
+);
+
+// ❌ BAD - Unnecessarily verbose for simple elements
+const Button = ({ title, onClick }: ButtonProps) => (
+  <button
+    onClick={onClick}
+    className="btn"
+  >
+    {title}
+  </button>
+);
+```
+
+## Object and Array Formatting
+
+```typescript
+// ✅ GOOD - Compact for simple objects
+const user = { id: "1", name: "John", email: "john@example.com" };
+const colors = ["red", "green", "blue"];
+
+// ✅ GOOD - Multi-line for complex objects
+const apiConfig = {
+    baseUrl: process.env.API_BASE_URL,
+    timeout: 5000,
+    retries: 3,
+    headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+    },
+    interceptors: {
+        request: [authInterceptor, loggingInterceptor],
+        response: [errorHandler, responseLogger],
+    },
+};
+
+// ✅ GOOD - Consistent multi-line formatting
+const userPreferences = {
+    theme: "dark",
+    language: "en",
+    notifications: {
+        email: true,
+        push: false,
+        sms: false,
+    },
+    privacy: {
+        profileVisibility: "public",
+        showActivity: true,
+        allowMessaging: true,
+    },
+};
+```
+
+## Conditional Logic Formatting
+
+```typescript
+// ✅ GOOD - Inline for simple conditions
+const status = user.isActive ? "active" : "inactive";
+const message = error ? error.message : "Success";
+
+// ✅ GOOD - Multi-line for complex conditions
+const userPermissions =
+    user.role === "admin"
+        ? ["read", "write", "delete", "manage"]
+        : user.role === "moderator"
+          ? ["read", "write", "moderate"]
+          : ["read"];
+
+// ✅ GOOD - Block format for complex logic
+let statusColor;
+if (user.isActive && user.emailVerified) {
+    statusColor = "green";
+} else if (user.isActive && !user.emailVerified) {
+    statusColor = "yellow";
+} else {
+    statusColor = "red";
+}
+```
+
+## Import Formatting
+
+```typescript
+// ✅ GOOD - Compact for few imports
+import React, { useState, useEffect } from "react";
+import { User, UserRole } from "./types";
+
+// ✅ GOOD - Multi-line for many imports
+import { calculateTotal, validateInput, formatCurrency, debounce, throttle } from "./utils";
+
+import { UserProfile, UserSettings, UserPreferences, UserNotifications } from "./components";
+
+// ✅ GOOD - Grouped and organized
+// External dependencies
+import React, { useState, useEffect, useCallback } from "react";
+import { Router, Routes, Route } from "react-router-dom";
+import isEmpty from "lodash-es/isEmpty"
+import debounce from "lodash-es/debounce"
+
+// Internal modules
+import { User, ApiResponse } from "./types";
+import { UserService, AuthService } from "./services";
+import { UserProfile, Navigation } from "./components";
+```
+
+## Chain Formatting
+
+```typescript
+// ✅ GOOD - Short chains on one line
+const names = users.map((user) => user.name).filter(Boolean);
+
+// ✅ GOOD - Long chains formatted with line breaks
+const processedData = rawData
+    .filter((item) => item.isValid && item.isPublished)
+    .map((item) => ({
+        ...item,
+        processedAt: new Date().toISOString(),
+        category: item.category.toLowerCase(),
+    }))
+    .sort((a, b) => a.priority - b.priority)
+    .slice(0, 10);
+
+// ✅ GOOD - Complex chains with intermediate variables (preferred)
+const validItems = rawData.filter((item) => item.isValid && item.isPublished);
+const processedItems = validItems.map((item) => ({
+    ...item,
+    processedAt: new Date().toISOString(),
+    category: item.category.toLowerCase(),
+}));
+const sortedItems = processedItems.sort((a, b) => a.priority - b.priority);
+const topItems = sortedItems.slice(0, 10);
+```
+
+## Benefits
+
+-   **Consistency**: Uniform formatting across the codebase
+-   **Readability**: Code is easier to scan and understand
+-   **Maintainability**: Consistent patterns make code easier to modify
+-   **Team Collaboration**: Reduces formatting-related discussions and conflicts
+-   **Tool Integration**: Works well with automated formatters and linters

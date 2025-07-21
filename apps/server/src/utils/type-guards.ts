@@ -2,8 +2,8 @@ import { isDocument, isValidDocumentData } from '@collab-edit/shared';
 import isNil from 'lodash.isnil';
 import isObject from 'lodash.isobject';
 import isString from 'lodash.isstring';
-import type { DocumentData, Context } from '../types/sharedb';
 import type { AuthenticatedRequest } from '../middleware/websocket-auth';
+import type { Context, DocumentData } from '../types/sharedb';
 
 /**
  * Type guard to check if an unknown value is a Document
@@ -20,50 +20,46 @@ export function isShareDBContext(value: unknown): value is Context {
 
   const ctx = value as Record<string, unknown>;
   return (
-    !isNil(ctx['agent']) &&
-    isObject(ctx['agent']) &&
-    (isNil(ctx['collection']) || isString(ctx['collection'])) &&
-    (isNil(ctx['id']) || isString(ctx['id']))
+    !isNil(ctx.agent) &&
+    isObject(ctx.agent) &&
+    (isNil(ctx.collection) || isString(ctx.collection)) &&
+    (isNil(ctx.id) || isString(ctx.id))
   );
 }
 
 /**
  * Runtime type guard for AuthenticatedRequest
  */
-export function isAuthenticatedRequest(value: unknown): value is AuthenticatedRequest {
+export function isAuthenticatedRequest(
+  value: unknown,
+): value is AuthenticatedRequest {
   if (isNil(value) || !isObject(value)) {
     return false;
   }
 
   const req = value as Record<string, unknown>;
-  return (
-    'user' in req &&
-    !isNil(req['user']) &&
-    isObject(req['user'])
-  );
+  return 'user' in req && !isNil(req.user) && isObject(req.user);
 }
 
 /**
  * Runtime type guard for ShareDB agent custom data structure
  */
-export function isAgentCustomData(value: unknown): value is { userId: string; email: string; role: string } {
+export function isAgentCustomData(
+  value: unknown,
+): value is { userId: string; email: string; role: string } {
   if (isNil(value) || !isObject(value)) {
     return false;
   }
 
   const data = value as Record<string, unknown>;
-  return (
-    isString(data['userId']) &&
-    isString(data['email']) &&
-    isString(data['role'])
-  );
+  return isString(data.userId) && isString(data.email) && isString(data.role);
 }
 
 /**
  * Type guard to check if unknown value has userId and role
  */
 export function isUserCustomData(
-  value: unknown
+  value: unknown,
 ): value is { userId: string; role: string } {
   if (isNil(value) || !isObject(value)) {
     return false;
@@ -71,14 +67,14 @@ export function isUserCustomData(
 
   // Safe assertion after type checking
   const data = value as Record<string, unknown>;
-  return isString(data['userId']) && isString(data['role']);
+  return isString(data.userId) && isString(data.role);
 }
 
 /**
  * Type guard for partial user custom data
  */
 export function hasUserIdAndRole(
-  value: unknown
+  value: unknown,
 ): value is { userId?: string; role?: string } {
   if (isNil(value) || !isObject(value)) {
     return false;
@@ -87,8 +83,8 @@ export function hasUserIdAndRole(
   // Safe assertion after type checking
   const data = value as Record<string, unknown>;
   return (
-    (isNil(data['userId']) || isString(data['userId'])) &&
-    (isNil(data['role']) || isString(data['role']))
+    (isNil(data.userId) || isString(data.userId)) &&
+    (isNil(data.role) || isString(data.role))
   );
 }
 

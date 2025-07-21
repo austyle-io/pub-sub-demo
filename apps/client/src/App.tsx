@@ -1,9 +1,9 @@
 import { Outlet, useNavigate } from '@tanstack/react-router';
+import { useEffect } from 'react';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { LoginForm } from './components/LoginForm';
 import { UserInfo } from './components/UserInfo';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { useEffect } from 'react';
-import { ErrorBoundary } from './components/ErrorBoundary';
 
 /**
  * Main application content: handles authentication state and renders UI accordingly.

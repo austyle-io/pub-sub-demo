@@ -1,0 +1,157 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# SonarQube Compliance Rules
+
+Rules for maintaining SonarQube compliance and avoiding common warnings/errors.
+
+## Rules
+
+- **Extract magic numbers** into named constants with descriptive names
+- **Use `slice()` instead of `substr()`** - substr() is deprecated
+- **Use `??` instead of `||`** for nullish coalescing (S6606)
+- **Mark never-reassigned members as `readonly`** (S2933)
+- **Handle exceptions properly** - no empty catch blocks (S2486)
+- **Extract React hooks** from inline render functions into proper components
+- **Use specific scripts** to avoid hanging linting/testing
+
+## Magic Numbers
+
+```typescript
+// ❌ BAD - Magic numbers
+const id = `error-${Date.now()}-${generateSecureRandomString(9)}`;
+const logs = prev.slice(-20); // What is 20?
+setTimeout(retry, 100); // What is 100?
+
+// ✅ GOOD - Named constants
+const ERROR_ID_RANDOM_LENGTH = 9; // Random characters length
+const MAX_LOG_ENTRIES = 20; // UI display limit
+const RETRY_PAUSE_MS = 100; // Brief pause between retries
+
+const id = generateSecureId("error", ERROR_ID_RANDOM_LENGTH);
+```
+
+## String Methods
+
+```typescript
+// ❌ BAD - Deprecated substr()
+const suffix = randomString.substr(2, 9);
+
+// ✅ GOOD - Use slice()
+const suffix = randomString.slice(2, 11); // slice(start, end)
+// Note: substr(start, length) → slice(start, start + length)
+```
+
+## Nullish Coalescing
+
+```typescript
+// ❌ BAD - Using || for defaults (SonarQube S6606)
+const value = input || "default"; // Treats 0, '', false as falsy
+const count = data.count || 0; // Problem if count is actually 0
+
+// ✅ GOOD - Using ?? for nullish coalescing
+const value = input ?? "default"; // Only null/undefined trigger default
+const count = data.count ?? 0; // Preserves 0 as valid value
+```
+
+## Readonly Members
+
+```typescript
+// ❌ BAD - Mutable members that are never reassigned
+class Service {
+    private resources = new Map(); // SonarQube S2933
+    private cache = new Set();
+}
+
+// ✅ GOOD - Mark as readonly
+class Service {
+    private readonly resources = new Map();
+    private readonly cache = new Set();
+}
+```
+
+## Exception Handling
+
+```typescript
+// ❌ BAD - Empty catch block (SonarQube S2486)
+try {
+    await retryOperation();
+} catch (error) {
+    // Swallowing error
+}
+
+// ✅ GOOD - Handle exceptions properly
+try {
+    await retryOperation();
+} catch (error) {
+    logger.warn("Retry failed", {
+        error: error instanceof Error ? error.message : "Unknown error",
+        context: "operation-retry",
+    });
+    throw error; // Re-throw or handle appropriately
+}
+```
+
+## React Hooks in Storybook
+
+```typescript
+// ❌ BAD - Hooks in render function
+export const MyStory: Story = {
+    render: () => {
+        const [state, setState] = useState(); // SonarQube S6440
+        return <Component />;
+    }
+};
+
+// ✅ GOOD - Extract to component
+const MyStoryComponent = () => {
+    const [state, setState] = useState();
+    return <Component />;
+};
+
+export const MyStory: Story = {
+    render: () => <MyStoryComponent />
+};
+```
+
+## Safe Script Usage
+
+```typescript
+// ❌ BAD - Commands that hang
+"scripts": {
+    "lint": "eslint .", // Can hang on large projects
+    "test": "vitest" // Runs in watch mode by default
+}
+
+// ✅ GOOD - Use safe scripts
+"scripts": {
+    "lint:safe": "node scripts/lint-safe.js", // 30s timeout per directory
+    "lint:src": "eslint src --max-warnings 0", // Specific directory
+    "test:safe": "node scripts/test-safe.js", // 60s timeout
+    "test:unit": "vitest run" // Single run, no watch
+}
+```
+
+## Key Generation
+
+```typescript
+// ❌ BAD - Using array index alone
+items.map((item, i) => <div key={i}>{item}</div>)
+
+// ✅ GOOD - Combine with unique data
+items.map((item, i) => (
+    <div key={`item-${i}-${item.id ?? item.name.substring(0, 8)}`}>
+        {item}
+    </div>
+))
+```
+
+## Benefits
+
+- **SonarQube Compliance**: Maintains clean code quality scores
+- **Future-Proof**: Avoids deprecated APIs and patterns
+- **Performance**: Prevents hanging commands and improves efficiency
+- **Type Safety**: Proper readonly and type handling
+- **Maintainability**: Clear constants and proper error handling

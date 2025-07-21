@@ -14,6 +14,7 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
+    "type-check": "pnpm exec tsc -p apps/client/tsconfig.json --noEmit && pnpm exec tsc -p apps/server/tsconfig.json --noEmit && pnpm exec tsc -p packages/shared/tsconfig.json --noEmit",
     "generate:openapi": "pnpm --filter @collab-edit/shared run generate:openapi"
   },
   "devDependencies": {
@@ -26,5 +27,10 @@
     "node": ">=18.0.0",
     "pnpm": ">=9.0.0"
   },
-  "packageManager": "pnpm@9.15.0"
+  "packageManager": "pnpm@9.15.0",
+  "dependencies": {
+    "@types/lodash": "^4.14.201",
+    "dompurify": "^3.2.6",
+    "lodash": "^4.17.21"
+  }
 }

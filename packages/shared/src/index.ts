@@ -7,4 +7,5 @@ export * from './auth';
 export * from './openapi';
 export * from './schemas/api';
 export * from './schemas/document';
+export * from './schemas/permissions';
 export * from './validation';

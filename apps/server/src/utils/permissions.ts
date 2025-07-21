@@ -1,6 +1,6 @@
 import type { Document } from '@collab-edit/shared';
-import { connectToDatabase } from './database';
 import { logAuditEvent } from './audit-logger';
+import { connectToDatabase } from './database';
 
 export async function checkDocumentPermission(
   collection: string,
@@ -16,7 +16,7 @@ export async function checkDocumentPermission(
       resource: 'document',
       resourceId: docId,
       result: 'denied',
-      reason: 'Invalid collection'
+      reason: 'Invalid collection',
     });
     return { allowed: false, reason: 'Invalid collection' };
   }
@@ -33,7 +33,7 @@ export async function checkDocumentPermission(
         resource: 'document',
         resourceId: docId,
         result: 'denied',
-        reason: 'Document not found'
+        reason: 'Document not found',
       });
       return { allowed: false, reason: 'Document not found' };
     }
@@ -51,7 +51,10 @@ export async function checkDocumentPermission(
 
     // Check read permission
     if (permission === 'read') {
-      hasPermission = hasPermission || doc.acl.editors.includes(userId) || doc.acl.viewers.includes(userId);
+      hasPermission =
+        hasPermission ||
+        doc.acl.editors.includes(userId) ||
+        doc.acl.viewers.includes(userId);
     }
 
     logAuditEvent({
@@ -60,7 +63,7 @@ export async function checkDocumentPermission(
       resource: 'document',
       resourceId: docId,
       result: hasPermission ? 'allowed' : 'denied',
-      reason: hasPermission ? undefined : 'Insufficient permissions'
+      reason: hasPermission ? undefined : 'Insufficient permissions',
     });
 
     return { allowed: hasPermission };
@@ -72,7 +75,7 @@ export async function checkDocumentPermission(
       resource: 'document',
       resourceId: docId,
       result: 'denied',
-      reason: 'Error checking permission'
+      reason: 'Error checking permission',
     });
     return { allowed: false, reason: 'Error checking permission' };
   }

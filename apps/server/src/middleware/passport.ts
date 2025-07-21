@@ -1,4 +1,4 @@
-import { type JwtPayload, getAccessTokenSecret } from '@collab-edit/shared';
+import { getAccessTokenSecret, type JwtPayload } from '@collab-edit/shared';
 import type { NextFunction, Request, Response } from 'express';
 import passport from 'passport';
 import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';

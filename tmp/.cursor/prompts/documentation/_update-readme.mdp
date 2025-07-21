@@ -1,0 +1,146 @@
+# Update docs/project-overview.mdx Prompt
+
+## Instructions
+
+Analyze the current project structure, codebase, and documentation to update the root docs/project-overview.mdx file. This prompt should be used periodically to keep the README current with project changes.
+
+## Analysis Areas
+
+### 1. Project Structure Analysis
+
+- Scan `/src`, `/test`, `/e2e`, `/docs`, and root files
+- Identify new features, modules, or architectural changes
+- Check for new dependencies in `package.json`
+- Review configuration files for new tools or services
+
+### 2. Feature Detection
+
+- **New Modules**: Check `/src/lib/modules/` for new feature modules
+- **Components**: Scan `/src/lib/components/` for new shared components
+- **Services**: Review `/src/lib/services/` for new business logic services
+- **Utilities**: Check `/src/lib/utils/` for new utility functions
+- **Routes**: Scan `/src/routes/` for new application routes
+
+### 3. Testing Framework Updates
+
+- Review `/test/` for new testing utilities or patterns
+- Check test files for coverage improvements or new testing approaches
+- Scan `/docs/testing/` for updated testing documentation
+- Analyze E2E tests in `/e2e/` for new workflows
+
+### 4. Documentation Changes
+
+- Review all files in `/docs/` for new or updated documentation
+- Check for new README files in subdirectories
+- Scan code comments for significant architectural decisions
+- Look for new `.md` or `.mdx` files throughout the project
+
+### 5. Configuration Updates
+
+- Check `.cursor/rules/` for new coding standards or patterns
+- Review environment configuration files
+- Scan for new build or deployment configurations
+- Check for updated IDE settings or project configurations
+
+### 6. Dependencies and Tools
+
+- Review `package.json` for new dependencies
+- Check for new development tools or build processes
+- Identify new integrations (databases, external services, etc.)
+- Look for updated TypeScript or framework versions
+
+## Update Tasks
+
+### 1. Architecture Diagram Updates
+
+If new modules or significant architectural changes are found:
+
+- Update the main architecture Mermaid diagram
+- Add new module-specific diagrams if needed
+- Ensure all major components are represented
+
+### 2. Feature List Updates
+
+For each new feature or significant change:
+
+- Add to the Key Features section with appropriate emoji and description
+- Update usage examples if applicable
+- Add new sections for major new functionality
+
+### 3. Documentation Links
+
+- Update the Documentation section with new guides or references
+- Add new documentation to the Key Documentation table
+- Ensure all internal links are working and current
+
+### 4. Scripts and Commands
+
+- Update Available Scripts section with new npm scripts
+- Add new development workflows or processes
+- Update configuration examples if needed
+
+### 5. Performance Metrics
+
+- Update achieved metrics if new benchmarks are available
+- Add new performance features or optimizations
+- Update test coverage statistics if significantly changed
+
+### 6. Roadmap Updates
+
+- Move completed items from "In Progress" to "Completed"
+- Move planned items to "In Progress" if work has started
+- Add new planned features based on recent development direction
+
+## Output Requirements
+
+1. **Preserve Structure**: Maintain the existing docs/project-overview.mdx structure and formatting
+2. **Update Content**: Modify only sections that have actual changes
+3. **Add Sections**: Create new sections only if genuinely needed for new major features
+4. **Maintain Style**: Keep the same tone, emoji usage, and markdown formatting
+5. **Verify Links**: Ensure all internal links point to existing files
+6. **Update Diagrams**: Refresh Mermaid diagrams to reflect current architecture
+
+## Specific Areas to Check
+
+### Always Verify
+
+- [ ] Package.json dependencies match described technologies
+- [ ] All documented file paths actually exist
+- [ ] Scripts section matches actual npm scripts
+- [ ] Test coverage numbers are current (if updated recently)
+- [ ] Architecture diagrams reflect current module structure
+
+### Common Update Scenarios
+
+- [ ] New map widgets or mapping features
+- [ ] Additional testing utilities or patterns
+- [ ] New database schemas or migrations
+- [ ] Updated logging or monitoring capabilities
+- [ ] New development tools or workflow improvements
+- [ ] Enhanced error handling or recovery mechanisms
+
+### Quality Checks
+
+- [ ] No broken internal links
+- [ ] Code examples are syntactically correct
+- [ ] All mentioned files and directories exist
+- [ ] Badges and links point to correct resources
+- [ ] Table formatting is consistent and readable
+
+## Example Update Process
+
+1. **Scan Project**: `@/src @/test @/docs @/e2e package.json`
+2. **Identify Changes**: Compare against current docs/project-overview.mdx content
+3. **Update Sections**: Modify only changed areas
+4. **Verify Accuracy**: Ensure all information is current and correct
+5. **Test Links**: Confirm all internal references are valid
+
+## Notes
+
+- Focus on significant changes, not minor code updates
+- Prioritize user-facing features and major architectural changes
+- Keep the README concise while being comprehensive
+- Maintain the professional yet approachable tone
+- Preserve the visual hierarchy and readability
+
+This prompt should be run whenever there are significant project changes, new features, or major documentation updates to keep the docs/project-overview.mdx current and useful for new contributors and users.

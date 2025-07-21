@@ -1,0 +1,145 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Code Review Checklist
+
+Checklist for code reviews to ensure adherence to coding standards and patterns.
+
+## TypeScript Type System Review
+
+### Interface & Type Declarations
+
+- [ ] No `interface` keywords used (use `type` instead)
+- [ ] No `I*` or `*Interface` naming patterns (e.g., `IUser`, `UserInterface`)
+- [ ] No generic prefixes like `My*`, `Custom*` (use specific, descriptive names)
+- [ ] Type names are specific and descriptive
+- [ ] Consistent use of domain-appropriate suffixes (`Config`, `State`, `Actions`, `Props`, `Event`)
+
+### Import/Export Patterns
+
+- [ ] `export type` used for type-only exports
+- [ ] Type exports grouped separately from value exports
+- [ ] Consistent import organization (types first, then values)
+
+```typescript
+// ✅ GOOD - Proper export grouping
+export type { MapConfig, MapState, MapActions };
+export { createMapStore, useMapStore };
+```
+
+## Naming Conventions Review
+
+### Component & Function Naming
+
+- [ ] Components use PascalCase (`UserProfile`, not `userProfile`)
+- [ ] Functions use camelCase with descriptive verbs (`validateInput`, not `validate`)
+- [ ] Variables use camelCase with descriptive intent (`currentUser`, not `u`)
+- [ ] Constants use SCREAMING_SNAKE_CASE (`API_BASE_URL`)
+
+### File Naming
+
+- [ ] React components use PascalCase.tsx (`UserProfile.tsx`)
+- [ ] Hooks use camelCase.ts (`useUserData.ts`)
+- [ ] All other files use kebab-case.ts (`api-client.ts`, `user-types.ts`)
+
+### Domain-Specific Naming (Maps/Widgets)
+
+- [ ] Map-related types use `Map*` prefix (`MapConfig`, `MapState`)
+- [ ] Widget-related types use `Widget*` prefix (`WidgetConfig`, `WidgetEvent`)
+- [ ] Layer-related types use `Layer*` prefix (`LayerConfig`, `LayerEvent`)
+- [ ] Specific widget names used (`LayerManagementWidget`, not `CustomWidget`)
+
+## React Component Review
+
+### Component Structure
+
+- [ ] Arrow function components used (not function declarations)
+- [ ] Props explicitly typed with dedicated type definitions
+- [ ] No `React.FC` type annotation used
+- [ ] Props type exported if needed elsewhere
+
+### Event Handlers
+
+- [ ] Props use 'on' prefix (`onClick`, `onSubmit`)
+- [ ] Internal handlers use 'handle' prefix (`handleClick`, `handleSubmit`)
+- [ ] Event handler types are descriptive (`LayerVisibilityChangeHandler`)
+
+## Code Quality Review
+
+### Error Handling
+
+- [ ] Typed errors with proper error boundaries
+- [ ] `react-error-boundary` library used for React error boundaries
+- [ ] Complete error details logged for debugging
+- [ ] Meaningful error messages with context
+
+### Performance
+
+- [ ] `memo` used for expensive components (named import)
+- [ ] Const assertions used for static data (`as const`)
+- [ ] Lazy loading considered for large components
+
+### Data Patterns
+
+- [ ] No mock data in production components
+- [ ] Mock data clearly labeled in demo components
+- [ ] Proper loading states instead of mock data
+- [ ] Union literal constants with `as const` used over plain union types
+
+## Anti-Patterns to Flag
+
+### Common Issues
+
+- [ ] No `any` types used (use `unknown` instead)
+- [ ] No inline style objects (use const assertions or external)
+- [ ] No function declarations (use arrow functions)
+- [ ] No commented-out code left in PR
+- [ ] No obvious comments that don't add value
+
+### Architecture Issues
+
+- [ ] No mixed concerns in single files
+- [ ] Components follow single responsibility principle
+- [ ] Utilities grouped by functional domain, not technical type
+- [ ] No circular dependencies
+
+## Refactoring Priority
+
+### High Priority (Must Fix)
+
+- [ ] Remove all interface declarations
+- [ ] Remove `*Interface` and `I*` naming patterns
+- [ ] Fix generic prefixes (`My*`, `Custom*`) with specific names
+
+### Medium Priority (Should Fix)
+
+- [ ] Improve type organization and grouping
+- [ ] Extract large components into smaller, focused ones
+- [ ] Consolidate related utilities
+
+### Low Priority (Consider)
+
+- [ ] Improve documentation and comments
+- [ ] Optimize performance where applicable
+- [ ] Enhance error messaging
+
+## Exception Cases
+
+### Acceptable Exceptions
+
+- [ ] External library type definitions (keep as-is, document why)
+- [ ] Generated code (document why interfaces are used)
+- [ ] Storybook stories and test files (mock data allowed)
+- [ ] Demo components (mock data allowed, clearly labeled)
+
+## Sign-off
+
+- [ ] All high-priority issues addressed
+- [ ] Code follows established patterns
+- [ ] No anti-patterns present
+- [ ] Ready for merge
+
+**Reviewer**: **\*\***\_\_\_**\*\***
+**Date**: **\*\***\_\_\_**\*\***

@@ -1,0 +1,137 @@
+<!-- title: AuStdX Prompt Library Index -->
+<!-- description: Complete index of available prompts, personas, and chains for the AuStdX project -->
+
+# AuStdX Cursor Prompts Library
+
+This directory contains AI prompts, personas, and workflow chains tailored for the AuStdX Design System project.
+
+## 📁 Directory Structure
+
+```
+.cursor/prompts/
+├── analysis/                     # Analysis and review prompts
+│   └── skeptical-analyst.mdp     # Critical analysis persona
+├── architecture/                 # System design and architecture
+│   └── _enterprise-context.mdp   # Enterprise architecture context
+├── chains/                       # Multi-step workflows
+│   ├── _feature-development.yaml # Complete feature workflow
+│   └── run.sh                    # Chain execution script
+├── development/                  # Development prompts
+│   └── _component-create.mdp     # React component creation
+├── documentation/                # Documentation prompts
+│   ├── _index.mdp               # This file
+│   ├── _changelog.mdp           # Changelog generation
+│   ├── _docs-update.mdp         # Documentation updates
+│   ├── _docs.mdp                # General documentation
+│   └── _update-readme.mdp       # README updates
+├── knowledge-base/              # Knowledge management
+│   ├── _create-knowledge-base-checkpoint.mdp
+│   └── _review-knowledge-base.mdp
+├── onboarding/                  # Onboarding guides
+│   └── _ai-onboarding.mdp       # AI agent onboarding
+├── personas/                    # AI personas with specific expertise
+│   ├── _architect-austdx.mdp    # System design and architecture
+│   └── _mentor-austdx.mdp       # Code reviews and teaching
+├── refactoring/                 # Code refactoring
+│   └── _refactor.mdp            # Refactoring guidance
+├── review/                      # Code review
+│   └── _review.mdp              # Code review process
+├── testing/                     # Testing prompts
+│   ├── _bdd-test-create.mdp    # BDD test creation
+│   └── _test.mdp                # General testing
+└── operations/                  # Operations prompts (empty)
+```
+
+## 🎭 Available Personas
+
+### 1. **AuStdX Architect** (`_architect-austdx.mdp`)
+- **Usage**: `@architect-austdx: [your architecture question]`
+- **Expertise**: TanStack Start, React 19, TypeScript, system design
+- **Focus**: Architecture reviews, design decisions, performance optimization
+
+### 2. **AuStdX Mentor** (`_mentor-austdx.mdp`)
+- **Usage**: `@mentor-austdx: [your code review request]`
+- **Expertise**: Code quality, best practices, teaching
+- **Focus**: Code reviews, explaining patterns, skill development
+
+## 🔗 Workflow Chains
+
+### Feature Development Chain (`_feature-development.yaml`)
+Complete workflow from requirements to deployment:
+1. Requirements analysis
+2. Architecture design
+3. Component implementation
+4. Server function implementation
+5. Testing (unit, BDD, integration)
+6. Quality validation
+7. Documentation
+8. Final review
+
+**Run**: `.cursor/prompts/chains/run.sh feature-development`
+
+## 📝 Development Prompts
+
+### Component Creation (`_component-create.mdp`)
+- Creates React components following AuStdX standards
+- Enforces arrow functions, TypeScript patterns
+- Includes file organization and testing
+
+## 🧪 Testing Prompts
+
+### BDD Test Creation (`_bdd-test-create.mdp`)
+- Creates QuickPickle BDD tests
+- Enforces world parameter usage
+- Performance targets (<1s per scenario)
+
+## 🚀 Quick Start
+
+### Using a Persona
+```bash
+# Architecture review
+@architect-austdx: Review the map module architecture
+
+# Code review
+@mentor-austdx: Review my PR for best practices
+```
+
+### Running a Chain
+```bash
+cd .cursor/prompts/chains
+./run.sh feature-development --feature-name="user-dashboard"
+```
+
+### Using a Prompt
+1. Open the prompt file (e.g., `development/_component-create.mdp`)
+2. Replace variables ({{COMPONENT_TYPE}}, {{FEATURE}})
+3. Follow the structured guidance
+
+## 📋 Naming Conventions
+
+- **Files**: Underscore prefix, lowercase with hyphens (`_component-create.mdp`)
+- **Personas**: `_[role]-austdx.mdp`
+- **Chains**: `_[workflow-name].yaml`
+- **Prompts**: `_[action]-[target].mdp`
+
+## 🔄 Integration with Project
+
+These prompts are integrated with:
+- `.cursorrules`: References personas and prompt system
+- `.cursor/rules/`: Enforces project standards
+- `CLAUDE.md`: Project-specific guidance
+
+## 📊 Success Metrics
+
+Track effectiveness through:
+- Development velocity improvements
+- Code quality metrics (type coverage, lint errors)
+- Onboarding time reduction
+- Bug resolution efficiency
+
+## 🤝 Contributing
+
+When adding new prompts:
+1. Follow naming conventions
+2. Include metadata headers (title, description)
+3. Reference relevant `.cursor/rules/`
+4. Test with real scenarios
+5. Update this index

@@ -1,0 +1,311 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Comments & Documentation
+
+Rules for code documentation, comments, and JSDoc usage.
+
+## Rules
+
+-   Use inline JSDoc comments over separate documentation files
+-   Include @fileoverview for file-level documentation
+-   Document complex business logic and algorithms
+-   Code examples in JSDoc should be comprehensive
+-   Avoid obvious comments, focus on "why" not "what"
+
+## File-Level Documentation
+
+```typescript
+/**
+ * @fileoverview User authentication utilities and session management.
+ *
+ * This module provides functions for handling user authentication,
+ * session tokens, and permission validation. It integrates with
+ * the external OAuth provider and manages local session storage.
+ */
+
+import { User, AuthToken } from "./types";
+
+// File implementation...
+```
+
+## Function Documentation
+
+````typescript
+/**
+ * Calculates the discounted price for a product based on user tier and promotion codes.
+ *
+ * Applies tier-based discounts first, then promotional discounts. The maximum
+ * total discount is capped at 70% to prevent pricing errors.
+ *
+ * @param basePrice - The original price before any discounts
+ * @param userTier - The user's membership tier ('bronze', 'silver', 'gold', 'platinum')
+ * @param promoCode - Optional promotional code for additional discounts
+ * @returns The final price after all applicable discounts
+ *
+ * @example
+ * ```typescript
+ * // Basic tier discount
+ * const price = calculateDiscountedPrice(100, 'gold');
+ * console.log(price); // 85 (15% gold tier discount)
+ *
+ * // With promo code
+ * const promoPrice = calculateDiscountedPrice(100, 'silver', 'SAVE20');
+ * console.log(promoPrice); // 72 (10% tier + 20% promo, capped at 30% total)
+ * ```
+ *
+ * @throws {Error} When userTier is not a valid tier level
+ * @throws {Error} When basePrice is negative
+ */
+const calculateDiscountedPrice = (basePrice: number, userTier: UserTier, promoCode?: string): number => {
+    if (basePrice < 0) {
+        throw new Error("Base price cannot be negative");
+    }
+
+    // Apply tier discount first
+    const tierDiscount = getTierDiscount(userTier);
+    let discountedPrice = basePrice * (1 - tierDiscount);
+
+    // Apply promo code if provided
+    if (promoCode) {
+        const promoDiscount = validateAndGetPromoDiscount(promoCode);
+        const totalDiscount = Math.min(tierDiscount + promoDiscount, 0.7); // Cap at 70%
+        discountedPrice = basePrice * (1 - totalDiscount);
+    }
+
+    return Math.round(discountedPrice * 100) / 100; // Round to 2 decimal places
+};
+````
+
+## Component Documentation
+
+````typescript
+/**
+ * @fileoverview User profile management component with editing capabilities.
+ */
+
+/**
+ * A comprehensive user profile component that displays user information
+ * and provides inline editing capabilities with validation.
+ *
+ * Features:
+ * - Read-only mode by default
+ * - Inline editing with form validation
+ * - Avatar upload with image cropping
+ * - Permission-based field visibility
+ * - Auto-save draft functionality
+ *
+ * @example
+ * ```tsx
+ * <UserProfile
+ *   user={currentUser}
+ *   editable={hasPermission('edit_profile')}
+ *   onSave={handleProfileSave}
+ *   classNames={{
+ *     containerClassName: "p-4 border rounded",
+ *     avatarClassName: "w-20 h-20 rounded-full"
+ *   }}
+ * />
+ * ```
+ */
+type UserProfileProps = {
+    /** The user object to display and edit */
+    user: User;
+
+    /** Whether the profile can be edited by the current user */
+    editable?: boolean;
+
+    /**
+     * Called when the user saves profile changes
+     * @param updates - The changed fields only
+     * @param fullUser - The complete updated user object
+     */
+    onSave?: (updates: Partial<User>, fullUser: User) => Promise<void>;
+
+    /**
+     * Called when the user cancels editing
+     * @param hasChanges - Whether there were unsaved changes
+     */
+    onCancel?: (hasChanges: boolean) => void;
+
+    /** Custom CSS classes for styling different elements */
+    classNames?: {
+        containerClassName?: ClassValue;
+        avatarClassName?: ClassValue;
+        formClassName?: ClassValue;
+        buttonClassName?: ClassValue;
+    };
+};
+
+export const UserProfile = ({ user, editable = false, onSave, onCancel, classNames }: UserProfileProps) => {
+    // Component implementation...
+};
+````
+
+## Complex Logic Documentation
+
+````typescript
+/**
+ * Implements the Fisher-Yates shuffle algorithm to randomly reorder an array.
+ *
+ * This function modifies the original array in-place for performance reasons.
+ * If you need to preserve the original array, create a copy first.
+ *
+ * Time complexity: O(n)
+ * Space complexity: O(1)
+ *
+ * @param array - The array to shuffle (modified in-place)
+ * @returns The same array reference, now shuffled
+ *
+ * @example
+ * ```typescript
+ * const cards = ['A', 'K', 'Q', 'J'];
+ * shuffleArray(cards);
+ * console.log(cards); // ['Q', 'A', 'J', 'K'] (random order)
+ * ```
+ */
+const shuffleArray = <T>(array: T[]): T[] => {
+    // Start from the last element and work backwards
+    for (let i = array.length - 1; i > 0; i--) {
+        // Generate random index from 0 to i (inclusive)
+        const randomIndex = Math.floor(cryptoRandom() * (i + 1));
+
+        // Swap current element with random element
+        [array[i], array[randomIndex]] = [array[randomIndex], array[i]];
+    }
+
+    return array;
+};
+
+/**
+ * Debounces function calls to prevent excessive execution during rapid triggers.
+ *
+ * Uses trailing edge debouncing - the function is called after the delay
+ * period has elapsed since the last call attempt.
+ *
+ * @param func - The function to debounce
+ * @param delay - Delay in milliseconds before function execution
+ * @returns A debounced version of the function
+ *
+ * @example
+ * ```typescript
+ * const debouncedSearch = debounce((query: string) => {
+ *   console.log('Searching for:', query);
+ * }, 300);
+ *
+ * // These calls will be debounced
+ * debouncedSearch('a');
+ * debouncedSearch('ab');
+ * debouncedSearch('abc'); // Only this call will execute after 300ms
+ * ```
+ */
+const debounce = <T extends (...args: any[]) => any>(func: T, delay: number): T => {
+    let timeoutId: NodeJS.Timeout;
+
+    return ((...args: Parameters<T>) => {
+        // Clear previous timeout if it exists
+        clearTimeout(timeoutId);
+
+        // Set new timeout
+        timeoutId = setTimeout(() => {
+            func(...args);
+        }, delay);
+    }) as T;
+};
+````
+
+## Type Documentation
+
+```typescript
+/**
+ * @fileoverview Core user types and authentication-related interfaces.
+ */
+
+// config/user-constants.ts
+export const USER_ROLE = {
+    ADMIN: "admin",
+    MODERATOR: "moderator",
+    USER: "user",
+} as const;
+
+export type UserRole = (typeof USER_ROLE)[keyof typeof USER_ROLE];
+
+/**
+ * Represents a user in the system with all their associated data.
+ *
+ * Users can have different roles that affect their permissions throughout
+ * the application. The `createdAt` and `updatedAt` fields are managed
+ * automatically by the backend.
+ */
+export type User = {
+    /** Unique identifier for the user */
+    id: string;
+
+    /** User's email address (must be unique in the system) */
+    email: string;
+
+    /** User's display name */
+    name: string;
+
+    /**
+     * User's role in the system
+     * - USER_ROLE.ADMIN: Full system access
+     * - USER_ROLE.MODERATOR: Content moderation capabilities
+     * - USER_ROLE.USER: Standard user access
+     */
+    role: UserRole;
+
+    /** Whether the user's email has been verified */
+    emailVerified: boolean;
+
+    /** URL to the user's profile avatar image */
+    avatarUrl?: string;
+
+    /** Timestamp when the user account was created */
+    createdAt: string;
+
+    /** Timestamp when the user data was last updated */
+    updatedAt: string;
+};
+```
+
+## Comment Anti-Patterns
+
+```typescript
+// ❌ BAD - Obvious comments that don't add value
+const user = getUser(); // Get the user
+const total = price * quantity; // Multiply price by quantity
+if (user.isActive) {
+    // Check if user is active
+    // ...
+}
+
+// ❌ BAD - Outdated comments
+// TODO: Fix this bug (written 2 years ago)
+// This is a temporary workaround (but has become permanent)
+
+// ❌ BAD - Commented out code
+// const oldFunction = () => {
+//   return "old implementation";
+// };
+
+// ✅ GOOD - Comments that explain "why" not "what"
+// Use exponential backoff to avoid overwhelming the API during high traffic
+const delay = Math.min(1000 * Math.pow(2, retryCount), 30000);
+
+// Cache results for 5 minutes to reduce database load during peak hours
+const CACHE_TTL = 5 * 60 * 1000;
+
+// Apply timezone offset because the API returns UTC but we need local time
+const localDate = new Date(utcTimestamp + timezoneOffset);
+```
+
+## Benefits
+
+-   **Self-Documenting Code**: Comprehensive JSDoc makes code easier to understand
+-   **IDE Integration**: JSDoc provides rich hover information and autocomplete
+-   **Maintenance**: Good documentation helps during code reviews and refactoring
+-   **Onboarding**: New team members can understand complex logic quickly
+-   **API Documentation**: JSDoc can be used to generate API documentation automatically

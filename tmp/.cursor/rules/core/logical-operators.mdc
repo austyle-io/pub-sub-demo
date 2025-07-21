@@ -1,0 +1,66 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Logical Operators & Safety
+
+Rules for safe property access and default value handling.
+
+## Rules
+
+- Always use nullish coalescing (`??`) instead of `||` for default values
+- Use optional chaining (`?.`) for safe property access when necessary
+- Reserve `||` only for boolean expression evaluation
+
+## Examples
+
+### Nullish Coalescing for Defaults
+
+```typescript
+// Preferred - nullish coalescing for defaults
+const name = user?.name ?? "Unknown";
+const count = data?.count ?? 0;
+const config = settings?.config ?? defaultConfig;
+
+// Avoid - using || for defaults
+const name = user.name || "Unknown"; // BAD - treats empty string as falsy
+const count = data.count || 0; // BAD - treats 0 as falsy
+```
+
+### Optional Chaining for Safety
+
+```typescript
+// ✅ GOOD - Use when properties might not exist
+const result = response?.data?.items?.[0]; // data or items might be undefined
+const userName = user?.profile?.name; // profile might be optional
+const callback = options?.onComplete?.(); // onComplete is optional
+
+// ✅ GOOD - Don't use when properties are guaranteed
+const layers = state.config.layers; // config is always defined
+const center = map.getCenter().lng; // if map exists, getCenter() always returns
+
+// ❌ BAD - Overuse defensive optional chaining
+const layers = state?.config?.layers; // BAD - state and config are guaranteed
+const center = map?.getCenter()?.lng; // BAD - if map exists, methods work
+
+// ❌ BAD - Manual null checks when optional chaining is clearer
+if (response && response.data && response.data.items) {
+    const result = response.data.items[0]; // BAD - verbose
+}
+```
+
+### Correct Use of || for Booleans
+
+```typescript
+// Correct use of || for boolean expressions
+const isValid = hasData || hasCache;
+const shouldShow = isEnabled || isForced;
+const canAccess = hasPermission || isAdmin;
+```
+
+## Why This Matters
+
+- **`??` vs `||`**: Nullish coalescing only treats `null` and `undefined` as falsy
+- **Safety**: Optional chaining prevents runtime errors from nested property access
+- **Clarity**: Boolean operators should be used for boolean logic, not default values

@@ -3,7 +3,11 @@ import type {
   CreateUserRequest,
   LoginRequest,
 } from '@collab-edit/shared';
-import { isApiError, isAuthResponse, sanitizeApiError } from '@collab-edit/shared';
+import {
+  isApiError,
+  isAuthResponse,
+  sanitizeApiError,
+} from '@collab-edit/shared';
 import { tokenManager } from '../utils/token-manager';
 
 const API_BASE_URL =
@@ -76,7 +80,9 @@ class AuthService {
       if (!isApiError(responseData)) {
         throw new Error('Invalid error response format');
       }
-      throw new Error(sanitizeApiError(responseData.error ?? 'Token refresh failed'));
+      throw new Error(
+        sanitizeApiError(responseData.error ?? 'Token refresh failed'),
+      );
     }
 
     if (!isAuthResponse(responseData)) {

@@ -9,7 +9,8 @@ import { authenticate } from '../middleware/passport';
 
 describe('JWT Authentication Middleware', () => {
   beforeAll(() => {
-    process.env['JWT_SECRET'] = 'test-secret-key-for-testing-only';
+    process.env['JWT_ACCESS_SECRET'] = 'test-access-secret-key-for-testing-only';
+    process.env['JWT_REFRESH_SECRET'] = 'test-refresh-secret-key-for-testing-only';
   });
 
   it('should authenticate valid JWT token', async () => {

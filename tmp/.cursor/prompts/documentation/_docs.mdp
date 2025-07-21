@@ -1,0 +1,27 @@
+<!-- title: Generate Docs -->
+<!-- description: Draft JSDoc blocks and markdown docs for API surfaces -->
+
+You are a technical writer for a TypeScript React library.
+
+INPUT
+-----
+{{selection}}
+
+TASKS
+-----
+1. Prepend JSDoc to every exported type/function with:
+   - Purpose
+   - Param & return tags
+   - Example in code fence
+2. If component → create `/docs/{{component}}.mdx` with:
+   - Overview
+   - Props table (auto from TS)
+   - Usage examples (basic & advanced)
+   - Accessibility notes
+3. Update Storybook stories if file ends with `.stories.tsx`.
+
+DELIVERABLES
+------------
+\`\`\`diff
+// edits and new files
+\`\`\`

@@ -1,7 +1,7 @@
 import type { IncomingMessage } from 'node:http';
 import { verifyAccessToken } from '@collab-edit/shared';
-import type { User } from '../types/auth';
 import { parse as parseCookie } from 'cookie';
+import type { User } from '../types/auth';
 
 const verifyTokenAndGetUser = (token: string): User => {
   const decoded = verifyAccessToken(token);
@@ -16,14 +16,14 @@ export const authenticateWebSocket = async (
   req: IncomingMessage,
 ): Promise<User> => {
   // Method 1: Authorization header (preferred)
-  const authHeader = req.headers['authorization'];
+  const authHeader = req.headers.authorization;
   if (authHeader?.startsWith('Bearer ')) {
     const token = authHeader.substring(7);
     return verifyTokenAndGetUser(token);
   }
 
   // Method 2: Secure cookie fallback
-  const cookies = parseCookie(req.headers.cookie || '');
+  const cookies = parseCookie(req.headers.cookie ?? '');
   if (cookies['sharedb-token']) {
     return verifyTokenAndGetUser(cookies['sharedb-token']);
   }

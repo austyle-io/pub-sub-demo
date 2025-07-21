@@ -1,0 +1,203 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Directory Structure Pattern
+
+Consistent directory structure for features and modules.
+
+## Recommended Structure
+
+```
+feature/
+├── components/          # React components only
+├── hooks/              # Custom hooks only
+├── utils/              # Pure utility functions
+├── types/              # Type definitions
+├── services/           # Business logic services
+├── config/             # Configuration
+├── constants/          # Constants
+├── stores/             # Multiple state stores
+└── index.ts            # Clean public API
+```
+
+## Directory Rules
+
+### Components Directory
+
+-   **Purpose**: React components only
+-   **Pattern**: One component per file
+-   **Naming**: PascalCase.tsx
+-   **Content**: Component function + props type only
+
+```typescript
+// components/UserProfile.tsx
+type UserProfileProps = {
+    user: User;
+    onEdit?: () => void;
+};
+
+export const UserProfile = ({ user, onEdit }: UserProfileProps) => {
+    // Component implementation only
+};
+```
+
+### Hooks Directory
+
+-   **Purpose**: Custom React hooks only
+-   **Pattern**: One hook per file
+-   **Naming**: useHookName.ts
+-   **Content**: Hook logic and related utilities
+
+```typescript
+// hooks/useUserData.ts
+export const useUserData = (userId: string) => {
+    // Hook implementation
+};
+```
+
+### Utils Directory
+
+-   **Purpose**: Pure utility functions
+-   **Pattern**: Grouped by functional domain
+-   **Naming**: domain-utils.ts
+-   **Content**: Related utility functions
+
+```typescript
+// utils/user-utils.ts
+export const validateUserEmail = (email: string): boolean => {
+    // Validation logic
+};
+
+export const formatUserName = (user: User): string => {
+    // Formatting logic
+};
+```
+
+### Types Directory
+
+-   **Purpose**: Type definitions
+-   **Pattern**: Grouped by business domain
+-   **Naming**: domain-types.ts
+-   **Content**: Related type definitions
+
+```typescript
+// types/user-types.ts
+export type User = {
+    id: string;
+    name: string;
+    email: string;
+};
+
+// config/theme-constants.ts
+export const THEME = {
+    LIGHT: "light",
+    DARK: "dark",
+} as const;
+
+export type Theme = (typeof THEME)[keyof typeof THEME];
+
+export type UserPreferences = {
+    theme: Theme;
+    notifications: boolean;
+};
+```
+
+### Constants Directory
+
+-   **Purpose**: Constants
+-   **Pattern**: Grouped by type
+-   **Naming**: descriptive-constants.ts
+-   **Content**: Constants objects
+
+```typescript
+// constants/user-constants.ts
+export const USER_CONSTANTS = {
+    MAX_NAME_LENGTH: 100,
+    MIN_PASSWORD_LENGTH: 8,
+} as const;
+```
+
+## Optional Directories
+
+### Services Directory
+
+-   **Purpose**: Business logic and external integrations
+-   **Pattern**: One service per file
+-   **Naming**: ServiceName.ts
+-   **Content**: Class or functions for business operations
+
+```typescript
+// services/UserService.ts
+export class UserService {
+    async fetchUser(id: string): Promise<User> {
+        // Service implementation
+    }
+}
+```
+
+### Config Directory
+
+-   **Purpose**: Configuration
+-   **Pattern**: Grouped by type
+-   **Naming**: descriptive-config.ts
+-   **Content**: Configuration objects
+
+```typescript
+// config/api-config.ts
+export const API_CONFIG = {
+    BASE_URL: "/api",
+    TIMEOUT: 5000,
+    RETRIES: 3,
+} as const;
+```
+
+### Stores Directory (Optional)
+
+-   **Purpose**: State management files
+-   **When to use**: Features with related stores or complex state splitting
+-   **Pattern**: One store per file
+-   **Naming**: SpecificStore.tsx
+
+```typescript
+// stores/UserPreferencesStore.tsx
+export const UserPreferencesStore = createStore(/* ... */);
+
+// stores/CacheStore.tsx
+export const CacheStore = createStore(/* ... */);
+```
+
+**Note**: Most features should use single FeatureStore.tsx at root. Only use stores/ directory for complex state management needs.
+
+## Anti-Patterns
+
+-   **Mixed file types** in wrong directories
+-   **Deep nesting** beyond 3 levels
+-   **Missing index.ts** public API
+-   **Non descriptive naming** (utils.ts, helpers.ts)
+-   **Multiple concerns** per file
+
+## Public API Pattern
+
+Every feature should have a clean public API:
+
+```typescript
+// index.ts
+// Main exports for consumers
+export { UserProfile } from "./components/UserProfile";
+export { useUserData } from "./hooks/useUserData";
+
+// Type exports
+export type { User, UserPreferences } from "./types/user-types";
+
+// Utility exports (selective)
+export { validateUserEmail } from "./utils/user-utils";
+```
+
+## Benefits
+
+-   **Predictable**: Always know where to find specific functionality
+-   **Scalable**: Structure supports growth without reorganization
+-   **Maintainable**: Clear separation of concerns
+-   **Testable**: Easy to test isolated functionality

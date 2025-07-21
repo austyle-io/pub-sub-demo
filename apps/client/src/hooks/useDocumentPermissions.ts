@@ -1,6 +1,6 @@
+import type { Permissions } from '@shared/schemas/permissions';
 import { useEffect, useState } from 'react';
 import { useAuthFetch } from '../hooks/useAuthFetch';
-import type { Permissions } from '@shared/schemas/permissions';
 
 export const useDocumentPermissions = (docId: string) => {
   const authFetch = useAuthFetch();
@@ -16,14 +16,16 @@ export const useDocumentPermissions = (docId: string) => {
         const res = await authFetch(`/api/documents/${docId}/permissions`);
         const data = await res.json();
         if (!ignore) setPerms(data);
-      } catch (e) {
+      } catch (_e) {
         if (!ignore) setError('Failed to load permissions');
       } finally {
         if (!ignore) setLoading(false);
       }
     };
     load();
-    return () => { ignore = true; };
+    return () => {
+      ignore = true;
+    };
   }, [docId, authFetch]);
 
   return { perms, loading, error };

@@ -5,7 +5,7 @@ const SAFE_ERROR_MESSAGES = {
   'Invalid token': 'Authentication failed',
   'Insufficient permissions': 'Access denied',
   'Document not found': 'Document not found',
-  'Network error': 'Connection error'
+  'Network error': 'Connection error',
 } as const;
 
 type SafeErrorKey = keyof typeof SAFE_ERROR_MESSAGES;

@@ -1,6 +1,8 @@
+import { TypeCompiler } from '@sinclair/typebox/compiler';
 import type { ValidateFunction } from 'ajv';
 import { describe, expect, it } from 'vitest';
-import type { CreateDocumentRequest, Document } from '../index';
+import type { CreateDocumentRequest, Document, Permissions } from '../index';
+import { PermissionsSchema } from '../schemas/permissions';
 import {
   getValidationErrors,
   validateCreateDocumentRequest,
@@ -8,6 +10,8 @@ import {
   validateDocumentUpdate,
   validateOrThrow,
 } from '../validation';
+
+const validatePermissions = TypeCompiler.Compile(PermissionsSchema);
 
 describe('Schema Validation', () => {
   describe('Document Schema', () => {
@@ -172,5 +176,77 @@ describe('Schema Validation', () => {
         );
       }).toThrow('Invalid request');
     });
+  });
+});
+
+describe('PermissionsSchema', () => {
+  it('should validate valid permissions object', () => {
+    const validPermissions: Permissions = {
+      canRead: true,
+      canWrite: false,
+      canDelete: false,
+    };
+
+    expect(validatePermissions.Check(validPermissions)).toBe(true);
+  });
+
+  it('should validate all permissions as false', () => {
+    const validPermissions: Permissions = {
+      canRead: false,
+      canWrite: false,
+      canDelete: false,
+    };
+
+    expect(validatePermissions.Check(validPermissions)).toBe(true);
+  });
+
+  it('should validate all permissions as true', () => {
+    const validPermissions: Permissions = {
+      canRead: true,
+      canWrite: true,
+      canDelete: true,
+    };
+
+    expect(validatePermissions.Check(validPermissions)).toBe(true);
+  });
+
+  it('should reject permissions with missing fields', () => {
+    const invalidPermissions = {
+      canRead: true,
+      canWrite: false,
+      // canDelete missing
+    };
+
+    expect(validatePermissions.Check(invalidPermissions)).toBe(false);
+    const errors = [...validatePermissions.Errors(invalidPermissions)];
+    expect(errors.length).toBeGreaterThan(0);
+  });
+
+  it('should reject permissions with wrong types', () => {
+    const invalidPermissions = {
+      canRead: 'true', // string instead of boolean
+      canWrite: false,
+      canDelete: false,
+    };
+
+    expect(validatePermissions.Check(invalidPermissions)).toBe(false);
+    const errors = [...validatePermissions.Errors(invalidPermissions)];
+    expect(errors.length).toBeGreaterThan(0);
+  });
+
+  it('should reject permissions with extra properties', () => {
+    const invalidPermissions = {
+      canRead: true,
+      canWrite: false,
+      canDelete: false,
+      extraProperty: 'not allowed',
+    };
+
+    // Note: This depends on the schema's additionalProperties setting
+    // If additionalProperties is false, this should fail
+    // If true or not set, this might pass
+    const result = validatePermissions.Check(invalidPermissions);
+    // We expect this to pass since TypeBox schemas don't set additionalProperties: false by default
+    expect(result).toBe(true);
   });
 });

@@ -1,8 +1,7 @@
-
 import { RootRoute, Route, Router } from '@tanstack/react-router';
 import App from './App';
-import { DocumentList } from './components/DocumentList';
 import { DocumentEditor } from './components/DocumentEditor';
+import { DocumentList } from './components/DocumentList';
 
 const rootRoute = new RootRoute({
   component: App,
@@ -31,7 +30,11 @@ const documentRoute = new Route({
   component: DocumentEditor,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, documentsRoute, documentRoute]);
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  documentsRoute,
+  documentRoute,
+]);
 
 export const router = new Router({ routeTree });
 

@@ -1,11 +1,10 @@
-
-import { useEffect, useState } from 'react';
-import { useAuthFetch } from '../hooks/useAuthFetch';
 import type { Document } from '@shared/schemas/document';
 import { Link } from '@tanstack/react-router';
-import { ErrorBoundary } from './ErrorBoundary';
-import { sanitizeDocumentTitle, sanitizeText } from '../utils/input-sanitizer';
+import { useEffect, useState } from 'react';
+import { useAuthFetch } from '../hooks/useAuthFetch';
 import { useDocumentPermissions } from '../hooks/useDocumentPermissions';
+import { sanitizeDocumentTitle, sanitizeText } from '../utils/input-sanitizer';
+import { ErrorBoundary } from './ErrorBoundary';
 
 function DocumentListItem({ doc }: { doc: Document }) {
   const { perms, loading } = useDocumentPermissions(doc.id);
@@ -38,7 +37,9 @@ export function DocumentList(): JSX.Element {
         const data = await response.json();
         setDocuments(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        setError(
+          err instanceof Error ? err.message : 'An unknown error occurred',
+        );
       }
     };
 
@@ -60,7 +61,9 @@ export function DocumentList(): JSX.Element {
         const newDocument = await response.json();
         setDocuments([...documents, newDocument]);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        setError(
+          err instanceof Error ? err.message : 'An unknown error occurred',
+        );
       }
     }
   };
@@ -69,7 +72,9 @@ export function DocumentList(): JSX.Element {
     <ErrorBoundary>
       <div>
         <h2>Documents</h2>
-        <button onClick={createDocument}>Create Document</button>
+        <button type="button" onClick={createDocument}>
+          Create Document
+        </button>
         {error && <p style={{ color: 'red' }}>{error}</p>}
         <ul>
           {documents.map((doc) => (

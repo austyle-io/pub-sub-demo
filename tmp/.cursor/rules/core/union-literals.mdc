@@ -1,0 +1,100 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Union Literals & Constants
+
+Always use const objects with `as const` for union literals instead of plain union types.
+
+## Rules
+
+-   **Always prefer const objects over plain union types** for string/number literal types
+-   Derive types using parentheses around typeof: `(typeof CONSTANT)[keyof typeof CONSTANT]`
+-   Use SCREAMING_SNAKE_CASE for constant object keys
+-   Use array and object `as const` over enums
+-   **Place constants in config/ directory** for reusability across files
+
+## When to Use
+
+### ✅ Use const objects for:
+
+-   String literal union types (status, mode, category)
+-   Number literal union types (sizes, counts, levels)
+-   Constants that need runtime access
+-   Shared constants across multiple files
+
+### ❌ Don't use const objects for:
+
+-   Complex object types
+-   Types with different shapes
+-   Discriminated unions with different properties
+
+## Examples
+
+### Basic Union Literals
+
+```typescript
+// ✅ Good - const object with as const
+export const STATUS = {
+    PENDING: "pending",
+    COMPLETE: "complete",
+    FAILED: "failed",
+} as const;
+
+export type Status = (typeof STATUS)[keyof typeof STATUS];
+
+// ❌ Bad - plain union type
+export type Status = "pending" | "complete" | "failed";
+```
+
+### Config Directory Pattern
+
+```typescript
+// config/ui-constants.ts
+export const WIDGET_POSITION = {
+    TOP_LEFT: "top-left",
+    TOP_RIGHT: "top-right",
+    BOTTOM_LEFT: "bottom-left",
+    BOTTOM_RIGHT: "bottom-right",
+} as const;
+
+// types/core-types.ts
+import { WIDGET_POSITION } from "../config/ui-constants";
+
+export type WidgetPosition = (typeof WIDGET_POSITION)[keyof typeof WIDGET_POSITION];
+```
+
+### Runtime Usage
+
+```typescript
+// Constants are available at runtime
+const widget = {
+    position: WIDGET_POSITION.TOP_LEFT, // "top-left"
+    // ...
+};
+
+// Type checking works correctly
+const isValidPosition = (pos: string): pos is WidgetPosition => {
+    return Object.values(WIDGET_POSITION).includes(pos as WidgetPosition);
+};
+```
+
+## Benefits
+
+-   **Runtime Constants**: Values available as `STATUS.PENDING`, `STATUS.COMPLETE`
+-   **Single Source of Truth**: Both types and runtime values from same definition
+-   **Better Autocomplete**: IDEs provide better suggestions and refactoring
+-   **Type Safety**: Maintains full TypeScript type safety with runtime access
+-   **Maintainability**: Changes only need to be made in one place
+-   **Centralized**: Config directory makes constants discoverable and reusable
+
+## Migration Pattern
+
+When converting existing union types:
+
+1. Create const object in appropriate config file
+2. Export with `as const`
+3. Update type definition to use derived type
+4. Update imports to use constants at runtime
+5. Verify all usage points use constants instead of string literals

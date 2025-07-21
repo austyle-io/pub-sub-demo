@@ -1,0 +1,325 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Migration Patterns
+
+Rules for progressive refactoring and maintaining backwards compatibility during codebase reorganization.
+
+## Progressive Refactoring Process
+
+When refactoring large files, follow this systematic extraction process:
+
+1. **Identify responsibilities** - List distinct functions
+2. **Extract components** - One component per file
+3. **Group utilities** - By functional domain
+4. **Split types** - By business domain
+5. **Create public API** - Clean index.ts exports
+
+## Step-by-Step Migration
+
+### 1. Analyze Current File
+
+```typescript
+// Before: Large monolithic file (500+ lines)
+// UserManagement.tsx
+export const UserManagement = () => {
+    // 5 different sub-components
+    // 10 utility functions
+    // Type definitions
+    // API calls
+    // State management
+};
+
+const UserList = () => {
+    /* ... */
+};
+const UserForm = () => {
+    /* ... */
+};
+const UserSearch = () => {
+    /* ... */
+};
+const validateUser = () => {
+    /* ... */
+};
+const formatUserName = () => {
+    /* ... */
+};
+// ... more mixed concerns
+```
+
+### 2. Extract Components
+
+```typescript
+// components/UserManagement.tsx (main component)
+import { UserList } from './UserList';
+import { UserForm } from './UserForm';
+import { UserSearch } from './UserSearch';
+
+export const UserManagement = () => {
+  return (
+    <div>
+      <UserSearch onSearch={handleSearch} />
+      <UserList users={users} onEdit={handleEdit} />
+      <UserForm onSubmit={handleSubmit} />
+    </div>
+  );
+};
+
+// components/UserList.tsx
+export const UserList = ({ users, onEdit }: UserListProps) => {
+  // Component implementation only
+};
+
+// components/UserForm.tsx
+export const UserForm = ({ onSubmit }: UserFormProps) => {
+  // Component implementation only
+};
+```
+
+### 3. Group Utilities
+
+```typescript
+// utils/user-utils.ts
+export const validateUser = (user: User): ValidationResult => {
+    // Validation logic
+};
+
+export const formatUserName = (user: User): string => {
+    // Formatting logic
+};
+
+// utils/api-utils.ts
+export const fetchUsers = async (): Promise<User[]> => {
+    // API logic
+};
+
+export const createUser = async (userData: CreateUserRequest): Promise<User> => {
+    // API logic
+};
+```
+
+### 4. Split Types
+
+```typescript
+// types/user-types.ts
+export type User = {
+    id: string;
+    name: string;
+    email: string;
+};
+
+export type CreateUserRequest = {
+    name: string;
+    email: string;
+};
+
+// types/component-types.ts
+export type UserListProps = {
+    users: User[];
+    onEdit: (user: User) => void;
+};
+
+export type UserFormProps = {
+    onSubmit: (data: CreateUserRequest) => void;
+};
+```
+
+### 5. Create Public API
+
+```typescript
+// index.ts
+export { UserManagement } from "./components/UserManagement";
+export { UserList } from "./components/UserList";
+export { UserForm } from "./components/UserForm";
+
+export type { User, CreateUserRequest } from "./types/user-types";
+export type { UserListProps, UserFormProps } from "./types/component-types";
+
+export { validateUser, formatUserName } from "./utils/user-utils";
+```
+
+## Backwards Compatibility
+
+### Maintain Old Exports During Transition
+
+```typescript
+// index.ts - Maintain backwards compatibility
+// New exports (preferred)
+export { UserProfile as UserProfileComponent } from "./components/UserProfile";
+export { UserList as UserListComponent } from "./components/UserList";
+
+// Old exports (for backwards compatibility)
+export { UserProfileComponent as UserProfile } from "./components/UserProfile";
+export { UserListComponent as UserList } from "./components/UserList";
+
+// Deprecation warnings
+/** @deprecated Use UserProfileComponent instead */
+export { UserProfileComponent as LegacyUserProfile } from "./components/UserProfile";
+```
+
+### Gradual Migration Strategy
+
+```typescript
+// Phase 1: Create new structure alongside old
+// old-structure/
+//   UserManagement.tsx (keep working)
+// new-structure/
+//   components/UserManagement.tsx (new implementation)
+
+// Phase 2: Add compatibility layer
+export { UserManagement } from "./new-structure/components/UserManagement";
+// Re-export for backwards compatibility
+export { UserManagement as LegacyUserManagement } from "./old-structure/UserManagement";
+
+// Phase 3: Add deprecation warnings
+/**
+ * @deprecated Use the new UserManagement from './components/UserManagement' instead
+ * This legacy export will be removed in v2.0.0
+ */
+export { UserManagement as OldUserManagement } from "./old-structure/UserManagement";
+
+// Phase 4: Remove old structure (in next major version)
+```
+
+### Import Path Migration
+
+```typescript
+// Before migration
+import { UserManagement, UserList, validateUser } from "./UserManagement";
+
+// During migration (both work)
+import { UserManagement } from "./UserManagement"; // Old path (still works)
+import { UserManagement } from "./components/UserManagement"; // New path
+
+// After migration
+import { UserManagement } from "./components/UserManagement";
+import { UserList } from "./components/UserList";
+import { validateUser } from "./utils/user-utils";
+
+// Or via barrel export
+import { UserManagement, UserList, validateUser } from "./user-management";
+```
+
+## Migration Tools and Scripts
+
+### Automated Import Updates
+
+```typescript
+// migration-script.ts
+import { Project } from "ts-morph";
+
+const project = new Project();
+
+// Add source files
+project.addSourceFilesAtPaths("src/**/*.{ts,tsx}");
+
+// Update imports
+for (const sourceFile of project.getSourceFiles()) {
+    sourceFile.getImportDeclarations().forEach((importDecl) => {
+        const moduleSpecifier = importDecl.getModuleSpecifierValue();
+
+        // Update old import paths
+        if (moduleSpecifier === "./UserManagement") {
+            importDecl.setModuleSpecifier("./components/UserManagement");
+        }
+    });
+}
+
+// Save changes
+project.saveSync();
+```
+
+### Codemod for Large Refactors
+
+```bash
+# Using jscodeshift for automated refactoring
+pnpm dlx jscodeshift -t transform-imports.js src/
+
+# Example transform-imports.js
+module.exports = function transformer(fileInfo, api) {
+  const j = api.jscodeshift;
+
+  return j(fileInfo.source)
+    .find(j.ImportDeclaration, {
+      source: { value: './UserManagement' }
+    })
+    .replaceWith(
+      j.importDeclaration(
+        [],
+        j.literal('./components/UserManagement')
+      )
+    )
+    .toSource();
+};
+```
+
+## Testing During Migration
+
+### Parallel Testing
+
+```typescript
+// test both old and new implementations
+describe("UserManagement Migration", () => {
+    describe("Legacy Implementation", () => {
+        it("should work with old import path", () => {
+            const { UserManagement } = require("./old-structure/UserManagement");
+            // Test legacy implementation
+        });
+    });
+
+    describe("New Implementation", () => {
+        it("should work with new import path", () => {
+            const { UserManagement } = require("./components/UserManagement");
+            // Test new implementation
+        });
+    });
+
+    describe("Backwards Compatibility", () => {
+        it("should maintain same API", () => {
+            const OldComponent = require("./old-structure/UserManagement").UserManagement;
+            const NewComponent = require("./components/UserManagement").UserManagement;
+
+            // Both should have same props interface
+            expect(getComponentProps(OldComponent)).toEqual(getComponentProps(NewComponent));
+        });
+    });
+});
+```
+
+## Migration Checklist
+
+### Before Starting
+
+-   [ ] Identify all responsibilities in the large file
+-   [ ] Map dependencies between functions/components
+-   [ ] Plan new directory structure
+-   [ ] Choose appropriate file names
+-   [ ] Create migration timeline
+
+### During Migration
+
+-   [ ] Extract one concern at a time
+-   [ ] Maintain backwards compatibility
+-   [ ] Update tests incrementally
+-   [ ] Document new structure
+-   [ ] Update import paths gradually
+
+### After Migration
+
+-   [ ] All tests passing
+-   [ ] No circular dependencies
+-   [ ] Clean public API via index.ts
+-   [ ] Documentation updated
+-   [ ] Team informed of new structure
+-   [ ] Old code marked as deprecated
+
+## Benefits
+
+-   **Risk Reduction**: Gradual migration reduces chance of breaking changes
+-   **Team Adoption**: Backwards compatibility allows gradual team adoption
+-   **Continuous Delivery**: Migration doesn't block other development
+-   **Quality Assurance**: Parallel testing ensures functionality preservation
+-   **Clear Timeline**: Structured approach provides predictable migration path

@@ -1,0 +1,350 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# BDD Testing Patterns
+
+Comprehensive rules for implementing BDD (Behavior-Driven Development) tests using QuickPickle with Vitest, maintaining type safety and established architectural patterns.
+
+## Critical Pattern: World Parameter Passing
+
+**⚠️ MOST IMPORTANT RULE**: QuickPickle passes the world object as the **first parameter** to step definitions, NOT as `this` context.
+
+### ❌ BANNED: Using `this` Context
+
+```typescript
+// ❌ WRONG - Will fail with "this.setUser is not a function"
+Given("a logged in user", function (this: AuStdXBddWorld) {
+    this.setUser({ id: "123", name: "Test User" }); // ERROR!
+});
+
+// ❌ WRONG - Even with function declaration
+Given("a logged in user", function() {
+    this.setUser({ id: "123", name: "Test User" }); // ERROR!
+});
+```
+
+### ✅ REQUIRED: World as First Parameter
+
+```typescript
+// ✅ REQUIRED - Arrow function with world parameter (following core/function-style.mdc)
+Given("a logged in user", (world: AuStdXBddWorld) => {
+    world.setUser({ id: "123", name: "Test User" });
+});
+
+// ✅ CORRECT - With additional parameters
+Given("a user with name {string}", (world: AuStdXBddWorld, name: string) => {
+    world.setUser({ id: "123", name });
+});
+
+// ✅ CORRECT - With DataTable
+Given("users exist:", (world: AuStdXBddWorld, dataTable: DataTable) => {
+    const users = dataTable.hashes();
+    users.forEach(userData => world.addUser(userData));
+});
+```
+
+## World Context Implementation
+
+### Type-Safe World Context
+
+```typescript
+// Required structure for BDD world
+type BddWorldContext = {
+    // Core context (always include)
+    logger: Logger;
+    errors: Error[];
+    testData: Record<string, unknown>;
+
+    // Domain-specific context
+    currentUser: User | null;
+    currentLocation: Location | null;
+    mapStore: MapStore | null;
+    lastResponse: Response | null;
+};
+
+// World class implementation
+class AuStdXBddWorld extends QuickPickleWorld {
+    public context: BddWorldContext;
+
+    constructor() {
+        super();
+        // Initialize with clean state
+        this.context = this.createFreshContext();
+    }
+
+    async init(): Promise<void> {
+        await super.init();
+        // Reset for each scenario - no state leakage
+        this.context = this.createFreshContext();
+    }
+
+    private createFreshContext(): BddWorldContext {
+        return {
+            logger: createMockLogger(),
+            errors: [],
+            testData: {},
+            currentUser: null,
+            currentLocation: null,
+            mapStore: null,
+            lastResponse: null,
+        };
+    }
+}
+```
+
+## State Management Patterns
+
+### Merging State Updates
+
+When multiple step definitions update the same entity, use merging logic:
+
+```typescript
+// ✅ CORRECT - Merge with existing state
+setLocation(locationOverrides: Partial<Location> = {}): void {
+    if (this.context.currentLocation) {
+        // Merge with existing location
+        this.context.currentLocation = {
+            ...this.context.currentLocation,
+            ...locationOverrides
+        };
+    } else {
+        // Create new location
+        this.context.currentLocation = createMockLocation(locationOverrides);
+    }
+}
+
+// ❌ WRONG - Overwrites existing state
+setLocation(location: Location): void {
+    this.context.currentLocation = location; // Loses previous data!
+}
+```
+
+### Type-Safe Test Data
+
+```typescript
+// ✅ CORRECT - Type-safe test data methods
+getTestData<T>(key: string): T | undefined {
+    return this.context.testData[key] as T | undefined;
+}
+
+setTestData<T>(key: string, value: T): void {
+    this.context.testData[key] = value;
+    this.context.logger.debug("Test data set", { key, type: typeof value });
+}
+
+// Usage in step definitions
+Given("test data for {string} is {string}", (world: AuStdXBddWorld, key: string, value: string) => {
+    world.setTestData(key, JSON.parse(value));
+});
+```
+
+## Step Definition Patterns
+
+### Parameter Order
+
+Always follow this parameter order in step definitions:
+
+1. World object (always first)
+2. String/number parameters from Gherkin
+3. DataTable (if present)
+
+```typescript
+// ✅ CORRECT parameter order
+Given("a user {string} with age {int} and properties:",
+    (world: AuStdXBddWorld, name: string, age: number, dataTable: DataTable) => {
+        const properties = dataTable.rowsHash();
+        world.setUser({ name, age, ...properties });
+    }
+);
+```
+
+### Error Handling in Steps
+
+```typescript
+// ✅ CORRECT - Let errors throw naturally for test failures
+When("I perform a risky operation", (world: AuStdXBddWorld) => {
+    // Let errors throw - test framework will handle them
+    performRiskyOperation();
+});
+
+// ✅ CORRECT - Capture errors when testing error scenarios
+When("I perform an operation that should fail", (world: AuStdXBddWorld) => {
+    try {
+        performOperationThatShouldFail();
+        // If we get here, the operation didn't fail as expected
+        throw new Error("Expected operation to fail but it succeeded");
+    } catch (error) {
+        // Store error for verification in Then steps
+        world.addError(error as Error);
+    }
+});
+
+Then("an error should have occurred", (world: AuStdXBddWorld) => {
+    expect(world.context.errors).toHaveLength(1);
+});
+```
+
+## Configuration Patterns
+
+### Vitest Configuration
+
+```typescript
+// vitest.bdd.config.ts - Separate BDD configuration
+export default defineConfig({
+    plugins: [
+        quickpickle({
+            explicitInit: true,
+            worldConfig: {
+                // CRITICAL: Verify this path exists!
+                worldConstructor: path.resolve(__dirname, "test/step-definitions/world.ts"),
+            },
+        }),
+    ],
+    // ... other config
+});
+```
+
+### MSW Integration
+
+```typescript
+// test/step-definitions/setup.ts
+import { server } from "../mocks/server";
+
+// Export for BDD context
+export const getServer = () => server;
+
+// test-utils.tsx - Support both contexts
+export const mockApiResponse = {
+    success: (data: unknown) => {
+        // Check BDD server first, then regular test server
+        const server = getBddServer() || getTestServer();
+        if (!server) {
+            throw new Error("MSW server not initialized");
+        }
+        // ... implementation
+    }
+};
+```
+
+## Common Pitfalls
+
+### 1. Configuration File References
+
+```typescript
+// ❌ WRONG - References non-existent file
+worldConstructor: path.resolve(__dirname, "test/step-definitions/simple-world.ts")
+
+// ✅ CORRECT - Verify file exists
+worldConstructor: path.resolve(__dirname, "test/step-definitions/world.ts")
+```
+
+### 2. Duplicate QuickPickle Configuration
+
+```typescript
+// ❌ WRONG - QuickPickle in multiple configs causes conflicts
+// vitest.config.ts
+plugins: [quickpickle()] // Remove this!
+
+// vitest.bdd.config.ts
+plugins: [quickpickle()] // Keep only here
+```
+
+### 3. Direct State Assignment
+
+```typescript
+// ❌ WRONG - Direct assignment loses data
+Given("a location with name {string}", (world, name) => {
+    world.context.currentLocation = { name }; // Incomplete!
+});
+
+// ✅ CORRECT - Use helper methods with defaults
+Given("a location with name {string}", (world, name) => {
+    world.setLocation({ name }); // Helper handles defaults
+});
+```
+
+## Feature File Best Practices
+
+### Tag Organization
+
+```gherkin
+@module:map @priority:high @status:implemented
+Feature: Map Interaction
+
+  @smoke @performance
+  Scenario: Basic map operations
+    Given a map with default settings
+    When I zoom to level 10
+    Then the map should render within 50ms
+```
+
+### Background Usage
+
+```gherkin
+Feature: User Management
+
+  Background:
+    Given a logged in admin user
+    And the following users exist:
+      | name    | role      |
+      | Alice   | developer |
+      | Bob     | designer  |
+
+  Scenario: View user list
+    When I navigate to the users page
+    Then I should see 2 users
+```
+
+## Anti-Patterns
+
+```typescript
+// ❌ Using any types
+const world: any = getWorld();
+
+// ❌ Global state outside world
+let globalTestData = {}; // BANNED!
+
+// ❌ Async without proper handling
+Given("async step", async function() {
+    // Missing world parameter!
+    await someAsyncOperation();
+});
+
+// ❌ Console.log in step definitions
+Then("debug step", (world) => {
+    console.log(world.context); // Use world.context.logger instead!
+});
+
+// ❌ Catching all errors indiscriminately
+When("error step", (world) => {
+    try {
+        someOperation();
+    } catch (error) {
+        world.addError(error); // Only catch when testing error scenarios!
+    }
+});
+```
+
+## Testing Script Integration
+
+```json
+{
+    "scripts": {
+        // BDD-specific scripts following patterns
+        "test:bdd": "vitest run -c vitest.bdd.config.ts",
+        "test:bdd:watch": "vitest watch -c vitest.bdd.config.ts",
+        "test:bdd:ui": "vitest --ui -c vitest.bdd.config.ts"
+    }
+}
+```
+
+## Benefits
+
+- **Type Safety**: Full TypeScript support in BDD scenarios
+- **No State Leakage**: Fresh world context for each scenario
+- **Integration**: Seamless integration with existing test infrastructure
+- **Debugging**: Structured logging and error capture
+- **Maintainability**: Clear patterns prevent common mistakes
+- **Performance**: Fast step execution (see safe-testing-linting.mdc for timeout guidelines)

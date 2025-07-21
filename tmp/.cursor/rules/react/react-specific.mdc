@@ -1,0 +1,195 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# React-Specific Patterns
+
+React-specific coding patterns and best practices.
+
+## Rules
+
+-   Use logical AND (`condition && <Component />`) over ternary for conditional rendering
+-   Use `{...props}` spreading when creating a wrapper component
+-   Use explicit props elsewhere
+-   Event handler naming: internal component uses `handleClick`, props should use `onClick` convention
+
+## Conditional Rendering
+
+```typescript
+// Preferred - logical AND for conditional rendering
+const UserProfile = ({ user, isLoading }: UserProfileProps) => {
+  return (
+    <div>
+      {isLoading && <LoadingSpinner />}
+      {user && <UserDetails user={user} />}
+      {!user && !isLoading && <EmptyState />}
+    </div>
+  );
+};
+
+// Avoid - ternary for simple conditionals
+const UserProfile = ({ user, isLoading }: UserProfileProps) => {
+  return (
+    <div>
+      {isLoading ? <LoadingSpinner /> : null} {/* BAD */}
+      {user ? <UserDetails user={user} /> : null} {/* BAD */}
+    </div>
+  );
+};
+```
+
+## Props Spreading Patterns
+
+### When to Use Props Spreading
+
+**Use `{...props}` spreading for wrapper components that:**
+
+-   Primarily pass through props to child components without modification
+-   Add only styling, layout, or structural markup
+-   Function as HOCs (Higher-Order Components) or similar patterns
+-   Need to forward all HTML attributes to DOM elements
+
+**Use explicit props for specific components that:**
+
+-   Have defined business logic or behavior
+-   Transform or validate prop values
+-   Have a specific, limited API surface
+
+### Examples
+
+```typescript
+import { ReactNode, HTMLAttributes, ComponentType } from 'react';
+
+// ✅ GOOD - Wrapper component: passes through props, adds only styling
+type WrapperProps = {
+  children: ReactNode;
+  className?: string;
+} & HTMLAttributes<HTMLDivElement>;
+
+const Wrapper = ({ children, className, ...props }: WrapperProps) => {
+  return (
+    <div className={`wrapper ${className}`} {...props}>
+      {children}
+    </div>
+  );
+};
+
+// ✅ GOOD - Layout wrapper: adds structure, passes through attributes
+type CardProps = {
+  children: ReactNode;
+  elevated?: boolean;
+} & HTMLAttributes<HTMLDivElement>;
+
+const Card = ({ children, elevated = false, ...props }: CardProps) => {
+  return (
+    <div className={`card ${elevated ? 'elevated' : ''}`} {...props}>
+      {children}
+    </div>
+  );
+};
+
+// config/ui-constants.ts
+const BUTTON_VARIANT = {
+  PRIMARY: 'primary',
+  SECONDARY: 'secondary',
+} as const;
+
+type ButtonVariant = (typeof BUTTON_VARIANT)[keyof typeof BUTTON_VARIANT];
+
+// ✅ GOOD - Specific component: defined API, business logic
+type ButtonProps = {
+  title: string;
+  onClick?: () => void;
+  variant?: ButtonVariant;
+  loading?: boolean;
+};
+
+const Button = ({ title, onClick, variant = BUTTON_VARIANT.PRIMARY, loading }: ButtonProps) => {
+  const handleClick = () => {
+    if (!loading) {
+      onClick?.();
+    }
+  };
+
+  return (
+    <button
+      onClick={handleClick}
+      disabled={loading}
+      className={`btn-${variant} ${loading ? 'loading' : ''}`}
+    >
+      {loading ? 'Loading...' : title}
+    </button>
+  );
+};
+
+// ✅ GOOD - HOC pattern: passes through all props
+const withErrorBoundary = <P extends object>(Component: ComponentType<P>) => {
+  return ({ ...props }: P) => (
+    <ErrorBoundary>
+      <Component {...props} />
+    </ErrorBoundary>
+  );
+};
+```
+
+## Event Handler Conventions
+
+```typescript
+type FormComponentProps = {
+  // Props: use 'on' prefix
+  onSubmit?: (data: FormData) => void;
+  onChange?: (field: string, value: string) => void;
+  onValidate?: (isValid: boolean) => void;
+};
+
+const FormComponent = ({ onSubmit, onChange, onValidate }: FormComponentProps) => {
+  // Internal handlers: use 'handle' prefix
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    onSubmit?.(formData);
+  };
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    onChange?.(e.target.name, e.target.value);
+  };
+
+  const handleValidation = (isValid: boolean) => {
+    onValidate?.(isValid);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input onChange={handleInputChange} />
+    </form>
+  );
+};
+```
+
+## Component Organization
+
+```typescript
+// Keep components focused and single-purpose
+const UserCard = ({ user }: { user: User }) => {
+  return (
+    <div className="user-card">
+      <UserAvatar user={user} />
+      <UserInfo user={user} />
+      <UserActions user={user} />
+    </div>
+  );
+};
+
+// Extract sub-components to separate files when they grow
+const UserAvatar = ({ user }: { user: User }) => (
+  <img src={user.avatar} alt={user.name} className="avatar" />
+);
+
+const UserInfo = ({ user }: { user: User }) => (
+  <div className="user-info">
+    <h3>{user.name}</h3>
+    <p>{user.email}</p>
+  </div>
+);
+```

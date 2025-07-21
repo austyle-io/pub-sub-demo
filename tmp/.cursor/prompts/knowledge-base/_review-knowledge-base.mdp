@@ -1,0 +1,212 @@
+<!-- title: Review Complete Project Knowledge Base -->
+<!-- description: Comprehensive project context review for AI to understand entire project state and recent progress -->
+
+You are an expert project analyst tasked with providing complete project context to ensure optimal AI assistance. Review all available project knowledge, recent progress, and temporary checkpoints to build comprehensive understanding.
+
+## 🎯 PRIMARY OBJECTIVE
+
+Provide complete project context including:
+- **Current project state and architecture**
+- **Recent achievements and metrics**
+- **Active development patterns and standards**
+- **Temporary context from previous chat sessions**
+- **Critical knowledge that must be preserved**
+
+## 📚 SYSTEMATIC KNOWLEDGE REVIEW
+
+### **1. Project Foundation Analysis**
+```bash
+# Core project structure and configuration
+@/docs/project-overview.mdx @/package.json @/tsconfig.json @/vitest.config.ts
+@/.cursor/rules/index.md @/docs/
+```
+
+### **2. Architecture and Implementation**
+```bash
+# Main source code and patterns
+@/src/lib/modules/ @/src/lib/components/ @/src/lib/services/
+@/src/lib/utils/ @/src/lib/types/ @/src/lib/hooks/
+```
+
+### **3. Testing Framework and Achievements**
+```bash
+# Testing implementation and documentation
+@/test/ @/docs/testing/ @/scripts/test-clean.js
+```
+
+### **4. Recent Context and Checkpoints**
+Look for temporary checkpoint files created by previous sessions:
+```bash
+# Temporary knowledge preservation files
+@/docs/temp-checkpoint-*.md
+@/docs/context-preservation-*.md
+@/.cursor/temp-context-*.md
+```
+
+### **5. Development Standards and Rules**
+```bash
+# Coding standards and architectural patterns
+@/.cursor/rules/core/ @/.cursor/rules/react/ @/.cursor/rules/architecture/
+@/.cursor/rules/advanced/ @/.cursor/rules/quality/
+```
+
+## 🔍 CRITICAL KNOWLEDGE AREAS
+
+### **Enterprise-Grade Achievements (Must Understand)**
+- **100% ESLint compliance** (15 → 0 errors)
+- **100% TypeScript error resolution** (57 → 0 errors)
+- **5.3x test coverage increase** (1,286 → 6,800+ lines)
+- **29 implementation bugs discovered** through proper typing
+- **40% code reduction** through shared utilities
+- **83% test pass rate** across 371 tests in 8 files
+
+### **Battle-Tested Patterns (Critical Knowledge)**
+- **Union literals with `as const`** - Never plain union types
+- **Zod-first type validation** - Schema as source of truth
+- **Complete interface mocking** - Prevents 30% of test failures
+- **Systematic test organization** - 7 proven categories
+- **Context provider patterns** - No global store access
+- **Enum-object lookup patterns** - Ban switch statements
+
+### **Anti-Patterns (Must Avoid)**
+- **Never use `any` types** - Use `unknown` or proper types
+- **Never use `interface`** - Always use `type` declarations
+- **Never use duck typing** - Use `satisfies` operator
+- **Never use double assertions** - `as unknown as Type` banned
+- **Never use console logging** - Use structured logging framework
+- **Never include mock data** - Only in demos/tests
+
+### **Current Development Context**
+- **Recent focus areas** and **active development**
+- **Current architectural decisions** and **patterns being applied**
+- **Performance optimizations** and **testing improvements**
+- **Documentation updates** and **knowledge preservation**
+
+## 📊 METRICS TO UNDERSTAND
+
+### **Code Quality Metrics**
+- **Error Resolution**: 100% (75+ errors → 0)
+- **Type Safety**: 100% compliance with zero `any` types
+- **Test Coverage**: 5.3x increase (1,286 → 6,800+ lines)
+- **Performance**: Sub-50ms execution with configurable thresholds
+
+### **Development Efficiency**
+- **Code Reduction**: 40% through shared utilities
+- **Bug Discovery**: 29 implementation issues found through typing
+- **Test Success**: 83% pass rate across comprehensive suite
+- **Framework Compatibility**: Vitest v3, React 18, TypeScript 5
+
+## 🎨 PROJECT ARCHITECTURAL UNDERSTANDING
+
+### **Module Organization**
+```
+src/lib/
+├── modules/           # Feature modules (map, user, etc.)
+├── components/        # Shared React components
+├── services/          # Business logic services
+├── utils/             # Utility functions by domain
+├── types/             # TypeScript type definitions
+├── hooks/             # Custom React hooks
+└── providers/         # Context providers
+```
+
+### **Testing Architecture**
+```
+test/
+├── utils/             # Shared test utilities (40% reduction)
+├── mocks/             # Complete interface mocks
+├── fixtures/          # Test data factories
+└── setup.ts           # Global test configuration
+```
+
+### **Documentation Structure**
+```
+docs/
+├── testing/           # Comprehensive testing guide
+├── architecture/      # System design documentation
+├── patterns/          # Proven implementation patterns
+└── temp-checkpoint-*/ # Temporary context preservation
+```
+
+## 🔧 DEVELOPMENT WORKFLOW CONTEXT
+
+### **Testing Framework**
+- **Vitest v3** with React Testing Library
+- **7 systematic test categories** with proven success rates
+- **Complete mock architecture** preventing common failures
+- **Performance testing** with configurable thresholds
+- **Type-safe utilities** with zero `any` types
+
+### **Error Handling**
+- **react-error-boundary** for React components
+- **Typed errors** with proper context
+- **Structured logging** via Pino framework
+- **Graceful degradation** patterns
+
+### **State Management**
+- **Context providers** with proper error boundaries
+- **No global store access** - always wrapped in providers
+- **Type-safe actions** and **immutable updates**
+- **Event system testing** with subscription lifecycle
+
+## 📋 INTEGRATION CHECKLIST
+
+After reviewing all knowledge sources, confirm understanding of:
+
+### **Current Project State**
+- [ ] Latest architectural decisions and their rationale
+- [ ] Recent performance optimizations and their impact
+- [ ] Current development focus and priorities
+- [ ] Any temporary workarounds or technical debt
+
+### **Established Patterns**
+- [ ] Proven coding patterns and their success metrics
+- [ ] Testing strategies and their effectiveness
+- [ ] Error handling approaches and recovery mechanisms
+- [ ] Documentation standards and maintenance practices
+
+### **Context from Previous Sessions**
+- [ ] Recent chat session achievements and discoveries
+- [ ] Ongoing work that needs continuation
+- [ ] Decisions made that should influence future work
+- [ ] Knowledge that must be preserved for team success
+
+### **Critical Warnings and Constraints**
+- [ ] Known anti-patterns that caused failures
+- [ ] Performance constraints and optimization requirements
+- [ ] Compatibility requirements and version constraints
+- [ ] Security considerations and access patterns
+
+## 🚀 OUTPUT SYNTHESIS
+
+Provide a comprehensive summary covering:
+
+### **Project Status Overview**
+- Current architectural state and recent achievements
+- Active development areas and their progress
+- Performance metrics and quality indicators
+
+### **Critical Knowledge for Success**
+- Must-follow patterns with proven success rates
+- Anti-patterns to avoid with failure explanations
+- Key architectural decisions and their rationale
+
+### **Immediate Context**
+- Recent work from checkpoint files (if any)
+- Current development focus and priorities
+- Any ongoing issues or optimization opportunities
+
+### **Recommended Next Steps**
+- Areas that need attention or improvement
+- Opportunities to apply proven patterns
+- Documentation that should be updated or created
+
+## 📝 CONTINUOUS IMPROVEMENT
+
+If checkpoint files are found, also assess:
+- **Knowledge gaps** that need permanent documentation
+- **Patterns** that should be codified in cursor rules
+- **Achievements** that should be preserved in main documentation
+- **Context** that can be graduated from temporary to permanent docs
+
+This review ensures optimal AI assistance by providing complete project understanding and preserving critical knowledge across chat sessions.

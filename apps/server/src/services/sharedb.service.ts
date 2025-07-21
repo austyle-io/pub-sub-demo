@@ -7,7 +7,11 @@ import ShareDBMongo from 'sharedb-mongo';
 import { type WebSocket, WebSocketServer } from 'ws';
 import type { AuthenticatedRequest } from '../middleware/websocket-auth';
 import { checkDocumentPermission } from '../utils/permissions';
-import { hasUserIdAndRole, isShareDBContext, isAuthenticatedRequest } from '../utils/type-guards';
+import {
+  hasUserIdAndRole,
+  isAuthenticatedRequest,
+  isShareDBContext,
+} from '../utils/type-guards';
 
 let shareDBService: ShareDBService;
 
@@ -37,7 +41,7 @@ export class ShareDBService {
   constructor() {
     // Initialize ShareDB with MongoDB
     const mongoUrl =
-      process.env['MONGO_URL'] ?? 'mongodb://localhost:27017/collab_demo';
+      process.env.MONGO_URL ?? 'mongodb://localhost:27017/collab_demo';
     this.backend = createShareDB({
       db: createMongoAdapter(mongoUrl),
     });

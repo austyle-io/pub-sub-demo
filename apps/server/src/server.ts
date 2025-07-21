@@ -1,17 +1,16 @@
-import cookieParser from 'cookie-parser';
-import { validateEnvironment } from './config/env-validator';
+import { validateEnv } from './types/env';
 
-// Add at the very top, before other imports that might use env vars
-const config = validateEnvironment();
+// Validate and get typed environment variables at startup
+const env = validateEnv();
 
 import 'dotenv/config';
 import http from 'node:http';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { type Express } from 'express';
-import passport from 'passport';
-import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
+import passport from 'passport';
 import authRoutes from './routes/auth.routes';
 import docRoutes from './routes/doc.routes';
 import { initializeShareDB } from './services/sharedb.service';
@@ -21,26 +20,28 @@ import { connectToDatabase } from './utils/database';
  * Main Express application. Sets up middleware, routes, and ShareDB server.
  */
 const app: Express = express();
-const PORT = process.env['PORT'] ?? 3001;
+const PORT = parseInt(env.PORT, 10);
 const shareDBService = initializeShareDB();
 
 // Security headers
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-eval'"], // For dev only
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "ws://localhost:3001"], // WebSocket
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-eval'"], // For dev only
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+        connectSrc: ["'self'", 'ws://localhost:3001'], // WebSocket
+      },
     },
-  },
-  hsts: {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true
-  }
-}));
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+  }),
+);
 
 // Rate limiting
 const generalLimiter = rateLimit({
@@ -68,7 +69,7 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 // Middleware
 app.use(
   cors({
-    origin: process.env['CLIENT_URL'] ?? 'http://localhost:3000',
+    origin: env.CLIENT_URL,
     credentials: true,
   }),
 );

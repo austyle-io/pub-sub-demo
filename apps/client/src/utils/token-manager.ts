@@ -16,7 +16,7 @@ class TokenManager {
 
   hasValidAccessToken(): boolean {
     if (!this.accessToken) return false;
-    
+
     try {
       const payload = JSON.parse(atob(this.accessToken.split('.')[1]));
       return payload.exp * 1000 > Date.now();

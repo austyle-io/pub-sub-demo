@@ -13,8 +13,9 @@ const mongoDbAvailable = await isMongoDbAvailable();
 
 describe.skipIf(!mongoDbAvailable)('Auth Endpoints', () => {
   beforeAll(async () => {
-    // Set test JWT secret
-    process.env['JWT_SECRET'] = 'test-secret-key-for-testing-only';
+    // Set test JWT secrets
+    process.env['JWT_ACCESS_SECRET'] = 'test-access-secret-key-for-testing-only';
+    process.env['JWT_REFRESH_SECRET'] = 'test-refresh-secret-key-for-testing-only';
     await connectToDatabase();
   });
 

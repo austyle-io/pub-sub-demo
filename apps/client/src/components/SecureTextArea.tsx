@@ -1,14 +1,15 @@
-import React, { useState, useCallback } from 'react';
+import type React from 'react';
+import { useCallback, useState } from 'react';
 import { sanitizeText } from '../utils/input-sanitizer';
 
-interface SecureTextAreaProps {
+type SecureTextAreaProps = {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
   maxLength?: number;
   className?: string;
   rows?: number;
-}
+};
 
 export const SecureTextArea: React.FC<SecureTextAreaProps> = ({
   value,
@@ -16,19 +17,22 @@ export const SecureTextArea: React.FC<SecureTextAreaProps> = ({
   placeholder = '',
   maxLength = 10000,
   className = '',
-  rows = 10
+  rows = 10,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const rawValue = e.target.value;
-    
-    // Apply basic sanitization while typing
-    if (rawValue.length <= maxLength) {
-      const sanitized = sanitizeText(rawValue);
-      onChange(sanitized);
-    }
-  }, [onChange, maxLength]);
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const rawValue = e.target.value;
+
+      // Apply basic sanitization while typing
+      if (rawValue.length <= maxLength) {
+        const sanitized = sanitizeText(rawValue);
+        onChange(sanitized);
+      }
+    },
+    [onChange, maxLength],
+  );
 
   const handleBlur = useCallback(() => {
     setIsFocused(false);
@@ -54,7 +58,7 @@ export const SecureTextArea: React.FC<SecureTextAreaProps> = ({
           borderRadius: '4px',
           padding: '8px',
           width: '100%',
-          resize: 'vertical'
+          resize: 'vertical',
         }}
       />
       <small style={{ color: '#666', fontSize: '12px' }}>

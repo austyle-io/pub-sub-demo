@@ -1,0 +1,157 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Map & Widget Domain Patterns
+
+Domain-specific naming conventions for Map and Widget modules.
+
+## Rules
+
+- Use `Map*` prefix for map-related types: `MapConfig`, `MapState`, `MapActions`
+- Use `Widget*` prefix for widget-related types: `WidgetConfig`, `WidgetEvent`
+- Use `Layer*` prefix for layer-related types: `LayerConfig`, `LayerEvent`
+- Use specific widget names: `LayerManagementWidget`, `NavigationControls`
+- Avoid generic terms: `CustomWidget`, `MyWidget`, `BaseWidget`
+
+## Map Module Naming
+
+```typescript
+// ✅ GOOD - Map-related types
+export type MapConfig = {
+    center: [number, number];
+    zoom: number;
+    style: string;
+};
+
+export type MapState = {
+    config: MapConfig;
+    isLoaded: boolean;
+    error: string | null;
+};
+
+export type MapActions = {
+    setConfig: (config: MapConfig) => void;
+    setLoaded: (isLoaded: boolean) => void;
+    setError: (error: string | null) => void;
+};
+
+// ❌ BAD - Generic naming
+export type Configuration = {}; // Should be MapConfig
+export type State = {}; // Should be MapState
+export type Actions = {}; // Should be MapActions
+```
+
+## Widget Module Naming
+
+```typescript
+// ✅ GOOD - Widget-related types
+export type WidgetConfig = {
+    position: WidgetPosition;
+    visible: boolean;
+};
+
+export type WidgetEvent = {
+    type: string;
+    payload: unknown;
+};
+
+// Specific widget names
+export type LayerManagementWidget = {
+    layers: LayerConfig[];
+    onLayerToggle: (id: string) => void;
+};
+
+export type NavigationControls = {
+    position: WidgetPosition;
+    showCompass: boolean;
+};
+
+// ❌ BAD - Generic widget naming
+export type CustomWidget = {}; // Should be LayerManagementWidget
+export type MyWidget = {}; // Should be NavigationControls
+export type BaseWidget = {}; // Should be specific widget name
+```
+
+## Layer Module Naming
+
+```typescript
+// ✅ GOOD - Layer-related types
+export type LayerConfig = {
+    id: string;
+    name: string;
+    visible: boolean;
+    opacity: number;
+};
+
+export type LayerEvent = {
+    type: "visibility-change" | "opacity-change";
+    layerId: string;
+    value: boolean | number;
+};
+
+// Handler naming
+export type LayerVisibilityChangeHandler = (layerId: string, visible: boolean) => void;
+export type MapViewUpdateHandler = (view: MapViewState) => void;
+
+// ❌ BAD - Generic handler naming
+export type MyHandler = (data: unknown) => void; // Should be LayerVisibilityChangeHandler
+export type CustomCallback = () => void; // Should be MapViewUpdateHandler
+```
+
+## Component Naming Patterns
+
+```typescript
+// ✅ GOOD - Specific component names
+export const LayerManagementWidget = ({ layers }: LayerManagementProps) => {
+    // Implementation
+};
+
+export const NavigationControls = ({ position }: NavigationControlsProps) => {
+    // Implementation
+};
+
+export const LayerVisibilityHandler = ({ onToggle }: LayerVisibilityProps) => {
+    // Implementation
+};
+
+// ❌ BAD - Generic component names
+export const MyButton = () => {}; // Should be SubmitButton
+export const CustomHandler = () => {}; // Should be LayerVisibilityHandler
+export const BaseComponent = () => {}; // Should be specific component name
+```
+
+## Props and Event Handler Naming
+
+```typescript
+// ✅ GOOD - Descriptive prop and handler names
+export type LayerManagementProps = {
+    layers: LayerConfig[];
+    onLayerToggle: (id: string) => void;
+    onLayerReorder: (fromIndex: number, toIndex: number) => void;
+};
+
+export type NavigationControlsProps = {
+    position: WidgetPosition;
+    showCompass: boolean;
+    onCompassClick: () => void;
+};
+
+// ❌ BAD - Generic prop names
+export type Props = {
+    data: unknown; // Should be layers: LayerConfig[]
+};
+
+export type MyComponentProps = {
+    config: unknown; // Should be specific config type
+};
+```
+
+## Benefits
+
+- **Domain Clarity**: Names immediately indicate their purpose in the map/widget context
+- **Consistency**: Predictable patterns across all map-related modules
+- **Maintainability**: Easy to understand component relationships and data flow
+- **Searchability**: Easy to find related types and components
+- **Type Safety**: Clear type boundaries between different domain concepts

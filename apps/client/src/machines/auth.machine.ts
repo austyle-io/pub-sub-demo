@@ -1,10 +1,9 @@
 import type {
-  AuthResponse,
   CreateUserRequest,
   LoginRequest,
   PublicUser,
 } from '@collab-edit/shared';
-import { isJwtPayload } from '@collab-edit/shared';
+import { isAuthResponse, isJwtPayload } from '@collab-edit/shared';
 import { assign, createMachine, fromPromise } from 'xstate';
 import { authService } from '../services/auth.service';
 
@@ -22,6 +21,17 @@ export type AuthEvent =
   | { type: 'REFRESH_TOKEN' }
   | { type: 'CLEAR_ERROR' };
 
+// Type guard for XState event data
+const isLoginEvent = (
+  event: AuthEvent,
+): event is { type: 'LOGIN'; data: LoginRequest } =>
+  event.type === 'LOGIN' && 'data' in event;
+
+const isSignupEvent = (
+  event: AuthEvent,
+): event is { type: 'SIGNUP'; data: CreateUserRequest } =>
+  event.type === 'SIGNUP' && 'data' in event;
+
 export const authMachine = createMachine({
   id: 'auth',
   initial: 'checkingAuth',
@@ -38,10 +48,10 @@ export const authMachine = createMachine({
   states: {
     checkingAuth: {
       entry: assign(() => {
-        const stored = authService.getStoredTokens();
-        if (stored.accessToken && stored.refreshToken) {
+        const accessToken = authService.getAccessToken();
+        if (accessToken) {
           try {
-            const tokenParts = stored.accessToken.split('.');
+            const tokenParts = accessToken.split('.');
             if (tokenParts.length !== 3) {
               throw new Error('Invalid token format');
             }
@@ -60,8 +70,8 @@ export const authMachine = createMachine({
                 createdAt: '',
                 updatedAt: '',
               },
-              accessToken: stored.accessToken,
-              refreshToken: stored.refreshToken,
+              accessToken: accessToken,
+              refreshToken: null, // Refresh tokens are http-only cookies
               error: null,
             };
           } catch (error) {
@@ -107,15 +117,23 @@ export const authMachine = createMachine({
         src: fromPromise(async ({ input }: { input: LoginRequest }) => {
           return authService.login(input);
         }),
-        input: ({ event }) => (event as { data: LoginRequest }).data,
+        input: ({ event }) => {
+          if (!isLoginEvent(event)) {
+            throw new Error('Invalid login event');
+          }
+          return event.data;
+        },
         onDone: {
           target: 'authenticated',
           actions: assign(({ event }) => {
-            const authResponse = event.output as AuthResponse;
+            if (!isAuthResponse(event.output)) {
+              console.error('Invalid auth response received');
+              return { error: 'Invalid authentication response' };
+            }
             return {
-              user: authResponse.user,
-              accessToken: authResponse.accessToken,
-              refreshToken: authResponse.refreshToken,
+              user: event.output.user,
+              accessToken: event.output.accessToken,
+              refreshToken: event.output.refreshToken,
               error: null,
             };
           }),
@@ -123,7 +141,10 @@ export const authMachine = createMachine({
         onError: {
           target: 'idle',
           actions: assign(({ event }) => ({
-            error: (event.error as Error).message,
+            error:
+              event.error instanceof Error
+                ? event.error.message
+                : 'Login failed',
           })),
         },
       },
@@ -133,15 +154,23 @@ export const authMachine = createMachine({
         src: fromPromise(async ({ input }: { input: CreateUserRequest }) => {
           return authService.signup(input);
         }),
-        input: ({ event }) => (event as { data: CreateUserRequest }).data,
+        input: ({ event }) => {
+          if (!isSignupEvent(event)) {
+            throw new Error('Invalid signup event');
+          }
+          return event.data;
+        },
         onDone: {
           target: 'authenticated',
           actions: assign(({ event }) => {
-            const authResponse = event.output as AuthResponse;
+            if (!isAuthResponse(event.output)) {
+              console.error('Invalid auth response received');
+              return { error: 'Invalid authentication response' };
+            }
             return {
-              user: authResponse.user,
-              accessToken: authResponse.accessToken,
-              refreshToken: authResponse.refreshToken,
+              user: event.output.user,
+              accessToken: event.output.accessToken,
+              refreshToken: event.output.refreshToken,
               error: null,
             };
           }),
@@ -149,7 +178,10 @@ export const authMachine = createMachine({
         onError: {
           target: 'idle',
           actions: assign(({ event }) => ({
-            error: (event.error as Error).message,
+            error:
+              event.error instanceof Error
+                ? event.error.message
+                : 'Signup failed',
           })),
         },
       },
@@ -178,18 +210,20 @@ export const authMachine = createMachine({
     },
     refreshingToken: {
       invoke: {
-        src: fromPromise(async ({ input }: { input: string }) => {
-          return authService.refreshToken(input);
+        src: fromPromise(async () => {
+          return authService.refreshToken();
         }),
-        input: ({ context }) => context.refreshToken!,
         onDone: {
           target: 'authenticated',
           actions: assign(({ event }) => {
-            const authResponse = event.output as AuthResponse;
+            if (!isAuthResponse(event.output)) {
+              console.error('Invalid auth response received');
+              return { error: 'Invalid authentication response' };
+            }
             return {
-              user: authResponse.user,
-              accessToken: authResponse.accessToken,
-              refreshToken: authResponse.refreshToken,
+              user: event.output.user,
+              accessToken: event.output.accessToken,
+              refreshToken: event.output.refreshToken,
               error: null,
             };
           }),
@@ -202,7 +236,10 @@ export const authMachine = createMachine({
               user: null,
               accessToken: null,
               refreshToken: null,
-              error: (event.error as Error).message,
+              error:
+                event.error instanceof Error
+                  ? event.error.message
+                  : 'Token refresh failed',
             };
           }),
         },

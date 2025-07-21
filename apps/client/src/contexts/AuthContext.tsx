@@ -1,12 +1,12 @@
+import type { CreateUserRequest, LoginRequest } from '@collab-edit/shared';
+import { isJwtPayload } from '@collab-edit/shared';
+import { useMachine } from '@xstate/react';
 import type React from 'react';
 import { createContext, useContext, useEffect } from 'react';
-import type { CreateUserRequest, LoginRequest } from '@collab-edit/shared';
-import { useMachine } from '@xstate/react';
 import {
   type AuthContext as AuthState,
   authMachine,
 } from '../machines/auth.machine';
-import { isJwtPayload } from '@collab-edit/shared';
 import { tokenManager } from '../utils/token-manager';
 
 type AuthContextValue = AuthState & {
@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     return undefined;
-  }, [state.context.accessToken, send]);
+  }, [send]);
 
   return (
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>

@@ -1,0 +1,197 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+---
+description:
+globs:
+alwaysApply: true
+---
+# Safe Testing and Linting Practices
+
+Rules for preventing hanging commands and ensuring efficient testing/linting workflows.
+
+## Rules
+
+- **Never run `pnpm lint` on entire project** - it can hang indefinitely
+- **Never run `pnpm test` without understanding watch mode** - it runs in watch by default
+- **Use timeout-protected scripts** for CI/CD and large operations
+- **Target specific directories** when possible
+- **Create safe wrapper scripts** for potentially hanging operations
+
+## Performance Targets by Test Type
+
+- **Unit Tests**: Should run in milliseconds (typically < 50ms per test)
+- **Integration Tests**: May take longer due to setup/teardown (< 500ms per test)
+- **BDD Tests**: Include setup/cleanup time (< 1s per scenario)
+- **E2E Tests**: Browser automation can be slow (< 5s per test)
+
+**Note**: While individual tests should be fast, timeouts are set conservatively (30s for linting, 60s for tests) to handle:
+- Initial compilation time
+- Test environment setup
+- Cleanup operations
+- CI/CD environment variations
+
+## The Hanging Problem
+
+Both ESLint and Vitest can hang when:
+
+- Processing very large codebases
+- Encountering certain file patterns
+- Running in watch mode unintentionally
+- Working with circular dependencies
+
+## Safe Script Implementation
+
+### Lint Safe Script
+
+```javascript
+// scripts/lint-safe.js
+#!/usr/bin/env node
+
+import { execSync } from 'child_process';
+import path from 'path';
+
+const TIMEOUT = 30000; // 30 seconds per directory
+const DEFAULT_DIRECTORIES = ['src', 'test', 'scripts'];
+
+const targetDirs = process.argv.slice(2).filter(arg => !arg.startsWith('--'));
+const directories = targetDirs.length > 0 ? targetDirs : DEFAULT_DIRECTORIES;
+
+directories.forEach(dir => {
+    try {
+        console.log(`Linting ${dir}...`);
+        execSync(`eslint ${dir} --max-warnings 0`, {
+            stdio: 'inherit',
+            timeout: TIMEOUT,
+            cwd: projectRoot
+        });
+    } catch (error) {
+        if (error.signal === 'SIGTERM') {
+            console.error(`⏱️ Timeout: ESLint took longer than ${TIMEOUT/1000}s for ${dir}`);
+        }
+        process.exit(1);
+    }
+});
+```
+
+### Test Safe Script
+
+```javascript
+// scripts/test-safe.js
+#!/usr/bin/env node
+
+import { execSync } from 'child_process';
+
+const TIMEOUT = 60000; // 60 seconds for tests
+const watch = process.argv.includes('--watch');
+
+if (!watch) {
+    // Single run with timeout
+    execSync('vitest run', {
+        stdio: 'inherit',
+        timeout: TIMEOUT
+    });
+} else {
+    // Watch mode without timeout
+    execSync('vitest', { stdio: 'inherit' });
+}
+```
+
+## Package.json Scripts
+
+```json
+{
+    "scripts": {
+        // Safe linting scripts
+        "lint:safe": "node scripts/lint-safe.js",
+        "lint:safe:fix": "node scripts/lint-safe.js --fix",
+        "lint:src": "eslint src --max-warnings 0",
+        "lint:test": "eslint test --max-warnings 0",
+        "lint:quick": "eslint --cache src",
+
+        // Safe testing scripts
+        "test:safe": "node scripts/test-safe.js",
+        "test:safe:watch": "node scripts/test-safe.js --watch",
+        "test:safe:coverage": "node scripts/test-safe.js --coverage",
+        "test:unit": "vitest run",
+        "test:unit:watch": "vitest"
+    }
+}
+```
+
+## Usage Guidelines
+
+### For Development
+
+```bash
+# Quick targeted linting
+pnpm lint:src
+pnpm lint:quick  # Uses cache
+
+# Testing specific modules
+pnpm test:unit src/lib/modules/map
+pnpm test:safe:watch  # Safe watch mode
+```
+
+### For CI/CD
+
+```bash
+# Always use safe scripts in CI
+pnpm lint:safe
+pnpm test:safe:coverage
+```
+
+### For Large Operations
+
+```bash
+# When working with entire codebase
+pnpm lint:safe  # Has timeouts
+pnpm test:safe  # Won't hang
+```
+
+## Error Recovery
+
+If a command hangs:
+
+1. **Interrupt**: Use `Ctrl+C` (or `^C`)
+2. **Identify**: Check which directory/file caused the hang
+3. **Target**: Run on specific directories instead
+4. **Report**: Document the problematic file pattern
+
+## Debugging Hanging Issues
+
+```bash
+# Add verbose logging
+DEBUG=eslint:* pnpm lint:src
+
+# Run with explicit timeout
+timeout 30 pnpm lint src
+
+# Check for circular dependencies
+pnpm dlx madge --circular src
+```
+
+## Anti-Patterns
+
+```bash
+# ❌ BAD - Can hang indefinitely
+pnpm lint
+pnpm eslint .
+pnpm test  # Runs in watch mode
+
+# ❌ BAD - No timeout protection
+eslint . --max-warnings 0
+
+# ❌ BAD - Processing everything at once
+vitest run --coverage
+```
+
+## Benefits
+
+- **Prevents CI/CD failures** from hanging processes
+- **Saves developer time** by avoiding stuck terminals
+- **Provides feedback** with timeout messages
+- **Maintains productivity** with targeted commands
+- **Enables debugging** when issues occur

@@ -8,7 +8,7 @@ export async function connectToDatabase(): Promise<Db> {
   if (db) return db;
 
   const mongoUrl =
-    process.env['MONGO_URL'] ?? 'mongodb://localhost:27017/collab_demo';
+    process.env.MONGO_URL ?? 'mongodb://localhost:27017/collab_demo';
   console.log('Attempting to connect to MongoDB with URL:', mongoUrl);
 
   try {

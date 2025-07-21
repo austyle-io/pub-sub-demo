@@ -1,0 +1,101 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Code Structure
+
+Rules for code organization, object patterns, and structural preferences.
+
+## Rules
+
+-   Object property shorthand: `{ name }` over `{ name: name }`
+-   Always use trailing commas when legal in multi-line objects and arrays
+-   Intermediate variables for complex operations (3+ transformations)
+
+## Examples
+
+### Object Property Shorthand
+
+```typescript
+// Preferred - shorthand and trailing commas
+const user = {
+    name,
+    age,
+    email,
+    isActive,
+};
+
+// Avoid - verbose syntax
+const user = {
+    name: name,
+    age: age,
+    email: email,
+    isActive: isActive,
+}; // Also missing trailing comma
+```
+
+### Trailing Commas
+
+```typescript
+// Preferred - trailing commas in multi-line
+const config = {
+    apiUrl: "/api",
+    timeout: 5000,
+    retries: 3, // ✅ Trailing comma
+};
+
+const items = [
+    "first",
+    "second",
+    "third", // ✅ Trailing comma
+];
+
+// Avoid - no trailing commas
+const config = {
+    apiUrl: "/api",
+    timeout: 5000,
+    retries: 3, // BAD - no trailing comma
+};
+```
+
+
+### Intermediate Variables vs Concise Code
+
+**Decision Rules:**
+
+-   **Use concise code** for simple transformations (1-2 operations)
+-   **Use intermediate variables** for complex transformations (3+ operations)
+-   **Always use intermediate variables** when debugging or error handling is needed
+
+```typescript
+// ✅ GOOD - Concise for simple transformations (1-2 operations)
+const activeUsers = users.filter((user) => user.isActive);
+const userNames = users.map((user) => user.name).filter(Boolean);
+
+// ✅ GOOD - Intermediate variables for complex transformations (3+ operations)
+const rawData = await fetchData();
+const validData = rawData.filter(isValid);
+const processedData = validData.map(processItem);
+const sortedData = processedData.sort(compareByDate);
+const limitedData = sortedData.slice(0, 10);
+
+// ❌ BAD - Long method chains are hard to debug
+const result = (await fetchData()) // BAD - hard to debug and step through
+    .filter(isValid)
+    .map(processItem)
+    .sort(compareByDate)
+    .slice(0, 10);
+
+// ❌ BAD - Unnecessary intermediate variables for simple operations
+const allUsers = getUsers(); // BAD - over-engineered
+const activeUsers = allUsers.filter((user) => user.isActive);
+// Should be: const activeUsers = getUsers().filter(user => user.isActive);
+```
+
+## Benefits
+
+-   **Git-friendly**: Trailing commas reduce diff noise
+-   **Readability**: Intermediate variables make data flow clear
+-   **Debugging**: Each step can be inspected individually
+-   **Maintainability**: Easy to add/remove items and steps

@@ -1,0 +1,212 @@
+name: austdx-feature-development
+description: Complete feature development workflow following AuStdX standards
+version: 1.0.0
+
+# Variables to be provided when running the chain
+inputs:
+  - feature_name: string        # e.g., "user-dashboard"
+  - feature_description: string # Brief description of the feature
+  - requirements: string        # Detailed requirements
+
+# Chain execution steps
+steps:
+  # Phase 1: Analysis and Design
+  - id: requirements-analysis
+    persona: architect-austdx
+    prompt: |
+      Analyze the requirements for {{feature_name}}:
+      
+      Description: {{feature_description}}
+      Requirements: {{requirements}}
+      
+      Provide:
+      1. Broken down functional requirements
+      2. Technical requirements and constraints
+      3. Affected modules and components
+      4. Integration points with existing system
+      5. Compliance check with AuStdX standards
+      
+      Reference relevant patterns from:
+      - @rules/architecture/
+      - Existing implementations in src/lib/modules/
+    output: requirements-analysis.md
+
+  - id: architecture-design
+    persona: architect-austdx
+    prompt: |
+      Based on the requirements analysis:
+      {{steps.requirements-analysis.output}}
+      
+      Design the architecture for {{feature_name}}:
+      
+      1. Component hierarchy following 50-150 line rule
+      2. State management approach (Zustand/XState/local)
+      3. API design with TanStack server functions
+      4. Data model with Drizzle schema
+      5. Performance considerations (<100ms target)
+      
+      Ensure all designs follow:
+      - Arrow function patterns
+      - Record<Option, T> for lookups
+      - Proper TypeScript types (no any)
+      - File organization standards
+    output: architecture-design.md
+
+  # Phase 2: Implementation
+  - id: create-components
+    prompt: |
+      Using the architecture design:
+      {{steps.architecture-design.output}}
+      
+      Implement the React components for {{feature_name}}:
+      
+      Follow the development/_component-create.mdp prompt for each component.
+      Ensure:
+      - Arrow functions throughout
+      - Proper extraction when approaching 150 lines
+      - Custom hooks for complex logic
+      - Type safety with explicit types
+      - Tailwind CSS v4 styling
+      - Error boundaries where appropriate
+    output: components/
+
+  - id: implement-server-functions
+    prompt: |
+      Based on the API design:
+      {{steps.architecture-design.output}}
+      
+      Implement TanStack Start server functions:
+      
+      1. Type-safe API routes
+      2. Drizzle ORM queries
+      3. Input validation with Zod
+      4. Error handling
+      5. Performance optimization
+      
+      Place in appropriate directories:
+      - src/lib/db/ for database operations
+      - src/routes/ for API endpoints
+    output: server-functions/
+
+  # Phase 3: Testing (Parallel execution)
+  - id: testing-phase
+    parallel:
+      - branch: unit-tests
+        prompt: |
+          Create unit tests for {{feature_name}} components and functions:
+          
+          - Test files alongside source (***.test.ts)
+          - Vitest with <50ms per test
+          - Mock external dependencies
+          - Test edge cases and error states
+          - Use factories for test data
+          - any types allowed for mocking only
+        output: tests/unit/
+
+      - branch: bdd-tests
+        prompt: |
+          Create BDD tests following testing/_bdd-test-create.mdp:
+          
+          Feature: {{feature_name}}
+          
+          - Use world parameter (never 'this')
+          - Keep scenarios under 1s execution
+          - Test happy paths and edge cases
+          - Use test factories
+          - Mock with MSW if needed
+        output: test/features/
+
+      - branch: integration-tests
+        prompt: |
+          Create integration tests for {{feature_name}}:
+          
+          - Test component interactions
+          - API endpoint testing
+          - Database operations
+          - Keep under 500ms per test
+        output: tests/integration/
+
+  # Phase 4: Quality Checks
+  - id: quality-validation
+    prompt: |
+      Run quality checks on the implementation:
+      
+      ```bash
+      # Type checking
+      pnpm type-check
+      
+      # Linting with timeout protection
+      pnpm lint:safe src/lib/modules/{{feature_name}}
+      
+      # Run tests with timeout protection
+      pnpm test:safe src/lib/modules/{{feature_name}}
+      
+      # Check bundle size impact
+      pnpm build --analyze
+      ```
+      
+      Ensure:
+      - Zero TypeScript errors
+      - Zero ESLint errors
+      - 95%+ type coverage
+      - All tests passing
+      - Performance targets met
+    validation: true
+
+  # Phase 5: Documentation
+  - id: documentation
+    prompt: |
+      Create comprehensive documentation for {{feature_name}}:
+      
+      1. README.md with:
+         - Feature overview
+         - Architecture decisions
+         - API documentation
+         - Usage examples
+         
+      2. Inline documentation:
+         - JSDoc for complex functions
+         - Type documentation
+         - Component prop descriptions
+         
+      3. Storybook stories (if applicable):
+         - Interactive component demos
+         - Different states and variations
+         
+      Place in src/lib/modules/{{feature_name}}/README.md
+    output: documentation/
+
+  # Phase 6: Final Review
+  - id: final-review
+    persona: mentor-austdx
+    prompt: |
+      Review the complete implementation of {{feature_name}}:
+      
+      Components: {{steps.create-components.output}}
+      Tests: {{steps.testing-phase.output}}
+      Documentation: {{steps.documentation.output}}
+      
+      Provide:
+      1. What was done well
+      2. Any remaining improvements
+      3. Learning opportunities
+      4. Performance optimization suggestions
+      5. Next steps for the feature
+      
+      Ensure everything follows AuStdX standards and best practices.
+    output: review-summary.md
+
+# Success criteria for the chain
+success_criteria:
+  - All TypeScript files compile without errors
+  - Zero linting errors
+  - All tests pass
+  - Documentation is complete
+  - Performance targets met (<100ms response)
+  - Code follows all AuStdX patterns
+
+# Rollback plan if needed
+rollback:
+  - Revert feature branch
+  - Remove database migrations
+  - Clean up any generated files

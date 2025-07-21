@@ -3,20 +3,27 @@ import {
   getValidationErrors,
   isCreateUserRequest,
   isLoginRequest,
-  isRefreshTokenRequest,
   validateCreateUserRequest,
   validateLoginRequest,
-  validateRefreshTokenRequest,
-  sanitizeApiError,
 } from '@collab-edit/shared';
 import { type Request, type Response, Router } from 'express';
 import { AuthService } from '../services/auth.service';
+import { validateEnv } from '../types/env';
 
 /**
  * Authentication routes: signup, login, and token refresh endpoints.
  */
 const router: Router = Router();
 const authService = new AuthService();
+const env = validateEnv();
+
+// Type declaration for cookies
+interface AuthenticatedRequest extends Request {
+  cookies: {
+    refreshToken?: string;
+    [key: string]: string | undefined;
+  };
+}
 
 /**
  * Register a new user.
@@ -83,16 +90,16 @@ router.post(
       // Set HTTP-only cookie for refresh token
       res.cookie('refreshToken', authResponse.refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: env.NODE_ENV === 'production',
         sameSite: 'strict',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        path: '/api/auth/refresh'
+        path: '/api/auth/refresh',
       });
 
       // Return only access token to client
       return res.json({
         accessToken: authResponse.accessToken,
-        user: authResponse.user
+        user: authResponse.user,
       });
     } catch (error) {
       const errorMessage = sanitizeApiError(error);
@@ -118,7 +125,7 @@ router.post(
  */
 router.post(
   '/refresh',
-  async (req: Request, res: Response): Promise<Response> => {
+  async (req: AuthenticatedRequest, res: Response): Promise<Response> => {
     try {
       const refreshToken = req.cookies.refreshToken;
       if (!refreshToken) {
@@ -126,22 +133,20 @@ router.post(
       }
 
       // Refresh tokens - type guard ensures type safety
-      const authResponse = await authService.refreshTokens(
-        refreshToken,
-      );
+      const authResponse = await authService.refreshTokens(refreshToken);
 
       // Update refresh token cookie
       res.cookie('refreshToken', authResponse.refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: env.NODE_ENV === 'production',
         sameSite: 'strict',
         maxAge: 7 * 24 * 60 * 60 * 1000,
-        path: '/api/auth/refresh'
+        path: '/api/auth/refresh',
       });
 
       return res.json({
         accessToken: authResponse.accessToken,
-        user: authResponse.user
+        user: authResponse.user,
       });
     } catch (error) {
       const errorMessage = sanitizeApiError(error);

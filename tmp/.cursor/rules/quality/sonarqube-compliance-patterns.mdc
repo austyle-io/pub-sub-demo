@@ -1,0 +1,225 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# SonarQube Compliance Patterns
+
+Rules for addressing common SonarQube warnings and maintaining code quality standards.
+
+## Rules
+
+- **Extract magic strings and numbers** into named constants
+- **Mark never-reassigned members as `readonly`** unless they are reassigned
+- **Use proper error suppression justifications** with NOSONAR comments
+- **Handle exceptions properly** - no empty catch blocks
+- **Use `??` instead of `||`** for nullish coalescing (S6606)
+- **Use `slice()` instead of `substr()`** - substr() is deprecated (S1854)
+- **Handle mixed Promise/non-Promise types** safely with Promise.resolve()
+
+## Magic Strings and Numbers (S1192)
+
+```typescript
+// ❌ BAD - Magic strings repeated throughout code
+const createKey = (widgetId: string, widgetType: string) => `${widgetId}:${widgetType}`;
+const parseKey = (key: string) => key.split(":")[0];
+const subscribeToEvents = (store: Store) => store.subscribe("widgetEvent", handler);
+
+// ✅ GOOD - Extract constants
+const WIDGET_KEY_SEPARATOR = ":";
+const WIDGET_EVENT_TYPE = "widgetEvent";
+const REQUIRED_WIDGET_PROPERTIES = ["component", "displayName"] as const;
+
+const createKey = (widgetId: string, widgetType: string) => `${widgetId}${WIDGET_KEY_SEPARATOR}${widgetType}`;
+const parseKey = (key: string) => key.split(WIDGET_KEY_SEPARATOR)[0];
+const subscribeToEvents = (store: Store) => store.subscribe(WIDGET_EVENT_TYPE, handler);
+```
+
+## Readonly Members (S2933)
+
+```typescript
+// ❌ BAD - Members that are never reassigned should be readonly
+class Service {
+    private registry = new Map();
+    private cache = new Set();
+    private store: Store | null = null; // This IS reassigned in setStore()
+}
+
+// ✅ GOOD - Mark as readonly when appropriate
+class Service {
+    private readonly registry = new Map();
+    private readonly cache = new Set();
+    // NOSONAR typescript:S2933 - store is reassigned in setStore method
+    private store: Store | null = null;
+}
+
+// ✅ GOOD - Proper suppression with justification
+class EventBroadcaster {
+    constructor(
+        private readonly widgetId: string,
+        private readonly widgetType: string,
+        private mapStore: MapStore | null, // NOSONAR typescript:S2933 - mapStore can be updated after construction
+    ) {}
+}
+```
+
+## SonarQube Error Suppression Format
+
+```typescript
+// ✅ GOOD - Proper NOSONAR format with rule ID and justification
+private mapStore: MapStore | null = null; // NOSONAR typescript:S2933 - mapStore is reassigned in setMapStore method
+
+// ✅ GOOD - Type assertion with justification
+// Safe to cast since validateRegistryEntry confirmed the structure
+// TypeScript can't express the variance but runtime validation ensures correctness
+this.registry.set(type, entry as WidgetRegistryEntry);
+
+// ❌ BAD - Generic suppression without justification
+// @ts-ignore
+private someField = null;
+
+// ❌ BAD - Wrong format for SonarQube
+// eslint-disable-next-line typescript:S2933
+private field = null;
+```
+
+## Nullish Coalescing (S6606)
+
+```typescript
+// ❌ BAD - Using || treats 0, '', false as falsy
+const value = input || "default";
+const count = data.count || 0; // Problem if count is actually 0
+const enabled = settings.enabled || false; // Problem if enabled is actually false
+
+// ✅ GOOD - Using ?? only triggers on null/undefined
+const value = input ?? "default";
+const count = data.count ?? 0; // Preserves 0 as valid value
+const enabled = settings.enabled ?? false; // Preserves false as valid value
+```
+
+## String Methods (S1854)
+
+```typescript
+// ❌ BAD - substr() is deprecated
+const suffix = randomString.substr(2, 9);
+const prefix = text.substr(0, 5);
+
+// ✅ GOOD - Use slice() instead
+const suffix = randomString.slice(2, 11); // slice(start, end)
+const prefix = text.slice(0, 5);
+
+// Note: substr(start, length) → slice(start, start + length)
+```
+
+## Exception Handling (S2486)
+
+```typescript
+// ❌ BAD - Empty catch block (swallowing errors)
+try {
+    await riskyOperation();
+} catch (error) {
+    // Silent failure - SonarQube violation
+}
+
+// ✅ GOOD - Proper error handling
+try {
+    await riskyOperation();
+} catch (error) {
+    logger.warn("Operation failed", {
+        error: error instanceof Error ? error.message : "Unknown error",
+        context: "operation-retry",
+    });
+    throw error; // Re-throw or handle appropriately
+}
+
+// ✅ GOOD - Centralized error handling
+const safeOperation = async (operation: () => Promise<void>, context: string) => {
+    try {
+        await operation();
+    } catch (error) {
+        logOperationError(error, context);
+        throw error;
+    }
+};
+```
+
+## Mixed Promise/Non-Promise Types (S4123)
+
+```typescript
+// ❌ BAD - Awaiting potentially non-Promise value
+const component = await entry.component; // component might not be a Promise
+
+// ✅ GOOD - Safe handling with Promise.resolve()
+const component = await Promise.resolve(entry.component);
+
+// ✅ GOOD - Conditional awaiting with type checking
+const component = entry.lazy
+    ? await (entry.component as Promise<WidgetComponent>)
+    : (entry.component as WidgetComponent);
+
+// ✅ BEST - Promise.resolve handles both cases safely
+const component = await Promise.resolve(entry.component);
+```
+
+## Constants Organization
+
+```typescript
+// ✅ GOOD - Group related constants
+const WIDGET_CONSTANTS = {
+    KEY_SEPARATOR: ":",
+    EVENT_TYPE: "widgetEvent",
+    REQUIRED_PROPERTIES: ["component", "displayName"],
+    DEFAULT_TIMEOUT: 5000,
+    MAX_RETRIES: 3,
+} as const;
+
+// ✅ GOOD - Error message constants
+const ERROR_MESSAGES = {
+    INVALID_WIDGET_ENTRY: "Invalid widget registry entry for type",
+    MISSING_MAP_STORE: "Widget attempted to broadcast event but no map store is available",
+    COMPONENT_LOAD_FAILED: "Failed to lazy load component",
+} as const;
+
+// ✅ GOOD - Use in error messages
+throw new Error(
+    `${ERROR_MESSAGES.INVALID_WIDGET_ENTRY}: "${type}". Missing required properties: ${WIDGET_CONSTANTS.REQUIRED_PROPERTIES.join(", ")}.`,
+);
+```
+
+## Type Safety with Runtime Validation
+
+```typescript
+// ✅ GOOD - Runtime validation before type assertion
+const storeValidatedEntry = <TConfig>(type: string, entry: WidgetRegistryEntry<TConfig>) => {
+    if (!isWidgetRegistryEntry(entry)) {
+        throw new Error(`Invalid entry for type: ${type}`);
+    }
+
+    // Safe cast after validation
+    registry.set(type, entry as WidgetRegistryEntry);
+};
+
+// ✅ GOOD - Type guards for runtime safety
+const isValidEventPayload = (data: unknown): data is EventPayload => {
+    return isObject(data) && "type" in data && "timestamp" in data && isString((data as any).type);
+};
+```
+
+## Benefits
+
+- **Code Quality**: Maintains high SonarQube quality scores
+- **Future-Proof**: Avoids deprecated APIs and patterns
+- **Type Safety**: Proper type handling with runtime validation
+- **Maintainability**: Clear constants and proper error handling
+- **Performance**: Efficient string operations and nullish coalescing
+- **Debugging**: Better error context and proper exception handling
+
+## SonarQube Rule Reference
+
+- **S2933**: Readonly members
+- **S6606**: Nullish coalescing over logical OR
+- **S1192**: Magic strings and numbers
+- **S2486**: Empty catch blocks
+- **S1854**: Deprecated string methods
+- **S4123**: Unnecessary await of non-Promise values

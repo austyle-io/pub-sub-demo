@@ -4,13 +4,13 @@ const auditLogger = winston.createLogger({
   level: 'info',
   format: winston.format.combine(
     winston.format.timestamp(),
-    winston.format.json()
+    winston.format.json(),
   ),
   transports: [
     new winston.transports.File({ filename: 'logs/audit.log' }),
     new winston.transports.Console({
-      format: winston.format.simple()
-    })
+      format: winston.format.simple(),
+    }),
   ],
 });
 

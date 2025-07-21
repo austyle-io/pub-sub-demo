@@ -313,6 +313,64 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
 });
 
 /**
+ * Get document permissions for current user
+ */
+router.get(
+  '/:id/permissions',
+  authenticate,
+  async (req: Request, res: Response) => {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({ message: 'Document ID is required' });
+    }
+
+    try {
+      const userId = req.user.sub;
+
+      // Check each permission level
+      const readResult = await checkDocumentPermission(
+        'documents',
+        id,
+        userId,
+        'read',
+      );
+      const writeResult = await checkDocumentPermission(
+        'documents',
+        id,
+        userId,
+        'write',
+      );
+      const deleteResult = await checkDocumentPermission(
+        'documents',
+        id,
+        userId,
+        'delete',
+      );
+
+      // If user can't even read, return 403
+      if (!readResult.allowed) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+
+      // Return permissions object
+      return res.json({
+        canRead: readResult.allowed,
+        canWrite: writeResult.allowed,
+        canDelete: deleteResult.allowed,
+      });
+    } catch (error) {
+      console.error('Error fetching document permissions:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  },
+);
+
+/**
  * Update document permissions (ACL)
  */
 router.put(

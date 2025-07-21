@@ -7,7 +7,7 @@ export const getAccessTokenSecret = (): string => {
   const secret = process.env['JWT_ACCESS_SECRET'];
   if (!secret) {
     throw new Error(
-      'JWT_ACCESS_SECRET not configured. Please check your environment variables.'
+      'JWT_ACCESS_SECRET not configured. Please check your environment variables.',
     );
   }
   return secret;
@@ -17,7 +17,7 @@ export const getRefreshTokenSecret = (): string => {
   const secret = process.env['JWT_REFRESH_SECRET'];
   if (!secret) {
     throw new Error(
-      'JWT_REFRESH_SECRET not configured. Please check your environment variables.'
+      'JWT_REFRESH_SECRET not configured. Please check your environment variables.',
     );
   }
   return secret;

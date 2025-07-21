@@ -1,0 +1,107 @@
+<!-- title: Comprehensive Code Review & Fix -->
+<!-- description: Systematically check and fix lint, format, type errors and ensure full @/rules compliance -->
+
+Act as a senior frontend engineer performing a comprehensive code review with systematic error resolution.
+
+INPUT
+-----
+{{selection}}   <!-- the git diff or file -->
+
+SYSTEMATIC PROCESS
+------------------
+
+### 1. AUTOMATED CHECKS (Run in sequence)
+```bash
+# Check each tool systematically
+npm run lint
+npm run type-check
+npm run format:check  # if available
+```
+
+### 2. SYSTEMATIC ERROR RESOLUTION
+- **Fix all linting errors first** - Use `npm run lint:fix` where possible
+- **Resolve all TypeScript errors** - No type suppressions without justification
+- **Apply formatting fixes** - Ensure consistent code style
+- **Continue until all automated checks pass**
+
+### 3. RULE COMPLIANCE VERIFICATION
+
+#### Core TypeScript Patterns (@rules/core/)
+- [ ] **Union literals**: Use `as const` objects, not plain unions
+- [ ] **No `any` types**: Use `unknown` or proper types (@typescript-eslint/no-explicit-any)
+- [ ] **No interfaces**: Use `type` declarations only
+- [ ] **No duck typing**: Use `satisfies` operator for object conformity
+- [ ] **No double assertions**: Never use `as unknown as Type`
+- [ ] **Explicit over implicit**: Use `isNil()`, `isEmpty()` over implicit checks
+- [ ] **Proper imports**: Lodash named imports, React named imports
+- [ ] **Null vs undefined**: Correct usage patterns
+- [ ] **Generic utilities**: Type-safe, reusable functions
+
+#### React Patterns (@rules/react/)
+- [ ] **Arrow functions**: No function declarations for components
+- [ ] **Props typing**: Explicit types, no `React.FC`
+- [ ] **Event handlers**: `on` prefix for props, `handle` prefix internal
+- [ ] **Conditional rendering**: Use `&&` over ternary for simple cases
+- [ ] **ClassNames prop**: Standardized object structure with `ClassValue`
+
+#### Architecture (@rules/architecture/)
+- [ ] **File organization**: Correct directory structure and naming
+- [ ] **Component extraction**: Single responsibility, proper size limits
+- [ ] **Store patterns**: Context providers, no global access
+- [ ] **Migration patterns**: Backwards compatibility where needed
+
+#### Advanced Patterns (@rules/advanced/)
+- [ ] **Enum-objects**: Lookup helpers, no switch statements
+- [ ] **Zod validation**: Schema-first approach for type guards
+- [ ] **ClassNames props**: Consistent `classNames` object structure
+
+#### Quality Standards (@rules/quality/)
+- [ ] **Error handling**: react-error-boundary, typed errors
+- [ ] **Performance**: memo usage, const assertions
+- [ ] **Naming**: Consistent conventions, descriptive names
+- [ ] **No mock data**: Only in demos/tests, not production
+- [ ] **Documentation**: JSDoc for complex logic
+- [ ] **Logging**: Structured logging, no console statements
+
+#### Domain-Specific (@rules/domain/)
+- [ ] **Map/Widget naming**: Proper prefixes (Map*, Widget*, Layer*)
+
+### 4. ERROR SUPPRESSION REVIEW (@rules/error-suppression-justification.md)
+- [ ] **All suppressions justified**: Clear explanation for each `@ts-expect-error`
+- [ ] **ESLint disables documented**: Reason for each `eslint-disable`
+- [ ] **Temporary vs permanent**: Clear indication of intent
+- [ ] **No generic excuses**: Specific technical reasons only
+
+CHECKLIST
+---------
+- **Automated Tools** – All lint, format, type errors resolved
+- **Core Patterns** – Union literals, no any/interface, proper imports
+- **React Standards** – Component structure, props, event handlers
+- **Architecture** – File organization, component extraction, stores
+- **Type Safety** – Zod validation, satisfies operator, no assertions
+- **Performance** – memo usage, const assertions, proper dependencies
+- **Code Quality** – Error handling, naming, documentation, logging
+- **Rule Compliance** – Full adherence to established @/rules
+
+INSTRUCTIONS
+------------
+1. **Run automated checks first** - `npm run lint && npm run type-check`
+2. **Fix all errors systematically** - Don't proceed until tools pass
+3. **Verify rule compliance** - Check each category against established patterns
+4. **Document any necessary suppressions** - With clear justification
+5. **Ensure consistency** - Follow established patterns throughout codebase
+6. **Test fixes** - Verify changes don't break functionality
+
+VERDICT
+-------
+Only approve when:
+- ✅ **All automated checks pass** (lint, type-check, format)
+- ✅ **Full @/rules compliance achieved**
+- ✅ **No unjustified error suppressions**
+- ✅ **Consistent with codebase patterns**
+
+**APPROVE / REQUEST CHANGES / COMMENT ONLY**
+
+---
+
+**Reference**: Use `@rules/index.md` for complete rule documentation
