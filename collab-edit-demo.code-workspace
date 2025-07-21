@@ -39,7 +39,30 @@
       "**/.turbo": true,
       "**/.next": true
     },
-    "cSpell.words": ["Qube"]
+    "cSpell.words": [
+      "addgroup",
+      "adduser",
+      "aiplatform",
+      "Autopurge",
+      "biomejs",
+      "collab",
+      "devx",
+      "elif",
+      "knative",
+      "ludeeus",
+      "mongosh",
+      "parseable",
+      "pipefail",
+      "Qube",
+      "roadmaps",
+      "secretmanager",
+      "sharedb",
+      "Shellcheck",
+      "signup",
+      "Turborepo",
+      "typebox",
+      "VITE"
+    ]
   },
   "extensions": {
     "recommendations": ["biomejs.biome", "ms-vscode.vscode-typescript-next"]

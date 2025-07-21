@@ -1,0 +1,74 @@
+# Markdownlint Configuration for DevX Documentation
+# Balances quality with practical documentation patterns
+
+# Glob patterns for files to check
+globs:
+  - "**/*.md"
+  - "!node_modules/**"
+  - "!.git/**"
+  - "!apps/*/node_modules/**"
+  - "!packages/*/node_modules/**"
+  - "!**/dist/**"
+  - "!**/build/**"
+  - "!coverage/**"
+
+# Rule configuration
+config:
+  # Allow multiple H1 headings (useful for documentation with sections)
+  MD025: false
+
+  # Relax heading punctuation rules (technical docs often use colons)
+  MD026: false
+
+  # Allow bare URLs in documentation (common in technical guides)
+  MD034: false
+
+  # Relax blanks around headings (not always practical in dense docs)
+  MD022: false
+
+  # Relax blanks around lists (not always practical)
+  MD032: false
+
+  # Relax blanks around fenced code blocks (common in technical docs)
+  MD031: false
+
+  # Allow emphasis as heading (used for notes and warnings)
+  MD036: false
+
+  # Line length - very flexible for technical documentation (disable for practicality)
+  MD013: false
+
+  # Code blocks - don't enforce language specification (too restrictive for docs)
+  MD040: false
+
+  # Link fragments - allow flexible internal linking
+  MD051: false
+
+  # Allow duplicate headings (common in structured docs with repeated sections)
+  MD024:
+    siblings_only: true
+
+  # Allow inline HTML (useful for technical docs)
+  MD033: false
+
+  # Don't require H1 as first line (useful for docs with metadata)
+  MD041: false
+
+  # Trailing spaces - allow 2 for line breaks
+  MD009:
+    br_spaces: 2
+    list_item_empty_lines: false
+    strict: false
+
+# Fix mode - automatically fix issues where possible
+fix: true
+
+# Output format
+outputFormatters:
+  - ["markdownlint-cli2-formatter-default"]
+
+# Ignore specific files that have intentional formatting
+ignores:
+  - "CHANGELOG.md"  # Auto-generated changelog may have specific formatting
+  - "**/node_modules/**"
+  - ".git/**"

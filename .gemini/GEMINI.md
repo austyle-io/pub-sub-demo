@@ -19,7 +19,7 @@ This document outlines the critical coding standards, patterns, and architectura
 
 - **Package Manager**: Use `pnpm` exclusively.
 - **Execution**: Use `pnpm dlx` for running packages (e.g., `pnpm dlx shadcn@latest add button`).
-- **Import Order**: 
+- **Import Order**:
     1. External dependencies (e.g., `react`, `lodash-es`)
     2. Internal utilities and config (e.g., `@/lib/utils`, `@/lib/config`)
     3. Internal components
@@ -68,26 +68,26 @@ This document outlines the critical coding standards, patterns, and architectura
 
 ### Quality & Maintenance
 
-- **Testing**: 
-    - Use `pnpm test:safe` to run tests with a timeout.
-    - Use factory functions (e.g., `createUser()`) in `__tests__/factories/` to generate type-safe test data. Do not use `as const` for test data objects.
-    - For BDD tests with QuickPickle, the `world` object is the first parameter to step definitions, not `this`.
+- **Testing**:
+  - Use `pnpm test:safe` to run tests with a timeout.
+  - Use factory functions (e.g., `createUser()`) in `__tests__/factories/` to generate type-safe test data. Do not use `as const` for test data objects.
+  - For BDD tests with QuickPickle, the `world` object is the first parameter to step definitions, not `this`.
 - **Error Handling**:
-    - Use `react-error-boundary` for component-level error boundaries.
-    - Use typed errors and provide meaningful, user-friendly error messages.
-    - Log complete error details for debugging.
-- **Documentation**: 
-    - Use JSDoc for documenting functions, components, and types.
-    - Include `@fileoverview` for file-level documentation.
-    - Focus on *why* not *what*. Explain complex logic.
+  - Use `react-error-boundary` for component-level error boundaries.
+  - Use typed errors and provide meaningful, user-friendly error messages.
+  - Log complete error details for debugging.
+- **Documentation**:
+  - Use JSDoc for documenting functions, components, and types.
+  - Include `@fileoverview` for file-level documentation.
+  - Focus on *why* not *what*. Explain complex logic.
 - **Performance**:
-    - Use `memo` for expensive components.
-    - Use `lazy` for code-splitting and lazy loading large components.
-    - Use virtualization for large lists.
+  - Use `memo` for expensive components.
+  - Use `lazy` for code-splitting and lazy loading large components.
+  - Use virtualization for large lists.
 - **SonarQube Compliance**:
-    - Extract magic strings and numbers into named constants.
-    - Mark never-reassigned class members as `readonly`.
-    - Justify `NOSONAR` comments clearly.
+  - Extract magic strings and numbers into named constants.
+  - Mark never-reassigned class members as `readonly`.
+  - Justify `NOSONAR` comments clearly.
 
 ---
 

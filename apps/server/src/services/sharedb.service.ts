@@ -5,7 +5,10 @@ import WebSocketJSONStream from '@teamwork/websocket-json-stream';
 import ShareDB from 'sharedb';
 import ShareDBMongo from 'sharedb-mongo';
 import { type WebSocket, WebSocketServer } from 'ws';
-import type { AuthenticatedRequest } from '../middleware/websocket-auth';
+import {
+  type AuthenticatedRequest,
+  authenticateWebSocket,
+} from '../middleware/websocket-auth';
 import { checkDocumentPermission } from '../utils/permissions';
 import {
   getContextSnapshots,
@@ -67,13 +70,18 @@ export class ShareDBService {
         }
 
         const ctx = context; // Now safely typed as Context
-        if (ctx.req && 'user' in ctx.req && ctx.agent.custom) {
+        if (ctx.req && 'user' in ctx.req) {
           if (!isAuthenticatedRequest(ctx.req)) {
             return next(new Error('Invalid authenticated request'));
           }
 
           const authenticatedReq = ctx.req;
           if (authenticatedReq.user) {
+            // Initialize custom if it doesn't exist
+            if (!ctx.agent.custom) {
+              ctx.agent.custom = {};
+            }
+
             ctx.agent.custom = {
               userId: authenticatedReq.user['id'],
               email: authenticatedReq.user['email'],
@@ -179,11 +187,28 @@ export class ShareDBService {
    */
   attachToServer(server: Server): void {
     // Handle WebSocket upgrade with authentication
-    server.on('upgrade', (request, socket, head) => {
-      // For now, we'll handle auth in the connection handler
-      this.wss.handleUpgrade(request, socket, head, (ws) => {
-        this.wss.emit('connection', ws, request);
-      });
+    server.on('upgrade', async (request, socket, head) => {
+      try {
+        // Authenticate the WebSocket connection
+        const user = await authenticateWebSocket(request);
+
+        // Attach user to request for ShareDB middleware
+        (request as AuthenticatedRequest).user = { ...user, sub: user.id };
+
+        // Handle the WebSocket upgrade
+        this.wss.handleUpgrade(request, socket, head, (ws) => {
+          this.wss.emit('connection', ws, request);
+        });
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error('WebSocket upgrade error:', error.message);
+        } else {
+          console.error('WebSocket upgrade error:', error);
+        }
+        // Authentication failed - reject the connection
+        socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+        socket.destroy();
+      }
     });
 
     // Handle WebSocket connections
@@ -199,6 +224,28 @@ export class ShareDBService {
    */
   getShareDB() {
     return this.backend;
+  }
+
+  /**
+   * Create a connection with user context for backend operations
+   */
+  createAuthenticatedConnection(userId: string, email: string, role: string) {
+    const connection = this.backend.connect();
+    // HACK: The `agent` property is not in the ShareDB types, but it is used
+    // by the middleware. We use proper typing to access it safely.
+    const agent = (
+      connection as unknown as { agent?: { custom?: Record<string, unknown> } }
+    ).agent;
+
+    // Set custom data on the agent
+    if (agent) {
+      agent.custom = {
+        userId,
+        email,
+        role,
+      };
+    }
+    return connection;
   }
 }
 

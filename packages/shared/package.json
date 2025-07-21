@@ -2,13 +2,20 @@
   "name": "@collab-edit/shared",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "require": "./dist/index.js",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./server": {
+      "types": "./dist/server.d.ts",
+      "require": "./dist/server.js",
+      "import": "./dist/server.js",
+      "default": "./dist/server.js"
     }
   },
   "scripts": {
@@ -27,7 +34,8 @@
     "lodash": "^4.17.21",
     "lodash.isnil": "^4.0.0",
     "lodash.isobject": "^3.0.2",
-    "lodash.isstring": "^4.0.1"
+    "lodash.isstring": "^4.0.1",
+    "pino": "^8.15.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
@@ -36,6 +44,8 @@
     "@types/lodash.isnil": "^4.0.9",
     "@types/lodash.isobject": "^3.0.5",
     "@types/lodash.isstring": "^4.0.4",
+    "pino-http": "^8.3.0",
+    "pino-pretty": "^10.2.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"

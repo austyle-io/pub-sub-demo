@@ -2,6 +2,122 @@
 
 Comprehensive coding standards (41 rule files)
 
+## Project-Specific Lessons Learned (2025-01-21)
+
+### Testing Philosophy
+**User Preference**: 100% user acceptance testing focus
+- Code coverage metrics are not a priority
+- Focus on ensuring critical path workflows and features are working
+- Validate that real user scenarios function correctly end-to-end
+- Integration and E2E tests are more valuable than unit test coverage
+
+### ShareDB Real-time Implementation
+
+**WebSocket Authentication Pattern:**
+- Pass JWT tokens as query parameters for WebSocket connections: `ws://host?token=${token}`
+- Authenticate during the WebSocket upgrade handshake, not after connection
+- Reject unauthorized connections with proper HTTP response: `socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n')`
+
+**ShareDB OT Operations:**
+- Use json0 OT type for document operations
+- Operations require both `oi` (object insert) and `od` (object delete) for replacements
+- Path notation: `[{ p: ['fieldName'], oi: newValue, od: oldValue }]`
+- Always listen for 'op' events to sync remote changes
+
+**Module System Compatibility:**
+- Mixed ESM/CommonJS environments require careful package.json configuration
+- Use explicit exports field with both "require" and "import" entries
+- Remove "type": "module" when supporting CommonJS consumers
+- Build before running to ensure dist files exist
+
+**ShareDB Type Guards:**
+- ShareDB documents need runtime validation due to lack of TypeScript types
+- Check for required methods: `on`, `removeListener`, `submitOp`, `destroy`
+- Validate document data structure before use
+
+**ShareDB Document Storage:**
+- Initial documents are stored with data in `create.data` field
+- Updated documents may have data in `data` field  
+- Use `doc.create?.data || doc.data` pattern for compatibility
+- Document ID is stored in the `d` field at root level
+- Query by `{ d: documentId }` not `{ 'data.id': documentId }`
+
+**ShareDB Backend Connections:**
+- Backend connections need user context for authorization middleware
+- Create authenticated connections with `backend.connect()` then set `connection.agent.custom`
+- Pass userId, email, and role in agent.custom for permission checks
+- Use separate method like `createAuthenticatedConnection()` for backend operations
+
+### Development Environment Issues & Solutions (2025-01-21)
+
+**Problems Encountered:**
+- vite-tsconfig-paths v5 is ESM-only, incompatible with Vite's CommonJS config loading
+- tsx struggles with workspace package resolution in mixed module environments
+- Node.js v24 has stricter ESM resolution rules
+- bcrypt native bindings cause issues when imported in client bundle
+- Environment variables not loading due to import order in server.ts
+- ES module imports require .js extension in TypeScript compiled output
+- Shared package subpath exports not resolving correctly
+- JWT env vars not accessible to shared package utilities
+
+**Solutions Applied:**
+- Removed vite-tsconfig-paths from client dependencies
+- Separated server-only exports (bcrypt) into `@collab-edit/shared/server` subpath
+- Updated server tsconfig moduleResolution to "bundler" for subpath imports
+- Fixed dotenv import order - must load before env validation
+- Cleaned up client package.json to remove all server-specific dependencies
+- Added .env file to server directory for proper env loading
+- Created docker-compose.yml for consistent development environment
+- Added .js extension to ES module imports in server.ts
+- Set JWT_ACCESS_SECRET and JWT_REFR
+
+### Key Lessons Learned (2025-01-21):
+1. **ShareDB Authorization Architecture**
+   - Backend connections need explicit user context
+   - Must initialize agent.custom before setting properties
+   - Create separate methods for authenticated backend connections
+
+2. **ShareDB Document Structure**
+   - Initial create operations store data in `create.data`
+   - Document ID is in root `d` field, not nested
+   - Queries must match exact storage structure
+   - Documents can have data in either `create.data` or `data` field depending on lifecycle
+
+3. **Debugging Approach**
+   - Direct MongoDB queries essential for understanding data structure
+   - Add logging at each transformation step
+   - Test API endpoints in isolation before integration tests
+   - Use try-catch in array transformations to handle partial failures
+
+### Authentication Implementation Lessons:
+- JWT utilities in shared package need access to process.env variables
+- Server env validation must set process.env values for shared package to access
+- Error sanitization can hide real issues during development
+- Rate limiting can interfere with auth endpoint tests
+- ShareDB authorization requires proper user context on WebSocket connections
+- WebSocket auth works via query parameter: `ws://host?token=${token}`
+- ShareDB connect middleware must initialize agent.custom object before setting properties
+
+**API Testing Insights:**
+- Document list queries must match ShareDB's storage structure
+- Transform ShareDB documents carefully - validate each field exists
+- Use try-catch in array transformations to handle partial failures
+- Log transformation errors for debugging empty API responses
+- Test with direct database queries to verify data structure
+
+### Testing Environment Configuration (2025-01-21):
+**Rate Limiting Resolution:**
+- Rate limiting middleware must be conditionally applied based on NODE_ENV
+- Test environment requires `NODE_ENV=test` to bypass rate limiting
+- Created helper scripts for consistent test execution
+- Rate limiting was blocking authentication tests with 429 errors
+
+**Document API Fixes:**
+- Fixed list documents endpoint to properly query ShareDB structure
+- Corrected document transformation to handle both `create.data` and `data` fields
+- Added extensive logging for debugging empty API responses
+- Fixed permission queries to use correct document ID field (`d` not `_id`)
+
 ## Core TypeScript/JavaScript Patterns (16 rules)
 
 **Type Safety Enforcement:**
@@ -164,3 +280,9 @@ export const isUser = (x: unknown): x is User =>
 - **Performance**: O(1) lookups, optimized bundles
 - **Developer Experience**: Predictable, discoverable patterns
 - **Quality**: SonarQube compliant, <15 cognitive complexity
+
+# important-instruction-reminders
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.

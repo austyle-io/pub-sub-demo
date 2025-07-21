@@ -94,28 +94,74 @@ export function DocumentEditor(): React.JSX.Element {
   const doc = useShareDB(docId);
   const { perms, loading, error } = useDocumentPermissions(docId);
   const [content, setContent] = useState('');
+  const [title, setTitle] = useState('');
 
+  // Set initial content when document loads
   useEffect(() => {
     if (doc?.data) {
       setContent(doc.data.content ?? '');
+      setTitle(doc.data.title ?? '');
     }
+  }, [doc]);
+
+  // Listen for remote operations
+  useEffect(() => {
+    if (!doc) return;
+
+    const handleOp = () => {
+      // Update local state when remote changes come in
+      setContent(doc.data.content ?? '');
+      setTitle(doc.data.title ?? '');
+    };
+
+    doc.on('op', handleOp);
+    return () => {
+      doc.removeListener('op', handleOp);
+    };
   }, [doc]);
 
   const handleTitleChange = (newTitle: string) => {
     const sanitizedTitle = sanitizeDocumentTitle(newTitle);
     if (doc && perms?.canWrite) {
-      // Implement title change logic
-      console.log('Title change not implemented yet:', sanitizedTitle);
+      // Submit OT operation to ShareDB for title change
+      const op = [
+        {
+          p: ['title'], // Path to the title field
+          oi: sanitizedTitle, // Object insert (new value)
+          od: doc.data.title ?? '', // Object delete (old value)
+        },
+      ];
+
+      try {
+        doc.submitOp(op);
+      } catch (error) {
+        console.error('Failed to submit title operation:', error);
+      }
     }
+    // Update local state optimistically
+    setTitle(sanitizedTitle);
   };
 
   const handleContentChange = (newContent: string) => {
     // Content is already sanitized by SecureTextArea
     if (doc && perms?.canWrite) {
-      // For now, just update the local state
-      // TODO: Implement proper OT diff operations
-      console.log('Content changed:', newContent.length, 'characters');
+      // Submit OT operation to ShareDB
+      // Using json0 OT type, we need to replace the entire content field
+      const op = [
+        {
+          p: ['content'], // Path to the content field
+          oi: newContent, // Object insert (new value)
+          od: doc.data.content ?? '', // Object delete (old value)
+        },
+      ];
+
+      try {
+        doc.submitOp(op);
+      } catch (error) {
+        console.error('Failed to submit operation:', error);
+      }
     }
+    // Update local state optimistically
     setContent(newContent);
   };
 
@@ -156,6 +202,7 @@ export function DocumentEditor(): React.JSX.Element {
         <input
           type="text"
           placeholder="Document Title"
+          value={title}
           onChange={(e) => handleTitleChange(e.target.value)}
           style={{
             marginBottom: '10px',

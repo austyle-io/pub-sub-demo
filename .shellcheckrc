@@ -1,0 +1,12 @@
+# shellcheck configuration
+# See: https://github.com/koalaman/shellcheck/wiki/Ignore
+
+# Treat all warnings as errors for strict quality enforcement
+# Use -S error to convert all warnings to errors
+
+# Disable specific warnings that are not relevant for this project
+# SC2034: Variable appears unused (often used for documentation/examples)
+disable=SC2034
+
+# Enable all other checks by default
+# Use strict mode for better shell script quality

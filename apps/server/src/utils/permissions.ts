@@ -1,4 +1,5 @@
 import type { Document } from '@collab-edit/shared';
+import type { ShareDBDocument } from '../routes/doc.routes';
 import { logAuditEvent } from './audit-logger';
 import { connectToDatabase } from './database';
 
@@ -8,6 +9,12 @@ export async function checkDocumentPermission(
   userId: string,
   permission: 'read' | 'write' | 'delete',
 ): Promise<{ allowed: boolean; reason?: string }> {
+  console.log('checkDocumentPermission called with:');
+  console.log('  collection:', collection);
+  console.log('  docId:', docId);
+  console.log('  userId:', userId);
+  console.log('  permission:', permission);
+
   // Only check permissions for documents collection
   if (collection !== 'documents') {
     logAuditEvent({
@@ -23,9 +30,13 @@ export async function checkDocumentPermission(
 
   try {
     const db = await connectToDatabase();
-    const documents = db.collection<Document>('documents');
+    const documents = db.collection<ShareDBDocument>('o_documents');
 
-    const doc = await documents.findOne({ id: docId });
+    const doc = await documents.findOne({ d: docId });
+    console.log(
+      'Document found in checkDocumentPermission:',
+      JSON.stringify(doc),
+    );
     if (!doc) {
       logAuditEvent({
         userId,
@@ -38,23 +49,37 @@ export async function checkDocumentPermission(
       return { allowed: false, reason: 'Document not found' };
     }
 
+    const documentData = doc.create?.data ?? doc.data;
+    if (!documentData) {
+      logAuditEvent({
+        userId,
+        action: permission,
+        resource: 'document',
+        resourceId: docId,
+        result: 'denied',
+        reason: 'Document data not found',
+      });
+      return { allowed: false, reason: 'Document data not found' };
+    }
+
     let hasPermission = false;
     // Check ownership
-    if (doc.acl.owner === userId) {
+    if (documentData.acl.owner === userId) {
       hasPermission = true;
     }
 
     // Check write permission
     if (permission === 'write' || permission === 'delete') {
-      hasPermission = hasPermission || doc.acl.editors.includes(userId);
+      hasPermission =
+        hasPermission || documentData.acl.editors.includes(userId);
     }
 
     // Check read permission
     if (permission === 'read') {
       hasPermission =
         hasPermission ||
-        doc.acl.editors.includes(userId) ||
-        doc.acl.viewers.includes(userId);
+        documentData.acl.editors.includes(userId) ||
+        documentData.acl.viewers.includes(userId);
     }
 
     logAuditEvent({

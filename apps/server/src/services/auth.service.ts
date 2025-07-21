@@ -2,15 +2,18 @@ import { randomUUID } from 'node:crypto';
 import {
   type AuthResponse,
   type CreateUserRequest,
-  hashPassword,
   type JwtPayload,
   type LoginRequest,
   signAccessToken,
   signRefreshToken,
   type User,
-  verifyPassword,
   verifyRefreshToken,
 } from '@collab-edit/shared';
+// Import password utilities directly
+import {
+  hashPassword,
+  verifyPassword,
+} from '../../node_modules/@collab-edit/shared/dist/auth/password.js';
 import { getUsersCollection } from '../utils/database';
 
 export class AuthService {

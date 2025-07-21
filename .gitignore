@@ -67,3 +67,6 @@ openapi.json
 
 # Gemini SA keys
 .config/gcloud/keys/*
+*.log
+.logs
+tmp/

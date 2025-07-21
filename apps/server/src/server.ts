@@ -1,8 +1,3 @@
-import { validateEnv } from './types/env';
-
-// Validate and get typed environment variables at startup
-const env = validateEnv();
-
 import 'dotenv/config';
 import http from 'node:http';
 import cookieParser from 'cookie-parser';
@@ -14,7 +9,11 @@ import passport from 'passport';
 import authRoutes from './routes/auth.routes';
 import docRoutes from './routes/doc.routes';
 import { initializeShareDB } from './services/sharedb.service';
+import { validateEnv } from './types/env';
 import { connectToDatabase } from './utils/database';
+
+// Validate and get typed environment variables at startup
+const env = validateEnv();
 
 /**
  * Main Express application. Sets up middleware, routes, and ShareDB server.
@@ -43,20 +42,24 @@ app.use(
   }),
 );
 
-// Rate limiting
+// Rate limiting - more lenient in test environment
+const isTestEnvironment = env.NODE_ENV === 'test';
+
 const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: isTestEnvironment ? 1000 : 15 * 60 * 1000, // 1 second in tests, 15 minutes in production
+  max: isTestEnvironment ? 1000 : 100, // Much higher limit in tests
   message: 'Too many requests from this IP',
   standardHeaders: true,
   legacyHeaders: false,
+  skip: isTestEnvironment ? () => true : undefined, // Skip rate limiting in tests
 });
 
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // limit each IP to 5 auth requests per windowMs
+  windowMs: isTestEnvironment ? 1000 : 15 * 60 * 1000, // 1 second in tests, 15 minutes in production
+  max: isTestEnvironment ? 100 : 5, // Much higher limit in tests
   message: 'Too many authentication attempts',
   skipSuccessfulRequests: true,
+  skip: isTestEnvironment ? () => true : undefined, // Skip rate limiting in tests
 });
 
 app.use('/api/', generalLimiter);
