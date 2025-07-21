@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- TypeScript compilation errors by switching to bracket notation for Record index access
+  - Resolved TS2538 errors: 'Type 'string' cannot be used as an index type'
+  - Updated validation, permissions, and type guard utilities to use bracket notation
+  - Ensures proper type safety for dynamic property access
+
 ### Added
 - Initial CHANGELOG.md file
 
