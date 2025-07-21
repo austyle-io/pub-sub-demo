@@ -35,6 +35,19 @@ Comprehensive coding standards (41 rule files)
 - Check for required methods: `on`, `removeListener`, `submitOp`, `destroy`
 - Validate document data structure before use
 
+**ShareDB Document Storage:**
+- Initial documents are stored with data in `create.data` field
+- Updated documents may have data in `data` field  
+- Use `doc.create?.data || doc.data` pattern for compatibility
+- Document ID is stored in the `d` field at root level
+- Query by `{ d: documentId }` not `{ 'data.id': documentId }`
+
+**ShareDB Backend Connections:**
+- Backend connections need user context for authorization middleware
+- Create authenticated connections with `backend.connect()` then set `connection.agent.custom`
+- Pass userId, email, and role in agent.custom for permission checks
+- Use separate method like `createAuthenticatedConnection()` for backend operations
+
 ### Development Environment Issues & Solutions (2025-01-21)
 
 **Problems Encountered:**
@@ -65,6 +78,15 @@ Comprehensive coding standards (41 rule files)
 - Error sanitization can hide real issues during development
 - Rate limiting can interfere with auth endpoint tests
 - ShareDB authorization requires proper user context on WebSocket connections
+- WebSocket auth works via query parameter: `ws://host?token=${token}`
+- ShareDB connect middleware must initialize agent.custom object before setting properties
+
+**API Testing Insights:**
+- Document list queries must match ShareDB's storage structure
+- Transform ShareDB documents carefully - validate each field exists
+- Use try-catch in array transformations to handle partial failures
+- Log transformation errors for debugging empty API responses
+- Test with direct database queries to verify data structure
 
 ## Core TypeScript/JavaScript Patterns (16 rules)
 

@@ -7,7 +7,7 @@ import {
 import { type Request, type Response, Router } from 'express';
 import type { Db } from 'mongodb';
 import { authenticate } from '../middleware/passport';
-import { getShareDB } from '../services/sharedb.service';
+import { getShareDB, initializeShareDB } from '../services/sharedb.service';
 import type { Op } from '../types/sharedb';
 import { getDatabase } from '../utils/database';
 import { checkDocumentPermission } from '../utils/permissions';
@@ -33,8 +33,13 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     return res.status(400).json({ message: 'Invalid request body' });
   }
 
-  const shareDB = getShareDB();
-  const connection = shareDB.connect();
+  const shareDBService = initializeShareDB();
+  // Create connection with user context
+  const connection = shareDBService.createAuthenticatedConnection(
+    req.user.sub,
+    req.user.email,
+    req.user.role
+  );
   const id = randomUUID();
   const doc = connection.get('documents', id);
 
@@ -82,15 +87,18 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const db: Db = getDatabase();
     const collection = db.collection('o_documents');
 
+    console.log('List documents for user:', req.user.sub);
+
     // Find documents where user is owner, editor, or viewer
+    // ShareDB stores initial data in 'create.data' field
     const query =
       req.user.role === 'admin'
         ? {} // Admins can see all documents
         : {
             $or: [
-              { 'data.acl.owner': req.user.sub },
-              { 'data.acl.editors': req.user.sub },
-              { 'data.acl.viewers': req.user.sub },
+              { 'create.data.acl.owner': req.user.sub },
+              { 'create.data.acl.editors': req.user.sub },
+              { 'create.data.acl.viewers': req.user.sub },
             ],
           };
 
@@ -98,31 +106,42 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       .find(query)
       .project({
         _id: 0,
-        'data.id': 1,
-        'data.title': 1,
-        'data.createdAt': 1,
-        'data.updatedAt': 1,
-        'data.acl.owner': 1,
+        'create.data.id': 1,
+        'create.data.title': 1,
+        'create.data.createdAt': 1,
+        'create.data.updatedAt': 1,
+        'create.data.acl.owner': 1,
       })
       .toArray();
+    
+    console.log('Found documents:', documents.length);
 
     // Transform the ShareDB document format to our API format
-    const formattedDocs = documents.map((doc) => {
-      // Validate the document structure with runtime type guard
-      if (!isDocumentData(doc) || !('data' in doc)) {
-        throw new Error('Invalid document structure from database');
+    const formattedDocs = documents.map((doc: any) => {
+      try {
+        // ShareDB stores initial data in 'create.data' field
+        const docData = doc.create?.data;
+        
+        if (!docData) {
+          console.error('No doc.create.data in:', JSON.stringify(doc));
+          return null;
+        }
+
+        const validatedDoc = getValidatedDocumentData(docData);
+
+        if (!validatedDoc) {
+          console.error('Failed to validate doc data:', JSON.stringify(docData));
+          return null;
+        }
+
+        return validatedDoc;
+      } catch (err) {
+        console.error('Error transforming document:', err, JSON.stringify(doc));
+        return null;
       }
+    }).filter(doc => doc !== null);
 
-      const docWithData = doc as { data: unknown };
-      const validatedDoc = getValidatedDocumentData(docWithData.data);
-
-      if (!validatedDoc) {
-        throw new Error('Invalid document data structure from database');
-      }
-
-      return validatedDoc;
-    });
-
+    console.log('Returning', formattedDocs.length, 'documents');
     return res.json(formattedDocs);
   } catch (error) {
     console.error('Failed to list documents:', error);
@@ -155,8 +174,12 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
     return res.status(403).json({ message: 'Forbidden' });
   }
 
-  const shareDB = getShareDB();
-  const connection = shareDB.connect();
+  const shareDBService = initializeShareDB();
+  const connection = shareDBService.createAuthenticatedConnection(
+    req.user.sub,
+    req.user.email,
+    req.user.role
+  );
   const doc = connection.get('documents', id);
 
   return new Promise<void>((resolve) => {
@@ -211,8 +234,12 @@ router.patch('/:id', authenticate, async (req: Request, res: Response) => {
     return res.status(403).json({ message: 'Forbidden' });
   }
 
-  const shareDB = getShareDB();
-  const connection = shareDB.connect();
+  const shareDBService = initializeShareDB();
+  const connection = shareDBService.createAuthenticatedConnection(
+    req.user.sub,
+    req.user.email,
+    req.user.role
+  );
   const doc = connection.get('documents', id);
 
   return new Promise<void>((resolve) => {
@@ -293,8 +320,12 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
       .json({ message: 'Only owners can delete documents' });
   }
 
-  const shareDB = getShareDB();
-  const connection = shareDB.connect();
+  const shareDBService = initializeShareDB();
+  const connection = shareDBService.createAuthenticatedConnection(
+    req.user.sub,
+    req.user.email,
+    req.user.role
+  );
   const doc = connection.get('documents', id);
 
   return new Promise<void>((resolve) => {
@@ -398,13 +429,15 @@ router.put(
     // Only owners and admins can change permissions
     const db: Db = getDatabase();
     const collection = db.collection<ShareDBDocument>('o_documents');
-    const docData = await collection.findOne({ 'data.id': id });
+    const docData = await collection.findOne({ d: id });
 
     if (!docData) {
       return res.status(404).json({ message: 'Document not found' });
     }
 
-    const isOwner = docData.data.acl.owner === req.user.sub;
+    // ShareDB stores data in create.data initially
+    const documentData = docData.create?.data || docData.data;
+    const isOwner = documentData?.acl?.owner === req.user.sub;
     const isAdmin = req.user.role === 'admin';
 
     if (!isOwner && !isAdmin) {

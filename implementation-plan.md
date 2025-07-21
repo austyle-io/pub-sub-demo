@@ -1,6 +1,16 @@
 Collaborative Document Editing Demo – AI Agent Implementation Plan
 
-[PROGRESS UPDATE - Session 2025-01-20]
+[PROGRESS UPDATE - Session 2025-01-21 Midnight]
+========================
+
+## 🌟 Executive Summary
+- **ShareDB Authorization**: FIXED ✅ - Documents can now be created
+- **Authentication**: Working (registration, login, JWT tokens) ✅
+- **Document CRUD**: Partially working (Create/Read work, List/Update/Delete need fixes)
+- **Real-time Sync**: Ready to test once list endpoint fixed
+- **Next Focus**: Fix list documents transformation, then test real-time collaboration
+
+[ORIGINAL PLAN - Session 2025-01-20]
 ========================
 
 ## Completed Work
@@ -195,36 +205,117 @@ Key tasks completed:
 4. **Docker Setup** - Created docker-compose.yml for consistent dev environment
 5. **JWT Environment Variables** - Fixed shared package access to JWT secrets
 6. **Authentication Working** - User registration and login now functional
+7. **ShareDB Authorization** - Fixed with createAuthenticatedConnection method
+8. **Document Creation** - Now working with proper user context
 
-### ❌ Current Blockers:
-1. **ShareDB Authorization** - "Unauthorized: Invalid user data" error when creating documents
-2. **Document Creation** - Failing due to ShareDB middleware rejecting authenticated requests
-3. **Real-time Sync** - Cannot test until document creation works
+### ❌ Current Issues:
+1. **List Documents API** - Returns empty array despite documents existing in MongoDB
+   - MongoDB query works correctly and finds documents
+   - Document transformation/mapping appears to be failing
+   - Need to debug why formatted docs array is empty
+   - Likely issue with projection fields not matching actual structure
+2. **Update Permissions** - Returns 404 "Document not found" 
+   - Using wrong field for document ID lookup
+   - Should query by `{ d: id }` not `{ 'data.id': id }`
+   - Same issue likely affects delete endpoint
+3. **ShareDB WebSocket** - Getting "Invalid or unknown message" warnings
+   - Non-critical but indicates protocol mismatch
+   - May be from test client sending malformed messages
+
+### 🔑 Key Lessons Learned (2025-01-21):
+1. **ShareDB Authorization Architecture**
+   - Backend connections need explicit user context
+   - Must initialize agent.custom before setting properties
+   - Create separate methods for authenticated backend connections
+   
+2. **ShareDB Document Structure**
+   - Initial create operations store data in `create.data`
+   - Document ID is in root `d` field, not nested
+   - Queries must match exact storage structure
+   
+3. **Debugging Approach**
+   - Direct MongoDB queries essential for understanding data structure
+   - Add logging at each transformation step
+   - Test API endpoints in isolation before integration tests
+   - Use try-catch in array transformations to handle partial failures
 
 ### 🎯 Next Steps (Priority Order):
-1. **Fix ShareDB Authorization** 🔴 CRITICAL BLOCKER
-   - Debug why ShareDB middleware rejects authenticated users
-   - Ensure user context is properly passed to ShareDB
-   - Fix "Invalid user data" error in ShareDB operations
-   - Enable document creation through API
+1. **Fix List Documents API** 🔴 CRITICAL PATH
+   - Add detailed logging to transformation pipeline
+   - Verify projection returns expected fields
+   - Fix mapping of `create.data` to API response format
+   - Test with different user roles (admin vs editor)
+   
+2. **Fix Document Query Issues** 🔴 QUICK WIN
+   - Update permissions endpoint to use `{ d: id }` query
+   - Update delete endpoint to use same pattern
+   - Add proper 404 handling when document not found
+   
+3. **Complete Real-time Collaboration Testing**
+   - Test document sync between multiple browser tabs
+   - Verify OT operations work correctly
+   - Test permission-based access control
+   - Validate reconnection handling
 
-2. **Complete User Workflow Testing** 🔴 HIGH PRIORITY
-   - Test document creation flow end-to-end
-   - Verify real-time collaboration between multiple browser sessions
-   - Ensure permissions work correctly (owner, editor, viewer)
-   - Validate document persistence across server restarts
+4. **Debug ShareDB WebSocket Warnings** 🟢 LOW PRIORITY
+   - Investigate "Invalid or unknown message" errors
+   - Check if test client is sending malformed messages
+   - Non-critical as functionality still works
 
-3. **Implement Editor State Machine**
+5. **Implement Editor State Machine** 🟡 NICE TO HAVE
    - Create XState machine for connection states
    - Add visual connection status indicators
    - Handle reconnection logic gracefully
    - Show sync status to users (saving, saved, error)
 
-4. **Enhanced Collaboration Features**
+6. **Enhanced Collaboration Features**
    - User presence indicators (who's editing)
    - Live cursor tracking
    - User avatars and colors
    - "User is typing..." indicators
+
+## 🧪 Test Progress Summary (2025-01-21 Midnight)
+
+### ✅ **Passing Tests:**
+- User Registration: Working correctly with unique emails
+- User Login: JWT tokens generated successfully 
+- Document Creation: FIXED! Documents created with proper ShareDB auth
+- Document Retrieval: GET /documents/:id working with permissions
+- WebSocket Connection: Successful handshake with token auth
+- MongoDB Connection: Stable with proper indexes
+- Environment Setup: All dependencies resolved
+
+### ❌ **Failing Tests:**  
+- Document List: Returns empty array (transformation/projection issue)
+- Update Permissions: 404 error (using wrong query field `data.id` instead of `d`)
+- Delete Document: Not tested (likely has same query issue)
+- Real-time Sync: Not tested yet (blocked by list endpoint)
+- ShareDB Messages: "Invalid or unknown message" warnings (non-critical)
+
+### 🔄 **Not Yet Tested:**
+- Multi-user real-time collaboration
+- Permission-based access control (viewer can't edit)
+- Conflict resolution with simultaneous edits
+- Reconnection after network interruption
+- Document persistence across server restarts
+
+## 🚀 Quick Start for Next Session
+
+```bash
+# 1. Start MongoDB
+docker-compose up -d
+
+# 2. Start development servers
+npm run dev
+
+# 3. Run user acceptance tests
+cd apps/server && node test-user-workflows.js
+```
+
+**Current Issue**: List documents returns empty array
+- MongoDB query works: `{ $or: [{ 'create.data.acl.owner': userId }, ...] }`
+- Projection works: `{ 'create.data.id': 1, ... }`
+- Transformation fails: Check `formattedDocs` mapping logic
 
 ### 🔄 Phase 5: CI/CD and Automation
 Status: CI started, needs completion

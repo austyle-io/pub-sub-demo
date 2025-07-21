@@ -70,13 +70,18 @@ export class ShareDBService {
         }
 
         const ctx = context; // Now safely typed as Context
-        if (ctx.req && 'user' in ctx.req && ctx.agent.custom) {
+        if (ctx.req && 'user' in ctx.req) {
           if (!isAuthenticatedRequest(ctx.req)) {
             return next(new Error('Invalid authenticated request'));
           }
 
           const authenticatedReq = ctx.req;
           if (authenticatedReq.user) {
+            // Initialize custom if it doesn't exist
+            if (!ctx.agent.custom) {
+              ctx.agent.custom = {};
+            }
+            
             ctx.agent.custom = {
               userId: authenticatedReq.user['id'],
               email: authenticatedReq.user['email'],
@@ -214,6 +219,22 @@ export class ShareDBService {
    */
   getShareDB() {
     return this.backend;
+  }
+
+  /**
+   * Create a connection with user context for backend operations
+   */
+  createAuthenticatedConnection(userId: string, email: string, role: string) {
+    const connection = this.backend.connect();
+    // Set custom data on the agent
+    if (connection.agent) {
+      connection.agent.custom = {
+        userId,
+        email,
+        role
+      };
+    }
+    return connection;
   }
 }
 
