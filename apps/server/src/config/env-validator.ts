@@ -77,7 +77,7 @@ export const validateEnvironment = (): RequiredEnvVars => {
   }
 
   // Validate NODE_ENV with proper typing
-  const nodeEnv = process.env.NODE_ENV;
+  const nodeEnv = process.env['NODE_ENV'];
   if (nodeEnv && !['development', 'production', 'test'].includes(nodeEnv)) {
     console.error('❌ NODE_ENV must be one of: development, production, test');
     process.exit(1);
@@ -100,8 +100,8 @@ export const validateEnvironment = (): RequiredEnvVars => {
     JWT_REFRESH_SECRET: refreshSecret,
     MONGO_URL: mongoUrl,
     NODE_ENV: validNodeEnv,
-    PORT: process.env.PORT ?? undefined,
-    CLIENT_URL: process.env.CLIENT_URL ?? undefined,
+    PORT: process.env['PORT'] ?? undefined,
+    CLIENT_URL: process.env['CLIENT_URL'] ?? undefined,
   };
 
   const validateProductionSecurity = (config: RequiredEnvVars): void => {

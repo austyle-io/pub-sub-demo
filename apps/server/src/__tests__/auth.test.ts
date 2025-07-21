@@ -13,9 +13,7 @@ const mongoDbAvailable = await isMongoDbAvailable();
 
 describe.skipIf(!mongoDbAvailable)('Auth Endpoints', () => {
   beforeAll(async () => {
-    // Set test JWT secrets
-    process.env['JWT_ACCESS_SECRET'] = 'test-access-secret-key-for-testing-only';
-    process.env['JWT_REFRESH_SECRET'] = 'test-refresh-secret-key-for-testing-only';
+    // Environment variables are set globally in setup.ts
     await connectToDatabase();
   });
 
@@ -25,7 +23,7 @@ describe.skipIf(!mongoDbAvailable)('Auth Endpoints', () => {
   });
 
   beforeEach(async () => {
-    // Clear users collection before each test
+    // Clear users collection before each test for isolation
     const users = getUsersCollection();
     await users.deleteMany({});
   });

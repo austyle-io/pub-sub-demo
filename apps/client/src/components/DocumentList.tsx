@@ -22,7 +22,7 @@ function DocumentListItem({ doc }: { doc: Document }) {
   );
 }
 
-export function DocumentList(): JSX.Element {
+export function DocumentList(): React.JSX.Element {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [error, setError] = useState<string | null>(null);
   const authFetch = useAuthFetch();

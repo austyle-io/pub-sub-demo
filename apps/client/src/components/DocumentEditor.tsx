@@ -89,7 +89,7 @@ function LoadingMessage() {
   );
 }
 
-export function DocumentEditor(): JSX.Element {
+export function DocumentEditor(): React.JSX.Element {
   const { docId } = useParams({ from: '/documents/$docId' });
   const doc = useShareDB(docId);
   const { perms, loading, error } = useDocumentPermissions(docId);

@@ -38,7 +38,9 @@ export function isJwtPayload(value: unknown): value is JwtPayload {
 export function isApiError(
   value: unknown,
 ): value is { error: string; details?: unknown } {
-  return isObject(value) && isString((value as Record<string, unknown>)['error']);
+  return (
+    isObject(value) && isString((value as Record<string, unknown>)['error'])
+  );
 }
 
 /**

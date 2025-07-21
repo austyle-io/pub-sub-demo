@@ -1,4 +1,5 @@
-import { type JwtPayload, signAccessToken } from '@collab-edit/shared';
+import type { JwtPayload } from '@collab-edit/shared';
+import { signAccessToken } from '@collab-edit/shared';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { app, server } from '../server';
@@ -16,14 +17,15 @@ afterAll(() => {
 });
 
 beforeAll(() => {
-  process.env['JWT_ACCESS_SECRET'] = 'test-access-secret-key-for-testing-only';
-  process.env['JWT_REFRESH_SECRET'] = 'test-refresh-secret-key-for-testing-only';
+  // Environment variables are set globally in setup.ts
 
   // Editor token
   const payload: JwtPayload = {
     sub: '123e4567-e89b-12d3-a456-426614174000',
     email: 'test@example.com',
     role: 'editor',
+    exp: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour
+    iat: Math.floor(Date.now() / 1000),
   };
   token = signAccessToken(payload);
 
@@ -32,6 +34,8 @@ beforeAll(() => {
     sub: '123e4567-e89b-12d3-a456-426614174001',
     email: 'owner@example.com',
     role: 'editor',
+    exp: Math.floor(Date.now() / 1000) + 60 * 60,
+    iat: Math.floor(Date.now() / 1000),
   };
   ownerToken = signAccessToken(ownerPayload);
 

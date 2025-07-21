@@ -38,7 +38,8 @@
       "**/build": true,
       "**/.turbo": true,
       "**/.next": true
-    }
+    },
+    "cSpell.words": ["Qube"]
   },
   "extensions": {
     "recommendations": ["biomejs.biome", "ms-vscode.vscode-typescript-next"]

@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
  * UserInfo displays the current authenticated user's email and role with a logout button.
  * @returns null if no user is authenticated
  */
-export function UserInfo(): JSX.Element | null {
+export function UserInfo(): React.JSX.Element | null {
   const { user, logout } = useAuth();
 
   if (!user) return null;

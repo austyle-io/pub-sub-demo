@@ -6,7 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
  * LoginForm renders a form for users to log in or sign up.
  * Handles form state, validation, and authentication actions.
  */
-export function LoginForm(): JSX.Element {
+export function LoginForm(): React.JSX.Element {
   const { login, signup, error, clearError, isLoading } = useAuth();
   const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState('');

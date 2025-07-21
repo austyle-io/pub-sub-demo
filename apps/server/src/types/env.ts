@@ -35,9 +35,9 @@ export function validateEnv(): Env {
   const requiredVars = ['MONGO_URL'];
 
   // Handle JWT secrets - check for either JWT_SECRET or separate access/refresh secrets
-  const jwtSecret = process.env.JWT_SECRET;
-  const jwtAccessSecret = process.env.JWT_ACCESS_SECRET;
-  const jwtRefreshSecret = process.env.JWT_REFRESH_SECRET;
+  const jwtSecret = process.env['JWT_SECRET'];
+  const jwtAccessSecret = process.env['JWT_ACCESS_SECRET'];
+  const jwtRefreshSecret = process.env['JWT_REFRESH_SECRET'];
 
   let finalAccessSecret: string;
   let finalRefreshSecret: string;
@@ -109,7 +109,7 @@ export function validateEnv(): Env {
   }
 
   // Validate NODE_ENV with proper typing
-  const nodeEnv = process.env.NODE_ENV;
+  const nodeEnv = process.env['NODE_ENV'];
   if (nodeEnv && !['development', 'production', 'test'].includes(nodeEnv)) {
     console.error('❌ NODE_ENV must be one of: development, production, test');
     process.exit(1);
@@ -132,12 +132,12 @@ export function validateEnv(): Env {
     JWT_REFRESH_SECRET: finalRefreshSecret,
     MONGO_URL: mongoUrl,
     NODE_ENV: validNodeEnv,
-    PORT: process.env.PORT ?? '3001',
-    CLIENT_URL: process.env.CLIENT_URL ?? 'http://localhost:3000',
-    JWT_EXPIRY: process.env.JWT_EXPIRY ?? '15m',
-    JWT_REFRESH_EXPIRY: process.env.JWT_REFRESH_EXPIRY ?? '7d',
-    BCRYPT_ROUNDS: process.env.BCRYPT_ROUNDS ?? '12',
-    LOG_LEVEL: (process.env.LOG_LEVEL as Env['LOG_LEVEL']) ?? 'info',
+    PORT: process.env['PORT'] ?? '3001',
+    CLIENT_URL: process.env['CLIENT_URL'] ?? 'http://localhost:3000',
+    JWT_EXPIRY: process.env['JWT_EXPIRY'] ?? '15m',
+    JWT_REFRESH_EXPIRY: process.env['JWT_REFRESH_EXPIRY'] ?? '7d',
+    BCRYPT_ROUNDS: process.env['BCRYPT_ROUNDS'] ?? '12',
+    LOG_LEVEL: (process.env['LOG_LEVEL'] as Env['LOG_LEVEL']) ?? 'info',
   };
 
   // Production security validation
@@ -172,12 +172,12 @@ export function isValidEnv(env: unknown): env is Env {
   const obj = env as Record<string, unknown>;
 
   return (
-    isString(obj.NODE_ENV) &&
-    ['development', 'production', 'test'].includes(obj.NODE_ENV as string) &&
-    isString(obj.PORT) &&
-    isString(obj.CLIENT_URL) &&
-    isString(obj.MONGO_URL) &&
-    isString(obj.JWT_ACCESS_SECRET) &&
-    isString(obj.JWT_REFRESH_SECRET)
+    isString(obj['NODE_ENV']) &&
+    ['development', 'production', 'test'].includes(obj['NODE_ENV'] as string) &&
+    isString(obj['PORT']) &&
+    isString(obj['CLIENT_URL']) &&
+    isString(obj['MONGO_URL']) &&
+    isString(obj['JWT_ACCESS_SECRET']) &&
+    isString(obj['JWT_REFRESH_SECRET'])
   );
 }

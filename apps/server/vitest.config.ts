@@ -4,9 +4,10 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    setupFiles: ['./src/__tests__/setup.ts'],
     coverage: {
       reporter: ['text', 'json', 'html'],
-      exclude: ['node_modules/', 'dist/'],
+      exclude: ['node_modules/', 'dist/', 'src/__tests__/'],
     },
   },
 });

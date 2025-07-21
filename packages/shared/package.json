@@ -13,11 +13,9 @@
   },
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch",
-    "format": "biome format --write .",
-    "lint": "biome check .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:ci": "vitest run --coverage",
     "generate:openapi": "tsx scripts/generate-openapi.ts"
   },
   "dependencies": {

@@ -57,6 +57,7 @@ Thumbs.db
 *.tmp
 *.temp
 .cache/
+tmp/
 
 # MongoDB
 data/
@@ -66,6 +67,3 @@ openapi.json
 
 # Gemini SA keys
 .config/gcloud/keys/*
-
-# Gemini CLI env
-.gemini/

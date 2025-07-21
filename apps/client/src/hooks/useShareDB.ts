@@ -1,12 +1,12 @@
-import { isFunction, isNil, isObject, isString } from "lodash";
-import { useEffect, useRef, useState } from "react";
-import ReconnectingWebSocketLib from "reconnecting-websocket";
-import { Connection } from "sharedb/lib/client";
-import { useAuth } from "../contexts/AuthContext";
+import { isFunction, isNil, isObject, isString } from 'lodash';
+import { useEffect, useRef, useState } from 'react';
+import ReconnectingWebSocketLib from 'reconnecting-websocket';
+import { Connection } from 'sharedb/lib/client';
+import { useAuth } from '../contexts/AuthContext';
 
 // ShareDB Document type with proper typing
 type ShareDBDocument = {
-  data: unknown;
+  data: { content?: string };
   on(event: string, callback: (...args: unknown[]) => void): void;
   submitOp(op: unknown[]): void;
   destroy(): void;
@@ -14,23 +14,23 @@ type ShareDBDocument = {
 
 // Type guard for ShareDB document data
 export const isDocumentData = (data: unknown): data is { content?: string } => {
-  return (
-    isObject(data) &&
-    (isNil((data as any).content) || isString((data as any).content))
-  );
+  if (!isObject(data)) return false;
+  const obj = data as Record<string, unknown>;
+  return isNil(obj['content']) || isString(obj['content']);
 };
 
 // Type guard for ShareDB document
 const isShareDBDocument = (doc: unknown): doc is ShareDBDocument => {
+  if (!isObject(doc)) return false;
+  const obj = doc as Record<string, unknown>;
   return (
-    isObject(doc) &&
-    "data" in doc &&
-    "on" in doc &&
-    isFunction((doc as Record<string, unknown>)["on"]) &&
-    "submitOp" in doc &&
-    isFunction((doc as Record<string, unknown>)["submitOp"]) &&
-    "destroy" in doc &&
-    isFunction((doc as Record<string, unknown>)["destroy"])
+    'data' in obj &&
+    'on' in obj &&
+    isFunction(obj['on']) &&
+    'submitOp' in obj &&
+    isFunction(obj['submitOp']) &&
+    'destroy' in obj &&
+    isFunction(obj['destroy'])
   );
 };
 
@@ -42,13 +42,13 @@ export function useShareDB(docId: string) {
   useEffect(() => {
     if (!accessToken) return;
 
-    const socket = new ReconnectingWebSocketLib("ws://localhost:3001");
-    // ShareDB Connection expects a WebSocket-like interface
-    // ReconnectingWebSocket implements this interface but we need to cast it
-    const connection = new Connection(socket as any);
+    const socket = new ReconnectingWebSocketLib('ws://localhost:3001');
+    // ShareDB Connection expects a specific Socket interface
+    // We need to cast to the proper type since ReconnectingWebSocket is compatible
+    const connection = new Connection(socket as never);
     connectionRef.current = connection;
 
-    const sdbDoc = connection.get("documents", docId);
+    const sdbDoc = connection.get('documents', docId);
     sdbDoc.subscribe((err) => {
       if (err) {
         console.error(err);
@@ -59,7 +59,7 @@ export function useShareDB(docId: string) {
       if (isShareDBDocument(sdbDoc)) {
         setDoc(sdbDoc);
       } else {
-        console.error("Invalid ShareDB document received");
+        console.error('Invalid ShareDB document received');
       }
     });
 

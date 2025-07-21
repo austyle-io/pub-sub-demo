@@ -18,7 +18,13 @@ class TokenManager {
     if (!this.accessToken) return false;
 
     try {
-      const payload = JSON.parse(atob(this.accessToken.split('.')[1]));
+      const parts = this.accessToken.split('.');
+      if (parts.length !== 3) return false;
+
+      const payloadPart = parts[1];
+      if (!payloadPart) return false;
+
+      const payload = JSON.parse(atob(payloadPart));
       return payload.exp * 1000 > Date.now();
     } catch {
       return false;

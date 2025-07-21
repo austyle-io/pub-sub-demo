@@ -8,7 +8,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 /**
  * Main application content: handles authentication state and renders UI accordingly.
  */
-function AppContent(): JSX.Element {
+function AppContent(): React.JSX.Element {
   const { isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -43,7 +43,7 @@ function AppContent(): JSX.Element {
 /**
  * Root component that provides authentication context to the application.
  */
-function App(): JSX.Element {
+function App(): React.JSX.Element {
   return (
     <ErrorBoundary>
       <AuthProvider>

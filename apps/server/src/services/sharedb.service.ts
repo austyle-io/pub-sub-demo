@@ -8,6 +8,7 @@ import { type WebSocket, WebSocketServer } from 'ws';
 import type { AuthenticatedRequest } from '../middleware/websocket-auth';
 import { checkDocumentPermission } from '../utils/permissions';
 import {
+  getContextSnapshots,
   hasUserIdAndRole,
   isAuthenticatedRequest,
   isShareDBContext,
@@ -41,7 +42,7 @@ export class ShareDBService {
   constructor() {
     // Initialize ShareDB with MongoDB
     const mongoUrl =
-      process.env.MONGO_URL ?? 'mongodb://localhost:27017/collab_demo';
+      process.env['MONGO_URL'] ?? 'mongodb://localhost:27017/collab_demo';
     this.backend = createShareDB({
       db: createMongoAdapter(mongoUrl),
     });
@@ -74,9 +75,9 @@ export class ShareDBService {
           const authenticatedReq = ctx.req;
           if (authenticatedReq.user) {
             ctx.agent.custom = {
-              userId: authenticatedReq.user.id,
-              email: authenticatedReq.user.email,
-              role: authenticatedReq.user.role,
+              userId: authenticatedReq.user['id'],
+              email: authenticatedReq.user['email'],
+              role: authenticatedReq.user['role'],
             };
           }
         }
@@ -112,8 +113,8 @@ export class ShareDBService {
 
         // Check document permissions
         const hasPermission = await checkDocumentPermission(
-          ctx.collection,
-          ctx.id,
+          ctx.collection ?? '',
+          ctx.id ?? '',
           userId,
           'write',
         );
@@ -153,10 +154,10 @@ export class ShareDBService {
         }
 
         // Check document permissions for each snapshot
-        const snapshots = ctx.snapshots ?? [];
+        const snapshots = getContextSnapshots(ctx);
         for (const snapshot of snapshots) {
           const hasPermission = await checkDocumentPermission(
-            ctx.collection,
+            ctx.collection ?? '',
             snapshot.id,
             userId,
             'read',

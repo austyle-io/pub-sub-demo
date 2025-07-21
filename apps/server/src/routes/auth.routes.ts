@@ -3,6 +3,7 @@ import {
   getValidationErrors,
   isCreateUserRequest,
   isLoginRequest,
+  sanitizeApiError,
   validateCreateUserRequest,
   validateLoginRequest,
 } from '@collab-edit/shared';

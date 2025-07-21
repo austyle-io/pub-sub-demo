@@ -11,8 +11,10 @@ import {
 describe('JWT Utilities', () => {
   beforeAll(() => {
     // Set JWT secrets for testing
-    process.env['JWT_ACCESS_SECRET'] = 'test-access-secret-key-for-testing-only';
-    process.env['JWT_REFRESH_SECRET'] = 'test-refresh-secret-key-for-testing-only';
+    process.env['JWT_ACCESS_SECRET'] =
+      'test-access-secret-key-for-testing-only';
+    process.env['JWT_REFRESH_SECRET'] =
+      'test-refresh-secret-key-for-testing-only';
   });
 
   const testPayload: JwtPayload = {
@@ -125,25 +127,29 @@ describe('JWT Utilities', () => {
   });
 
   describe('JWT Secret Handling', () => {
-    it('should throw error when JWT_ACCESS_SECRET is not set', () => {
+    it('should throw error when JWT_ACCESS_SECRET is missing', () => {
       const originalSecret = process.env['JWT_ACCESS_SECRET'];
       delete process.env['JWT_ACCESS_SECRET'];
 
       expect(() => {
         signAccessToken(testPayload);
-      }).toThrow('JWT_ACCESS_SECRET not configured. Please check your environment variables.');
+      }).toThrow(
+        'JWT_ACCESS_SECRET not configured. Please check your environment variables.',
+      );
 
       // Restore original secret
       process.env['JWT_ACCESS_SECRET'] = originalSecret;
     });
 
-    it('should throw error when JWT_REFRESH_SECRET is not set', () => {
+    it('should throw error when JWT_REFRESH_SECRET is missing', () => {
       const originalSecret = process.env['JWT_REFRESH_SECRET'];
       delete process.env['JWT_REFRESH_SECRET'];
 
       expect(() => {
         signRefreshToken(testPayload);
-      }).toThrow('JWT_REFRESH_SECRET not configured. Please check your environment variables.');
+      }).toThrow(
+        'JWT_REFRESH_SECRET not configured. Please check your environment variables.',
+      );
 
       // Restore original secret
       process.env['JWT_REFRESH_SECRET'] = originalSecret;
