@@ -7,7 +7,7 @@
     "rootDir": "./src",
     "target": "ES2022",
     "module": "ES2022",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "lib": ["ES2022"],
     "skipLibCheck": true,
     "strict": true,

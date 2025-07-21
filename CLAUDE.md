@@ -4,6 +4,13 @@ Comprehensive coding standards (41 rule files)
 
 ## Project-Specific Lessons Learned (2025-01-21)
 
+### Testing Philosophy
+**User Preference**: 100% user acceptance testing focus
+- Code coverage metrics are not a priority
+- Focus on ensuring critical path workflows and features are working
+- Validate that real user scenarios function correctly end-to-end
+- Integration and E2E tests are more valuable than unit test coverage
+
 ### ShareDB Real-time Implementation
 
 **WebSocket Authentication Pattern:**
@@ -28,17 +35,23 @@ Comprehensive coding standards (41 rule files)
 - Check for required methods: `on`, `removeListener`, `submitOp`, `destroy`
 - Validate document data structure before use
 
-### Development Environment Issues
+### Development Environment Issues & Solutions (2025-01-21)
 
-**Known Problems:**
+**Problems Encountered:**
 - vite-tsconfig-paths v5 is ESM-only, incompatible with Vite's CommonJS config loading
 - tsx struggles with workspace package resolution in mixed module environments
 - Node.js v24 has stricter ESM resolution rules
+- bcrypt native bindings cause issues when imported in client bundle
+- Environment variables not loading due to import order in server.ts
 
-**Workarounds:**
-- Remove vite-tsconfig-paths from Vite config when it causes issues
-- Build packages before running dev servers
-- Use compiled output instead of tsx for complex module setups
+**Solutions Applied:**
+- Removed vite-tsconfig-paths from client dependencies
+- Separated server-only exports (bcrypt) into `@collab-edit/shared/server` subpath
+- Updated server tsconfig moduleResolution to "bundler" for subpath imports
+- Fixed dotenv import order - must load before env validation
+- Cleaned up client package.json to remove all server-specific dependencies
+- Added .env file to server directory for proper env loading
+- Created docker-compose.yml for consistent development environment
 
 ## Core TypeScript/JavaScript Patterns (16 rules)
 
@@ -202,3 +215,9 @@ export const isUser = (x: unknown): x is User =>
 - **Performance**: O(1) lookups, optimized bundles
 - **Developer Experience**: Predictable, discoverable patterns
 - **Quality**: SonarQube compliant, <15 cognitive complexity
+
+# important-instruction-reminders
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
