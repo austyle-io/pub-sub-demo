@@ -1,163 +1,271 @@
-import { createMachine, assign, fromPromise } from 'xstate'
-import type { 
-  AuthResponse, 
-  PublicUser, 
-  LoginRequest, 
-  CreateUserRequest 
-} from '@collab-edit/shared'
-import { authService } from '../services/auth.service'
+import type {
+  CreateUserRequest,
+  LoginRequest,
+  PublicUser,
+} from '@collab-edit/shared';
+import { isAuthResponse, isJwtPayload } from '@collab-edit/shared';
+import { assign, createMachine, fromPromise } from 'xstate';
+import { authService } from '../services/auth.service';
 
-export interface AuthContext {
-  user: PublicUser | null
-  accessToken: string | null
-  refreshToken: string | null
-  error: string | null
-}
+export type AuthContext = {
+  user: PublicUser | null;
+  accessToken: string | null;
+  refreshToken: string | null;
+  error: string | null;
+};
 
 export type AuthEvent =
   | { type: 'LOGIN'; data: LoginRequest }
   | { type: 'SIGNUP'; data: CreateUserRequest }
   | { type: 'LOGOUT' }
   | { type: 'REFRESH_TOKEN' }
-  | { type: 'AUTH_SUCCESS'; data: AuthResponse }
-  | { type: 'AUTH_ERROR'; error: string }
-  | { type: 'CLEAR_ERROR' }
+  | { type: 'CLEAR_ERROR' };
+
+// Type guard for XState event data
+const isLoginEvent = (
+  event: AuthEvent,
+): event is { type: 'LOGIN'; data: LoginRequest } =>
+  event.type === 'LOGIN' && 'data' in event;
+
+const isSignupEvent = (
+  event: AuthEvent,
+): event is { type: 'SIGNUP'; data: CreateUserRequest } =>
+  event.type === 'SIGNUP' && 'data' in event;
 
 export const authMachine = createMachine({
-  types: {} as {
-    context: AuthContext
-    events: AuthEvent
-  },
   id: 'auth',
   initial: 'checkingAuth',
+  types: {} as {
+    context: AuthContext;
+    events: AuthEvent;
+  },
   context: {
     user: null,
     accessToken: null,
     refreshToken: null,
-    error: null
+    error: null,
   },
   states: {
     checkingAuth: {
+      entry: assign(() => {
+        const accessToken = authService.getAccessToken();
+        if (accessToken) {
+          try {
+            const tokenParts = accessToken.split('.');
+            if (tokenParts.length !== 3) {
+              throw new Error('Invalid token format');
+            }
+
+            const rawPayload = JSON.parse(atob(tokenParts[1] ?? ''));
+            if (!isJwtPayload(rawPayload)) {
+              throw new Error('Invalid JWT payload structure');
+            }
+
+            // Now rawPayload is safely typed as JwtPayload
+            return {
+              user: {
+                id: rawPayload.sub,
+                email: rawPayload.email,
+                role: rawPayload.role,
+                createdAt: '',
+                updatedAt: '',
+              },
+              accessToken: accessToken,
+              refreshToken: null, // Refresh tokens are http-only cookies
+              error: null,
+            };
+          } catch (error) {
+            console.error('Failed to validate stored token:', error);
+            authService.logout();
+            return {
+              user: null,
+              accessToken: null,
+              refreshToken: null,
+              error: null,
+            };
+          }
+        }
+        return {
+          user: null,
+          accessToken: null,
+          refreshToken: null,
+          error: null,
+        };
+      }),
       always: [
         {
           target: 'authenticated',
-          guard: 'hasValidToken'
+          guard: ({ context }) => !!context.user && !!context.accessToken,
         },
         {
-          target: 'unauthenticated'
-        }
-      ]
+          target: 'idle',
+        },
+      ],
     },
-    unauthenticated: {
+    idle: {
       on: {
-        LOGIN: 'loggingIn',
-        SIGNUP: 'signingUp'
-      }
+        LOGIN: {
+          target: 'loggingIn',
+        },
+        SIGNUP: {
+          target: 'signingUp',
+        },
+      },
     },
     loggingIn: {
       invoke: {
-        src: 'login',
-        input: ({ event }) => (event as any).data,
+        src: fromPromise(async ({ input }: { input: LoginRequest }) => {
+          return authService.login(input);
+        }),
+        input: ({ event }) => {
+          if (!isLoginEvent(event)) {
+            throw new Error('Invalid login event');
+          }
+          return event.data;
+        },
         onDone: {
           target: 'authenticated',
-          actions: 'setAuthData'
+          actions: assign(({ event }) => {
+            if (!isAuthResponse(event.output)) {
+              console.error('Invalid auth response received');
+              return { error: 'Invalid authentication response' };
+            }
+            return {
+              user: event.output.user,
+              accessToken: event.output.accessToken,
+              refreshToken: event.output.refreshToken,
+              error: null,
+            };
+          }),
         },
         onError: {
-          target: 'unauthenticated',
-          actions: 'setError'
-        }
-      }
+          target: 'idle',
+          actions: assign(({ event }) => ({
+            error:
+              event.error instanceof Error
+                ? event.error.message
+                : 'Login failed',
+          })),
+        },
+      },
     },
     signingUp: {
       invoke: {
-        src: 'signup',
-        input: ({ event }) => (event as any).data,
+        src: fromPromise(async ({ input }: { input: CreateUserRequest }) => {
+          return authService.signup(input);
+        }),
+        input: ({ event }) => {
+          if (!isSignupEvent(event)) {
+            throw new Error('Invalid signup event');
+          }
+          return event.data;
+        },
         onDone: {
           target: 'authenticated',
-          actions: 'setAuthData'
+          actions: assign(({ event }) => {
+            if (!isAuthResponse(event.output)) {
+              console.error('Invalid auth response received');
+              return { error: 'Invalid authentication response' };
+            }
+            return {
+              user: event.output.user,
+              accessToken: event.output.accessToken,
+              refreshToken: event.output.refreshToken,
+              error: null,
+            };
+          }),
         },
         onError: {
-          target: 'unauthenticated',
-          actions: 'setError'
-        }
-      }
+          target: 'idle',
+          actions: assign(({ event }) => ({
+            error:
+              event.error instanceof Error
+                ? event.error.message
+                : 'Signup failed',
+          })),
+        },
+      },
     },
     authenticated: {
       on: {
         LOGOUT: {
-          target: 'unauthenticated',
-          actions: 'clearAuthData'
+          target: 'idle',
+          actions: assign(() => {
+            authService.logout();
+            return {
+              user: null,
+              accessToken: null,
+              refreshToken: null,
+              error: null,
+            };
+          }),
         },
-        REFRESH_TOKEN: 'refreshingToken'
-      }
+        REFRESH_TOKEN: {
+          target: 'refreshingToken',
+        },
+        CLEAR_ERROR: {
+          actions: assign(() => ({ error: null })),
+        },
+      },
     },
     refreshingToken: {
       invoke: {
-        src: 'refreshToken',
-        input: ({ context }) => ({ refreshToken: context.refreshToken! }),
+        src: fromPromise(async () => {
+          return authService.refreshToken();
+        }),
         onDone: {
           target: 'authenticated',
-          actions: 'setAuthData'
+          actions: assign(({ event }) => {
+            if (!isAuthResponse(event.output)) {
+              console.error('Invalid auth response received');
+              return { error: 'Invalid authentication response' };
+            }
+            return {
+              user: event.output.user,
+              accessToken: event.output.accessToken,
+              refreshToken: event.output.refreshToken,
+              error: null,
+            };
+          }),
         },
         onError: {
-          target: 'unauthenticated',
-          actions: ['clearAuthData', 'setError']
-        }
-      }
-    }
+          target: 'idle',
+          actions: assign(({ event }) => {
+            authService.logout();
+            return {
+              user: null,
+              accessToken: null,
+              refreshToken: null,
+              error:
+                event.error instanceof Error
+                  ? event.error.message
+                  : 'Token refresh failed',
+            };
+          }),
+        },
+      },
+    },
   },
-  on: {
-    CLEAR_ERROR: {
-      actions: 'clearError'
-    }
-  }
-}, {
+}).provide({
   guards: {
-    hasValidToken: ({ context }) => {
-      if (!context.accessToken) return false
-      
-      // Check if token exists and is not expired
+    isTokenValid: ({ context }) => {
+      if (!context.accessToken) return false;
+
       try {
-        const tokenParts = context.accessToken.split('.')
-        if (tokenParts.length !== 3) return false
-        
-        const payload = JSON.parse(atob(tokenParts[1] || ''))
-        const exp = payload.exp * 1000 // Convert to milliseconds
-        
-        return Date.now() < exp
+        const tokenParts = context.accessToken.split('.');
+        if (tokenParts.length !== 3) return false;
+
+        const rawPayload = JSON.parse(atob(tokenParts[1] ?? ''));
+        if (!isJwtPayload(rawPayload)) return false;
+
+        // Double-check exp property exists (should be guaranteed by isJwtPayload)
+        if (typeof rawPayload.exp !== 'number') return false;
+
+        const exp = rawPayload.exp * 1000; // Convert to milliseconds
+        return Date.now() < exp;
       } catch {
-        return false
+        return false;
       }
-    }
+    },
   },
-  actions: {
-    setAuthData: assign({
-      user: (_, event: any) => event.output.user,
-      accessToken: (_, event: any) => event.output.accessToken,
-      refreshToken: (_, event: any) => event.output.refreshToken,
-      error: null
-    }),
-    clearAuthData: assign({
-      user: null,
-      accessToken: null,
-      refreshToken: null
-    }),
-    setError: assign({
-      error: (_, event: any) => event.error?.message || 'Authentication failed'
-    }),
-    clearError: assign({
-      error: null
-    })
-  },
-  actors: {
-    login: fromPromise(async ({ input }: { input: LoginRequest }) => {
-      return await authService.login(input)
-    }),
-    signup: fromPromise(async ({ input }: { input: CreateUserRequest }) => {
-      return await authService.signup(input)
-    }),
-    refreshToken: fromPromise(async ({ input }: { input: { refreshToken: string } }) => {
-      return await authService.refreshToken(input.refreshToken)
-    })
-  }
-})
+});

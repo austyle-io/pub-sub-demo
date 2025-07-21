@@ -1,4 +1,4 @@
-FROM node:20-slim
+FROM node:24.4.1
 RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /workspace
 CMD ["sh", "-c", "pnpm install && pnpm --workspace-root turbo run dev --filter=@collab-edit/server"]

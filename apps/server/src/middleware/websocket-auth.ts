@@ -1,51 +1,40 @@
-import { IncomingMessage } from 'http'
-import { parse } from 'url'
-import type { Socket } from 'net'
-import { verifyAccessToken } from '@collab-edit/shared'
-import type { JwtPayload } from '@collab-edit/shared'
+import type { IncomingMessage } from 'node:http';
+import { type User, verifyAccessToken } from '@collab-edit/shared';
+import type { Request } from 'express';
 
-export interface AuthenticatedRequest extends IncomingMessage {
-  user?: {
-    sub: string
-    email: string
-    role: string
-  }
-}
+export type AuthenticatedRequest = Request & { user: User };
 
-export function authenticateWebSocket(
+const verifyTokenAndGetUser = (token: string): User => {
+  const decoded = verifyAccessToken(token);
+  return {
+    id: decoded.sub,
+    email: decoded.email,
+    password: '', // Not stored in JWT for security
+    role: decoded.role,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+};
+
+export const authenticateWebSocket = async (
   req: IncomingMessage,
-  socket: Socket,
-  _head: Buffer,
-  callback: (authenticated: boolean) => void
-): void {
-  try {
-    // Extract token from query string
-    const { query } = parse(req.url || '', true)
-    const token = query['token'] as string
-    
-    if (!token) {
-      socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n')
-      socket.destroy()
-      callback(false)
-      return
-    }
-    
-    // Verify token
-    const verifyFn = verifyAccessToken
-    const decoded = verifyFn(token) as JwtPayload
-    
-    // Attach user to request
-    (req as AuthenticatedRequest).user = {
-      sub: decoded.sub,
-      email: decoded.email,
-      role: decoded.role
-    }
-    
-    callback(true)
-  } catch (error) {
-    console.error('WebSocket authentication failed:', error)
-    socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n')
-    socket.destroy()
-    callback(false)
+): Promise<User> => {
+  // Method 1: Authorization header (preferred)
+  const authHeader = req.headers.authorization;
+  if (authHeader?.startsWith('Bearer ')) {
+    const token = authHeader.substring(7);
+    return verifyTokenAndGetUser(token);
   }
-}
+
+  // Method 2: Secure cookie fallback
+  const cookieHeader = req.headers.cookie;
+  if (cookieHeader) {
+    // Simple cookie parsing for sharedb-token
+    const match = cookieHeader.match(/sharedb-token=([^;]+)/);
+    if (match?.[1]) {
+      return verifyTokenAndGetUser(match[1]);
+    }
+  }
+
+  throw new Error('No valid authentication provided');
+};

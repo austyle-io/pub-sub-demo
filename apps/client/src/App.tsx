@@ -1,49 +1,56 @@
-import { AuthProvider, useAuth } from './contexts/AuthContext'
-import { LoginForm } from './components/LoginForm'
-import { UserInfo } from './components/UserInfo'
+import { Outlet, useNavigate } from '@tanstack/react-router';
+import { useEffect } from 'react';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { LoginForm } from './components/LoginForm';
+import { UserInfo } from './components/UserInfo';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 /**
  * Main application content: handles authentication state and renders UI accordingly.
  */
-function AppContent(): JSX.Element {
-  const { isAuthenticated, isLoading } = useAuth()
-  
+function AppContent(): React.JSX.Element {
+  const { isAuthenticated, isLoading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate({ to: '/documents' });
+    }
+  }, [isAuthenticated, navigate]);
+
   if (isLoading) {
     return (
-      <div style={{ padding: '20px', textAlign: 'center' }}>
-        Loading...
-      </div>
-    )
+      <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>
+    );
   }
-  
+
   return (
     <div style={{ padding: '20px', fontFamily: 'system-ui, sans-serif' }}>
       <h1>Collaborative Document Editor - Dev Environment</h1>
-      
+
       {isAuthenticated ? (
         <>
           <UserInfo />
-          <div style={{ marginTop: '20px' }}>
-            <h2>Welcome to Collaborative Editor</h2>
-            <p>Create or select a document to start editing.</p>
-          </div>
+          <Outlet />
         </>
       ) : (
         <LoginForm />
       )}
     </div>
-  )
+  );
 }
 
 /**
  * Root component that provides authentication context to the application.
  */
-function App(): JSX.Element {
+function App(): React.JSX.Element {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
-  )
+    <ErrorBoundary>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ErrorBoundary>
+  );
 }
 
-export default App
+export default App;

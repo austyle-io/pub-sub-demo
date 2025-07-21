@@ -7,47 +7,62 @@ on:
     branches: [ main, master ]
 
 env:
-  JWT_SECRET: ${{ secrets.JWT_SECRET || 'test-secret-key-for-ci' }}
+  CI: true
+  NODE_ENV: test
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
-        node-version: [20.x]
-    
+        node-version: [24.x]
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - uses: pnpm/action-setup@v3
       with:
-        version: 9
-    
+        version: 9.15.0
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'pnpm'
-    
+
+    - name: Debug environment
+      run: |
+        echo "Node version: $(node --version)"
+        echo "NPM version: $(npm --version)"
+        echo "PNPM version: $(pnpm --version)"
+        echo "NODE_ENV: $NODE_ENV"
+        echo "CI: $CI"
+
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
-    
+
     - name: Build packages
       run: pnpm run build
-    
+
     - name: Run linter
       run: pnpm run lint
-    
+
     - name: Run type check
       run: pnpm run type-check
-    
+
     - name: Run tests
-      run: pnpm test
+      run: pnpm run test
       env:
-        CI: true
-        JWT_SECRET: test-secret-key-for-ci
-    
+        # Force test environment to optimize bcrypt performance
+        NODE_ENV: test
+        # Provide JWT secret for tests
+        JWT_SECRET: ${{ secrets.JWT_SECRET || 'test-secret-key-for-ci-environment' }}
+        # Increase Node.js memory limit for CI
+        NODE_OPTIONS: '--max-old-space-size=4096'
+        # Suppress Vite CJS deprecation warnings
+        VITE_CJS_IGNORE_WARNING: true
+
     - name: Upload coverage reports
       uses: codecov/codecov-action@v4
       if: always()
@@ -56,16 +71,17 @@ jobs:
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: false
+      continue-on-error: true
 
   security:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Run security audit
       run: pnpm audit --audit-level=high
       continue-on-error: true # Don't fail CI on audit issues
-    
+
     - name: Check for secrets
       uses: trufflesecurity/trufflehog@main
       with:
