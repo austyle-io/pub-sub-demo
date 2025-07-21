@@ -5,7 +5,10 @@ import WebSocketJSONStream from '@teamwork/websocket-json-stream';
 import ShareDB from 'sharedb';
 import ShareDBMongo from 'sharedb-mongo';
 import { type WebSocket, WebSocketServer } from 'ws';
-import type { AuthenticatedRequest } from '../middleware/websocket-auth';
+import {
+  authenticateWebSocket,
+  type AuthenticatedRequest,
+} from '../middleware/websocket-auth';
 import { checkDocumentPermission } from '../utils/permissions';
 import {
   getContextSnapshots,
@@ -179,11 +182,23 @@ export class ShareDBService {
    */
   attachToServer(server: Server): void {
     // Handle WebSocket upgrade with authentication
-    server.on('upgrade', (request, socket, head) => {
-      // For now, we'll handle auth in the connection handler
-      this.wss.handleUpgrade(request, socket, head, (ws) => {
-        this.wss.emit('connection', ws, request);
-      });
+    server.on('upgrade', async (request, socket, head) => {
+      try {
+        // Authenticate the WebSocket connection
+        const user = await authenticateWebSocket(request);
+        
+        // Attach user to request for ShareDB middleware
+        (request as any).user = user;
+        
+        // Handle the WebSocket upgrade
+        this.wss.handleUpgrade(request, socket, head, (ws) => {
+          this.wss.emit('connection', ws, request);
+        });
+      } catch (error) {
+        // Authentication failed - reject the connection
+        socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+        socket.destroy();
+      }
     });
 
     // Handle WebSocket connections

@@ -6,9 +6,10 @@ import { useAuth } from '../contexts/AuthContext';
 
 // ShareDB Document type with proper typing
 type ShareDBDocument = {
-  data: { content?: string };
+  data: { content?: string; title?: string; [key: string]: unknown };
   on(event: string, callback: (...args: unknown[]) => void): void;
-  submitOp(op: unknown[]): void;
+  removeListener(event: string, callback: (...args: unknown[]) => void): void;
+  submitOp(op: unknown[], callback?: (err?: Error) => void): void;
   destroy(): void;
 };
 
@@ -27,6 +28,8 @@ const isShareDBDocument = (doc: unknown): doc is ShareDBDocument => {
     'data' in obj &&
     'on' in obj &&
     isFunction(obj['on']) &&
+    'removeListener' in obj &&
+    isFunction(obj['removeListener']) &&
     'submitOp' in obj &&
     isFunction(obj['submitOp']) &&
     'destroy' in obj &&
@@ -42,7 +45,10 @@ export function useShareDB(docId: string) {
   useEffect(() => {
     if (!accessToken) return;
 
-    const socket = new ReconnectingWebSocketLib('ws://localhost:3001');
+    // Pass JWT token in WebSocket connection URL as query parameter
+    const socket = new ReconnectingWebSocketLib(
+      `ws://localhost:3001?token=${encodeURIComponent(accessToken)}`,
+    );
     // ShareDB Connection expects a specific Socket interface
     // We need to cast to the proper type since ReconnectingWebSocket is compatible
     const connection = new Connection(socket as never);

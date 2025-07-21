@@ -19,14 +19,21 @@ const verifyTokenAndGetUser = (token: string): User => {
 export const authenticateWebSocket = async (
   req: IncomingMessage,
 ): Promise<User> => {
-  // Method 1: Authorization header (preferred)
+  // Method 1: Query parameter (for WebSocket connections)
+  const url = new URL(req.url ?? '', `http://${req.headers.host}`);
+  const tokenFromQuery = url.searchParams.get('token');
+  if (tokenFromQuery) {
+    return verifyTokenAndGetUser(tokenFromQuery);
+  }
+
+  // Method 2: Authorization header (preferred for HTTP)
   const authHeader = req.headers.authorization;
   if (authHeader?.startsWith('Bearer ')) {
     const token = authHeader.substring(7);
     return verifyTokenAndGetUser(token);
   }
 
-  // Method 2: Secure cookie fallback
+  // Method 3: Secure cookie fallback
   const cookieHeader = req.headers.cookie;
   if (cookieHeader) {
     // Simple cookie parsing for sharedb-token
