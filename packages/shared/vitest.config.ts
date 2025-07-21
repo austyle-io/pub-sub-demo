@@ -10,8 +10,16 @@ export default defineConfig({
     // Add retry logic for flaky tests in CI
     retry: process.env['CI'] ? 2 : 0,
     coverage: {
+      provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      exclude: ['node_modules/', 'dist/'],
+      exclude: [
+        'node_modules/',
+        'dist/',
+        '__tests__/',
+        '**/*.test.ts',
+        '**/*.spec.ts',
+      ],
+      reportsDirectory: './coverage',
     },
     // Ensure proper environment variables are set
     env: {

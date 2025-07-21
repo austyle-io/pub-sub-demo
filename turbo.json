@@ -25,13 +25,25 @@
     "test": {
       "dependsOn": ["build"],
       "inputs": ["$TURBO_DEFAULT$", "jest.config.*", "vitest.config.*"],
-      "env": ["NODE_ENV"]
+      "env": [
+        "NODE_ENV",
+        "CI",
+        "JWT_SECRET",
+        "NODE_OPTIONS",
+        "VITE_CJS_IGNORE_WARNING"
+      ]
     },
     "test:ci": {
       "dependsOn": ["build"],
       "inputs": ["$TURBO_DEFAULT$", "jest.config.*", "vitest.config.*"],
       "outputs": ["coverage/**"],
-      "env": ["NODE_ENV"]
+      "env": [
+        "NODE_ENV",
+        "CI",
+        "JWT_SECRET",
+        "NODE_OPTIONS",
+        "VITE_CJS_IGNORE_WARNING"
+      ]
     }
   }
 }

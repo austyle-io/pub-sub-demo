@@ -9,7 +9,6 @@ on:
 env:
   CI: true
   NODE_ENV: test
-  JWT_SECRET: ${{ secrets.JWT_SECRET || 'test-secret-key-for-ci' }}
 
 jobs:
   test:
@@ -24,13 +23,21 @@ jobs:
 
     - uses: pnpm/action-setup@v3
       with:
-        version: 9
+        version: 9.15.0
 
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'pnpm'
+
+    - name: Debug environment
+      run: |
+        echo "Node version: $(node --version)"
+        echo "NPM version: $(npm --version)"
+        echo "PNPM version: $(pnpm --version)"
+        echo "NODE_ENV: $NODE_ENV"
+        echo "CI: $CI"
 
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
@@ -49,8 +56,12 @@ jobs:
       env:
         # Force test environment to optimize bcrypt performance
         NODE_ENV: test
+        # Provide JWT secret for tests
+        JWT_SECRET: ${{ secrets.JWT_SECRET || 'test-secret-key-for-ci-environment' }}
         # Increase Node.js memory limit for CI
         NODE_OPTIONS: '--max-old-space-size=4096'
+        # Suppress Vite CJS deprecation warnings
+        VITE_CJS_IGNORE_WARNING: true
 
     - name: Upload coverage reports
       uses: codecov/codecov-action@v4
@@ -60,6 +71,7 @@ jobs:
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: false
+      continue-on-error: true
 
   security:
     runs-on: ubuntu-latest
