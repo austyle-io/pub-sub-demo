@@ -56,10 +56,10 @@ export class ContextAnalyzer {
 
       // Collect variable declarations in scope
       if (Node.isVariableStatement(current)) {
-        current.getDeclarations().forEach((decl) => {
+        for (const decl of current.getDeclarations()) {
           const name = decl.getName();
           scope.variableDeclarations.set(name, decl);
-        });
+        }
       }
 
       current = current.getParent() as Node;

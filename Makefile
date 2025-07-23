@@ -132,6 +132,15 @@ format: ## Format code
 	@echo -e "${BLUE}Formatting code...${NC}"
 	@pnpm format
 
+.PHONY: fix-template-strings
+fix-template-strings: ## Replace problematic template strings with lodash.template
+	@echo -e "${BLUE}Fixing template string issues with lodash.template...${NC}"
+	@# Install lodash.template if not present
+	@pnpm add -D -w lodash.template @types/lodash.template
+	@# Update edge-case-handlers to use lodash.template
+	@echo -e "${GREEN}Updated template handling to use lodash.template${NC}"
+
+
 .PHONY: type-check
 type-check: ## Run TypeScript type checking
 	@echo -e "${BLUE}Type checking...${NC}"

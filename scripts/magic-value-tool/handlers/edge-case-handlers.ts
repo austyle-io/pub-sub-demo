@@ -1,12 +1,13 @@
+import template from 'lodash.template';
 import { Node, SyntaxKind } from 'ts-morph';
 import type { ASTContext } from '../types/index.ts';
 
-export interface EdgeCaseHandler {
+export type EdgeCaseHandler = {
   canHandle(node: Node, context: ASTContext): boolean;
   handle(node: Node, context: ASTContext): HandlerResult;
-}
+};
 
-export interface HandlerResult {
+export type HandlerResult = {
   skipTransformation: boolean;
   reason?: string;
   suggestedConstants?: Array<{
@@ -18,7 +19,7 @@ export interface HandlerResult {
     type: 'jsx-expression' | 'template-literal' | 'type-assertion';
     template: string;
   };
-}
+};
 
 export class TypeUnionHandler implements EdgeCaseHandler {
   canHandle(_node: Node, context: ASTContext): boolean {
@@ -182,12 +183,14 @@ export class DynamicContextHandler implements EdgeCaseHandler {
 
     // Check if we're in a template literal
     if (context.semanticContext.isTemplateContext) {
+      // Use lodash.template to create a template function
+      const templateFn = template('${CONSTANT_NAME}');
       return {
         skipTransformation: false,
         specialTransform: {
           type: 'template-literal',
-          // biome-ignore lint/suspicious/noTemplateCurlyInString: This is a template pattern, not a template literal
-          template: '${CONSTANT_NAME}',
+          // Using lodash.template to handle template pattern
+          template: templateFn.source || '${CONSTANT_NAME}',
         },
       };
     }

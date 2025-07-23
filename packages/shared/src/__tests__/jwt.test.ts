@@ -7,6 +7,7 @@ import {
   verifyAccessToken,
   verifyRefreshToken,
 } from '../auth/jwt';
+import { withoutEnvVar } from './test-utils';
 
 describe('JWT Utilities', () => {
   beforeAll(() => {
@@ -128,35 +129,23 @@ describe('JWT Utilities', () => {
 
   describe('JWT Secret Handling', () => {
     it('should throw error when JWT_ACCESS_SECRET is missing', () => {
-      const originalSecret = process.env['JWT_ACCESS_SECRET'];
-      delete process.env['JWT_ACCESS_SECRET'];
-
-      expect(() => {
-        signAccessToken(testPayload);
-      }).toThrow(
-        'JWT_ACCESS_SECRET not configured. Please check your environment variables.',
-      );
-
-      // Restore original secret
-      if (originalSecret !== undefined) {
-        process.env['JWT_ACCESS_SECRET'] = originalSecret;
-      }
+      withoutEnvVar('JWT_ACCESS_SECRET', () => {
+        expect(() => {
+          signAccessToken(testPayload);
+        }).toThrow(
+          'JWT_ACCESS_SECRET not configured. Please check your environment variables.',
+        );
+      });
     });
 
     it('should throw error when JWT_REFRESH_SECRET is missing', () => {
-      const originalSecret = process.env['JWT_REFRESH_SECRET'];
-      delete process.env['JWT_REFRESH_SECRET'];
-
-      expect(() => {
-        signRefreshToken(testPayload);
-      }).toThrow(
-        'JWT_REFRESH_SECRET not configured. Please check your environment variables.',
-      );
-
-      // Restore original secret
-      if (originalSecret !== undefined) {
-        process.env['JWT_REFRESH_SECRET'] = originalSecret;
-      }
+      withoutEnvVar('JWT_REFRESH_SECRET', () => {
+        expect(() => {
+          signRefreshToken(testPayload);
+        }).toThrow(
+          'JWT_REFRESH_SECRET not configured. Please check your environment variables.',
+        );
+      });
     });
   });
 });

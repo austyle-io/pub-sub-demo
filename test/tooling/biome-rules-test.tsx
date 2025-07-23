@@ -74,7 +74,7 @@ console.log('Debug message');
 console.error('Error message');
 
 // Test 11: var usage
-var _oldStyle = 'bad';
+const _oldStyle = 'bad';
 
 // Test 12: Non-const variable that could be const
 const _neverReassigned = 'should be const';

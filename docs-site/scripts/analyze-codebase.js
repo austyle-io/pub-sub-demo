@@ -282,7 +282,7 @@ class CodebaseAnalyzer {
     const summary = this.generateMarkdownSummary();
     await fs.writeFile(summaryPath, summary);
 
-    console.log(`\n✅ Analysis complete!`);
+    console.log('\n✅ Analysis complete!');
     console.log(
       `📊 Coverage: ${this.inventory.statistics.coveragePercentage.toFixed(1)}%`,
     );

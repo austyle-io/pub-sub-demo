@@ -471,13 +471,14 @@ export class MagicValueRefactor {
 
     if (relativePath.startsWith('apps/client')) {
       return '@/constants';
-    } else if (relativePath.startsWith('apps/server')) {
-      return '@/constants';
-    } else if (relativePath.startsWith('packages/shared')) {
-      return '../constants';
-    } else {
-      return './constants';
     }
+    if (relativePath.startsWith('apps/server')) {
+      return '@/constants';
+    }
+    if (relativePath.startsWith('packages/shared')) {
+      return '../constants';
+    }
+    return './constants';
   }
 
   private generateSummary(values: MagicValue[]): MagicValueSummary {
