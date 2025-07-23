@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-const fs = require('fs').promises;
-const path = require('path');
+const fs = require('node:fs').promises;
+const path = require('node:path');
 const ts = require('typescript');
 
 /**
@@ -62,7 +62,7 @@ class CodebaseAnalyzer {
           exports: pkgJson.exports || {},
           modules: [],
         });
-      } catch (error) {
+      } catch (_error) {
         console.warn(`⚠️  Could not read package.json for ${workspace}`);
       }
     }
@@ -99,14 +99,14 @@ class CodebaseAnalyzer {
           fileList.push(filePath);
         }
       }
-    } catch (error) {
+    } catch (_error) {
       // Directory might not exist
     }
 
     return fileList;
   }
 
-  async analyzeFile(filePath, pkg) {
+  async analyzeFile(filePath, _pkg) {
     const content = await fs.readFile(filePath, 'utf-8');
     const sourceFile = ts.createSourceFile(
       filePath,
@@ -159,9 +159,9 @@ class CodebaseAnalyzer {
       }
 
       // Check if node has export modifier
-      const hasExportModifier =
-        node.modifiers &&
-        node.modifiers.some((m) => m.kind === ts.SyntaxKind.ExportKeyword);
+      const hasExportModifier = node.modifiers?.some(
+        (m) => m.kind === ts.SyntaxKind.ExportKeyword,
+      );
 
       if (hasExportModifier) {
         const exportInfo = this.extractExportInfo(node, content, sourceFile);

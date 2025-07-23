@@ -155,6 +155,7 @@ class SecureCookieManager {
       cookieString += `; Expires=${options.expires.toUTCString()}`;
     }
 
+    // biome-ignore lint/suspicious/noDocumentCookie: Cookie Store API not widely supported yet
     document.cookie = cookieString;
   }
 

@@ -5,24 +5,47 @@
     "clientKind": "git",
     "useIgnoreFile": true
   },
+  "files": {
+    "ignoreUnknown": true,
+    "maxSize": 5242880
+  },
   "linter": {
     "enabled": true,
     "rules": {
       "recommended": true,
       "correctness": {
+        "recommended": true,
         "useExhaustiveDependencies": "error",
-        "useHookAtTopLevel": "error"
+        "useHookAtTopLevel": "error",
+        "noUnusedVariables": "error",
+        "noUnusedFunctionParameters": "error",
+        "noConstantCondition": "error"
       },
       "style": {
+        "recommended": true,
         "useImportType": "error",
-        "useNodejsImportProtocol": "error"
+        "useNodejsImportProtocol": "error",
+        "noNonNullAssertion": "error"
       },
       "suspicious": {
+        "recommended": true,
         "noExplicitAny": "error",
-        "noArrayIndexKey": "error"
+        "noArrayIndexKey": "error",
+        "noDocumentCookie": "error",
+        "noTemplateCurlyInString": "error"
       },
       "complexity": {
-        "useLiteralKeys": "off"
+        "recommended": true,
+        "useLiteralKeys": "off",
+        "useOptionalChain": "error"
+      },
+      "a11y": {
+        "recommended": true,
+        "useButtonType": "error"
+      },
+      "security": {
+        "recommended": true,
+        "noDangerouslySetInnerHtml": "error"
       }
     }
   },

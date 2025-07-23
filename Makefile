@@ -41,6 +41,11 @@ setup: ## Complete project setup
 	@echo -e "${BLUE}Setting up project...${NC}"
 	@./scripts/setup/install-deps.sh
 
+.PHONY: setup-hooks
+setup-hooks: ## Setup or repair symbolic links for agent hooks
+	@echo -e "${BLUE}Setting up agent hooks...${NC}"
+	@./scripts/setup/setup-hooks.sh
+
 # Testing
 .PHONY: test
 test: ## Run all tests safely

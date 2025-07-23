@@ -5,8 +5,8 @@ interface APIPreviewProps {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   endpoint: string;
   description?: string;
-  requestBody?: any;
-  responseExample?: any;
+  requestBody?: unknown;
+  responseExample?: unknown;
   headers?: Record<string, string>;
 }
 
@@ -44,12 +44,14 @@ export const APIPreview: React.FC<APIPreviewProps> = ({
       <div className="mt-4">
         <div className="flex gap-4 border-b">
           <button
+            type="button"
             className={`pb-2 ${activeTab === 'request' ? 'border-b-2 border-blue-500' : ''}`}
             onClick={() => setActiveTab('request')}
           >
             Request
           </button>
           <button
+            type="button"
             className={`pb-2 ${activeTab === 'response' ? 'border-b-2 border-blue-500' : ''}`}
             onClick={() => setActiveTab('response')}
           >

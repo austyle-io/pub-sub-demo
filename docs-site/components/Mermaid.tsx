@@ -26,7 +26,7 @@ export const Mermaid: React.FC<MermaidProps> = ({ chart }) => {
 
     if (ref.current) {
       mermaid
-        .render('mermaid-' + Math.random().toString(36).substr(2, 9), chart)
+        .render(`mermaid-${Math.random().toString(36).substr(2, 9)}`, chart)
         .then((result) => {
           setHtml(result.svg);
         });
@@ -37,6 +37,7 @@ export const Mermaid: React.FC<MermaidProps> = ({ chart }) => {
     <div
       ref={ref}
       className="mermaid-container"
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: Mermaid generates safe SVG content
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

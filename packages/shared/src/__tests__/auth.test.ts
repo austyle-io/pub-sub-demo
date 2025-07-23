@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { hashPassword, verifyPassword } from '../auth/password';
 import {
   type CreateUserRequest,
+  getValidationErrors,
   type LoginRequest,
   type RefreshTokenRequest,
-  getValidationErrors,
   validateCreateUserRequest,
   validateLoginRequest,
   validateRefreshTokenRequest,
@@ -15,7 +15,7 @@ describe('Auth Validation', () => {
     it('should validate a valid signup request', () => {
       const validRequest: CreateUserRequest = {
         email: 'test@example.com',
-        password: 'password123',
+        password: 'password123', // pragma: allowlist secret
       };
 
       expect(validateCreateUserRequest(validRequest)).toBe(true);
@@ -24,7 +24,7 @@ describe('Auth Validation', () => {
     it('should reject invalid email', () => {
       const invalidRequest = {
         email: 'not-an-email',
-        password: 'password123',
+        password: 'password123', // pragma: allowlist secret
       };
 
       expect(validateCreateUserRequest(invalidRequest)).toBe(false);
@@ -36,7 +36,7 @@ describe('Auth Validation', () => {
     it('should reject short password', () => {
       const invalidRequest = {
         email: 'test@example.com',
-        password: 'short',
+        password: 'short', // pragma: allowlist secret
       };
 
       expect(validateCreateUserRequest(invalidRequest)).toBe(false);
@@ -57,7 +57,7 @@ describe('Auth Validation', () => {
     it('should validate a valid login request', () => {
       const validRequest: LoginRequest = {
         email: 'test@example.com',
-        password: 'password123',
+        password: 'password123', // pragma: allowlist secret
       };
 
       expect(validateLoginRequest(validRequest)).toBe(true);
@@ -76,7 +76,7 @@ describe('Auth Validation', () => {
     it('should validate a valid refresh request', () => {
       const validRequest: RefreshTokenRequest = {
         refreshToken:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c', // pragma: allowlist secret
       };
 
       expect(validateRefreshTokenRequest(validRequest)).toBe(true);
@@ -91,7 +91,7 @@ describe('Auth Validation', () => {
 
   describe('Password Hashing', () => {
     it('should hash and verify passwords', async () => {
-      const password = 'test-password-123';
+      const password = 'test-password-123'; // pragma: allowlist secret
 
       const hash = await hashPassword(password);
       expect(hash).toBeDefined();
@@ -106,7 +106,7 @@ describe('Auth Validation', () => {
     }, 10000); // 10 second timeout for CI environments
 
     it('should generate different hashes for same password', async () => {
-      const password = 'test-password-123';
+      const password = 'test-password-123'; // pragma: allowlist secret
 
       const hash1 = await hashPassword(password);
       const hash2 = await hashPassword(password);

@@ -1,0 +1,292 @@
+# Generate ShareDB Documentation
+
+Create comprehensive documentation for ShareDB implementations, focusing on practical usage and troubleshooting.
+
+## Documentation Structure
+
+### 1. API Reference
+```markdown
+# [Feature] API Reference
+
+## Overview
+Brief description of the feature and its purpose in the real-time system.
+
+## Data Model
+
+### Document Structure
+\```typescript
+type DocumentType = {
+  // Document fields with descriptions
+}
+\```
+
+### Operations
+| Operation | Path | Description | Example |
+|-----------|------|-------------|---------|
+| Create | `/` | Initial document | `{...}` |
+| Update | `/field` | Update field | `{p: ['field'], oi: value, od: oldValue}` |
+
+## WebSocket Events
+
+### Client → Server
+- `subscribe`: Subscribe to document updates
+- `op`: Submit operation
+- `unsubscribe`: Unsubscribe from document
+
+### Server → Client
+- `op`: Receive remote operation
+- `error`: Operation error
+- `ack`: Operation acknowledged
+
+## REST Endpoints
+
+### GET /api/documents/:id
+Retrieve document metadata
+
+### POST /api/documents
+Create new document
+
+## Permissions
+
+### Read Access
+- Owner: Full access
+- Collaborator: Read/write
+- Viewer: Read-only
+
+### Write Operations
+Checked at operation level via ShareDB middleware
+```
+
+### 2. Integration Guide
+```markdown
+# Integrating [Feature]
+
+## Installation
+
+\```bash
+# Frontend setup
+npm install @collab-edit/client
+
+# Backend setup
+npm install @collab-edit/server
+\```
+
+## Basic Usage
+
+### Client Setup
+\```typescript
+import { useShareDB } from '@/hooks/useShareDB';
+import { use[Feature]ShareDB } from '@/hooks/use[Feature]ShareDB';
+
+function MyComponent() {
+  const { data, submitOp } = use[Feature]ShareDB(documentId);
+
+  // Use the data
+}
+\```
+
+### Server Configuration
+\```typescript
+// Enable feature in ShareDB service
+shareDBService.register[Feature]Middleware();
+\```
+
+## Advanced Configuration
+
+### Custom Permissions
+\```typescript
+const permissionMiddleware = {
+  async canRead(agent, doc) {
+    // Custom logic
+  },
+  async canWrite(agent, doc, op) {
+    // Custom logic
+  }
+};
+\```
+```
+
+### 3. Troubleshooting Guide
+```markdown
+# Troubleshooting [Feature]
+
+## Common Issues
+
+### 1. Connection Failures
+
+**Symptoms**
+- Red connection indicator
+- "WebSocket connection failed" errors
+- Operations not syncing
+
+**Causes**
+- Invalid JWT token
+- Network issues
+- Server down
+
+**Solutions**
+1. Check browser console for auth errors
+2. Verify token expiration
+3. Check server logs
+4. Test with `wscat`:
+   \```bash
+   wscat -c "ws://localhost:3000?token=YOUR_TOKEN"
+   \```
+
+### 2. Operation Conflicts
+
+**Symptoms**
+- "Operation version mismatch" errors
+- Lost changes
+- Inconsistent state
+
+**Debug Steps**
+1. Enable ShareDB debug logging:
+   \```typescript
+   connection.debug = true;
+   \```
+
+2. Monitor operations:
+   \```typescript
+   doc.on('op', (op, source) => {
+     console.log('Operation:', op, 'Local:', source);
+   });
+   \```
+
+3. Check document version:
+   \```typescript
+   console.log('Version:', doc.version);
+   \```
+
+### 3. Permission Denied
+
+**Error Messages**
+- "Unauthorized operation"
+- "Permission denied for document"
+
+**Verification**
+\```typescript
+// Check user permissions
+const perms = await checkPermissions(userId, docId);
+console.log('Permissions:', perms);
+\```
+
+## Performance Issues
+
+### Slow Operations
+- Check operation size (should be <1KB)
+- Verify operation batching is enabled
+- Monitor WebSocket latency
+
+### Memory Leaks
+- Ensure proper cleanup:
+  \```typescript
+  useEffect(() => {
+    return () => {
+      doc.unsubscribe();
+      doc.destroy();
+    };
+  }, []);
+  \```
+
+## Debugging Tools
+
+### ShareDB Inspector
+\```typescript
+window.__SHAREDB_DEBUG__ = {
+  logOps: true,
+  logMessages: true,
+  slowOpThreshold: 100
+};
+\```
+
+### Network Analysis
+1. Open Chrome DevTools
+2. Go to Network tab
+3. Filter by WS
+4. Inspect WebSocket frames
+```
+
+### 4. Best Practices
+```markdown
+# [Feature] Best Practices
+
+## Development Guidelines
+
+### 1. Always Validate External Data
+\```typescript
+const DataSchema = z.object({
+  // Define schema
+});
+
+// In your hook
+const validated = DataSchema.parse(doc.data);
+\```
+
+### 2. Handle Connection States
+\```typescript
+if (!isConnected) {
+  return <OfflineIndicator />;
+}
+\```
+
+### 3. Implement Retry Logic
+\```typescript
+const submitWithRetry = async (op) => {
+  const maxRetries = 3;
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      await submitOp(op);
+      break;
+    } catch (err) {
+      if (i === maxRetries - 1) throw err;
+      await delay(100 * Math.pow(2, i));
+    }
+  }
+};
+\```
+
+### 4. Optimize for Performance
+- Debounce rapid updates
+- Batch operations when possible
+- Use optimistic UI updates
+- Clean up subscriptions
+
+### 5. Security Considerations
+- Never trust client operations
+- Validate at server middleware
+- Sanitize user input
+- Implement rate limiting
+
+## Testing Strategies
+
+### Unit Tests
+- Test hooks in isolation
+- Mock ShareDB connections
+- Verify operation transformations
+
+### Integration Tests
+- Test multi-user scenarios
+- Verify conflict resolution
+- Check permission enforcement
+
+### Performance Tests
+- Measure operation latency
+- Monitor memory usage
+- Test with 100+ concurrent users
+```
+
+## Documentation Checklist
+
+When documenting a ShareDB feature:
+
+- [ ] API reference complete
+- [ ] Code examples provided
+- [ ] Common errors documented
+- [ ] Troubleshooting steps clear
+- [ ] Performance considerations noted
+- [ ] Security implications covered
+- [ ] Integration steps detailed
+- [ ] Best practices included
+- [ ] Testing guidance provided
+- [ ] Version compatibility noted

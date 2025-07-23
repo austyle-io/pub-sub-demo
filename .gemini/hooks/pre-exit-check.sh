@@ -1,0 +1,1 @@
+../../scripts/hooks/quality-check.sh

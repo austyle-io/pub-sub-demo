@@ -61,17 +61,17 @@ See `docs-site/templates/documentation-templates.ts` for comprehensive examples.
 ```typescript
 /**
  * Processes user input and returns formatted result.
- * 
+ *
  * @param {string} input - Raw user input to process
  * @param {ProcessOptions} options - Processing configuration
  * @returns {ProcessResult} Formatted result with metadata
- * 
+ *
  * @example
  * ```typescript
  * const result = processInput('Hello', { uppercase: true });
  * console.log(result.value); // 'HELLO'
  * ```
- * 
+ *
  * @since 1.0.0
  * @see {@link formatOutput} - For output formatting
  */
@@ -82,20 +82,20 @@ See `docs-site/templates/documentation-templates.ts` for comprehensive examples.
 ```tsx
 /**
  * Displays user profile information with avatar.
- * 
+ *
  * @param {UserProfileProps} props - Component properties
  * @param {User} props.user - User data to display
  * @param {Function} [props.onEdit] - Edit callback
  * @returns {React.ReactElement} Rendered profile
- * 
+ *
  * @example
  * ```tsx
- * <UserProfile 
+ * <UserProfile
  *   user={currentUser}
  *   onEdit={() => navigate('/profile/edit')}
  * />
  * ```
- * 
+ *
  * @since 1.0.0
  */
 ```
@@ -105,7 +105,7 @@ See `docs-site/templates/documentation-templates.ts` for comprehensive examples.
 ### Phase 1: Core Utilities 🔧
 **Target**: `packages/shared/src/**`
 - Type guards and validators
-- Authentication utilities  
+- Authentication utilities
 - Core schemas and types
 - Error handling
 - Logging utilities
@@ -180,7 +180,7 @@ Ensure examples are complete:
 // ❌ Bad
 const result = myFunction(...);
 
-// ✅ Good  
+// ✅ Good
 const result = myFunction('input', { option: true });
 ```
 
@@ -197,7 +197,7 @@ Document all parameters:
 
 ### Documentation Checklist
 - [ ] ✅ Phase 1: Core utilities documented
-- [ ] ✅ Phase 2: React components documented  
+- [ ] ✅ Phase 2: React components documented
 - [ ] ✅ Phase 3: Backend services documented
 - [ ] ✅ Coverage > 80%
 - [ ] ✅ All examples compile

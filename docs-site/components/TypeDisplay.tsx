@@ -11,7 +11,7 @@ interface TypeDisplayProps {
     required?: boolean;
     description?: string;
   }>;
-  example?: any;
+  example?: unknown;
 }
 
 export const TypeDisplay: React.FC<TypeDisplayProps> = ({
@@ -36,6 +36,7 @@ export const TypeDisplay: React.FC<TypeDisplayProps> = ({
         </div>
         {properties && (
           <button
+            type="button"
             onClick={() => setExpanded(!expanded)}
             className="text-blue-500 hover:text-blue-600"
           >

@@ -1,0 +1,411 @@
+# Create ShareDB Integration Tests
+
+Generate comprehensive integration tests for ShareDB features focusing on real-world scenarios and edge cases.
+
+## Test Structure
+
+### Test Categories
+1. **Connection Tests**: WebSocket lifecycle, authentication, reconnection
+2. **Document Tests**: CRUD operations, subscriptions, concurrent edits
+3. **Permission Tests**: Authorization, operation filtering, access control
+4. **Performance Tests**: Load testing, operation batching, memory usage
+5. **Failure Tests**: Network issues, server crashes, data corruption
+
+## Test Templates
+
+### 1. WebSocket Connection Tests
+```typescript
+// test/integration/websocket-connection.test.ts
+import { WebSocket } from 'ws';
+import { createConnection } from '@/test-utils/sharedb-test-client';
+import { generateAuthToken } from '@/test-utils/auth-helpers';
+import { waitForConnection } from '@/test-utils/async-helpers';
+
+describe('WebSocket Connection', () => {
+  let connection: ShareConnection;
+
+  afterEach(async () => {
+    if (connection?.state === 'connected') {
+      connection.close();
+    }
+  });
+
+  describe('Authentication', () => {
+    it('should accept valid JWT token', async () => {
+      const token = generateAuthToken({ userId: 'test-user-1' });
+      connection = await createConnection({ token });
+
+      expect(connection.state).toBe('connected');
+      expect(connection.agent.custom.userId).toBe('test-user-1');
+    });
+
+    it('should reject invalid JWT token', async () => {
+      const invalidToken = 'invalid.jwt.token';
+
+      await expect(
+        createConnection({ token: invalidToken })
+      ).rejects.toThrow('Unauthorized');
+    });
+
+    it('should reject expired JWT token', async () => {
+      const expiredToken = generateAuthToken(
+        { userId: 'test-user-1' },
+        { expiresIn: '-1h' }
+      );
+
+      await expect(
+        createConnection({ token: expiredToken })
+      ).rejects.toThrow('Token expired');
+    });
+  });
+
+  describe('Reconnection', () => {
+    it('should automatically reconnect on disconnect', async () => {
+      connection = await createConnection();
+      const reconnectSpy = jest.fn();
+
+      connection.on('state', (state) => {
+        if (state === 'connected') reconnectSpy();
+      });
+
+      // Force disconnect
+      connection.socket.close();
+
+      // Wait for reconnection
+      await waitForConnection(connection, 5000);
+
+      expect(reconnectSpy).toHaveBeenCalledTimes(2); // Initial + reconnect
+      expect(connection.state).toBe('connected');
+    });
+
+    it('should restore document subscriptions after reconnect', async () => {
+      connection = await createConnection();
+      const doc = connection.get('documents', 'test-doc-1');
+
+      await new Promise(resolve => doc.subscribe(resolve));
+      expect(doc.subscribed).toBe(true);
+
+      // Force disconnect
+      connection.socket.close();
+
+      // Wait for reconnection
+      await waitForConnection(connection, 5000);
+
+      // Verify subscription restored
+      expect(doc.subscribed).toBe(true);
+    });
+  });
+});
+```
+
+### 2. Concurrent Editing Tests
+```typescript
+// test/integration/concurrent-editing.test.ts
+import { createMultipleConnections } from '@/test-utils/multi-client';
+import { createTestDocument } from '@/test-utils/document-helpers';
+
+describe('Concurrent Editing', () => {
+  it('should handle simultaneous edits from multiple users', async () => {
+    const docId = 'concurrent-test-1';
+    const initialData = { content: 'Hello', version: 1 };
+
+    // Create document
+    await createTestDocument(docId, initialData);
+
+    // Create 3 concurrent connections
+    const clients = await createMultipleConnections(3);
+    const docs = await Promise.all(
+      clients.map(client => {
+        const doc = client.get('documents', docId);
+        return new Promise<Doc>((resolve) => {
+          doc.subscribe((err) => {
+            if (err) throw err;
+            resolve(doc);
+          });
+        });
+      })
+    );
+
+    // Submit operations concurrently
+    const operations = [
+      { p: ['content'], oi: 'Hello World', od: 'Hello' },
+      { p: ['version'], oi: 2, od: 1 },
+      { p: ['timestamp'], oi: Date.now() }
+    ];
+
+    await Promise.all(
+      docs.map((doc, i) =>
+        new Promise((resolve, reject) => {
+          doc.submitOp([operations[i]], (err) => {
+            if (err) reject(err);
+            else resolve(void 0);
+          });
+        })
+      )
+    );
+
+    // Wait for convergence
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // Verify all documents have same state
+    const finalStates = docs.map(doc => doc.data);
+    expect(finalStates[0]).toEqual(finalStates[1]);
+    expect(finalStates[1]).toEqual(finalStates[2]);
+    expect(finalStates[0].content).toBe('Hello World');
+    expect(finalStates[0].version).toBe(2);
+    expect(finalStates[0].timestamp).toBeDefined();
+
+    // Cleanup
+    clients.forEach(client => client.close());
+  });
+
+  it('should resolve conflicts with OT transformation', async () => {
+    // Test conflict resolution scenarios
+  });
+});
+```
+
+### 3. Permission Testing
+```typescript
+// test/integration/permissions.test.ts
+describe('Document Permissions', () => {
+  it('should enforce read permissions', async () => {
+    const ownerToken = generateAuthToken({
+      userId: 'owner',
+      role: 'admin'
+    });
+    const viewerToken = generateAuthToken({
+      userId: 'viewer',
+      role: 'viewer'
+    });
+
+    // Create document as owner
+    const ownerConn = await createConnection({ token: ownerToken });
+    const doc = ownerConn.get('documents', 'private-doc');
+    await createDocument(doc, {
+      content: 'Private data',
+      permissions: {
+        owner: 'owner',
+        viewers: ['viewer']
+      }
+    });
+
+    // Try to access as viewer
+    const viewerConn = await createConnection({ token: viewerToken });
+    const viewerDoc = viewerConn.get('documents', 'private-doc');
+
+    await new Promise((resolve) => {
+      viewerDoc.subscribe((err) => {
+        expect(err).toBeNull();
+        expect(viewerDoc.data.content).toBe('Private data');
+        resolve(void 0);
+      });
+    });
+  });
+
+  it('should block write operations for read-only users', async () => {
+    // Test write permission enforcement
+  });
+
+  it('should filter query results based on permissions', async () => {
+    // Test query filtering
+  });
+});
+```
+
+### 4. Performance Tests
+```typescript
+// test/integration/performance.test.ts
+describe('Performance', () => {
+  it('should handle 100 concurrent operations efficiently', async () => {
+    const startTime = Date.now();
+    const operationCount = 100;
+    const doc = await createTestDocument('perf-test-1', { counter: 0 });
+
+    // Generate operations
+    const operations = Array.from({ length: operationCount }, (_, i) => ({
+      p: ['counter'],
+      oi: i + 1,
+      od: i
+    }));
+
+    // Submit all operations
+    const promises = operations.map(op =>
+      new Promise((resolve, reject) => {
+        doc.submitOp([op], (err) => {
+          if (err) reject(err);
+          else resolve(void 0);
+        });
+      })
+    );
+
+    await Promise.all(promises);
+
+    const duration = Date.now() - startTime;
+
+    expect(doc.data.counter).toBe(operationCount);
+    expect(duration).toBeLessThan(5000); // Should complete within 5s
+
+    // Log performance metrics
+    console.log(`Processed ${operationCount} ops in ${duration}ms`);
+    console.log(`Average: ${duration / operationCount}ms per operation`);
+  });
+
+  it('should not leak memory with many subscriptions', async () => {
+    // Test memory usage patterns
+  });
+});
+```
+
+### 5. Error Recovery Tests
+```typescript
+// test/integration/error-recovery.test.ts
+describe('Error Recovery', () => {
+  it('should recover from malformed operations', async () => {
+    const doc = await createTestDocument('error-test-1', { value: 'initial' });
+
+    // Submit invalid operation
+    const invalidOp = { p: ['nonexistent', 'path'], oi: 'value' };
+
+    await expect(
+      new Promise((resolve, reject) => {
+        doc.submitOp([invalidOp], (err) => {
+          if (err) reject(err);
+          else resolve(void 0);
+        });
+      })
+    ).rejects.toThrow();
+
+    // Verify document still functional
+    const validOp = { p: ['value'], oi: 'updated', od: 'initial' };
+    await new Promise((resolve, reject) => {
+      doc.submitOp([validOp], (err) => {
+        if (err) reject(err);
+        else resolve(void 0);
+      });
+    });
+
+    expect(doc.data.value).toBe('updated');
+  });
+
+  it('should handle MongoDB connection loss', async () => {
+    // Test database failure scenarios
+  });
+});
+```
+
+## Test Utilities
+
+### Helper Functions
+```typescript
+// test-utils/sharedb-test-client.ts
+export async function createConnection(options = {}) {
+  const token = options.token || generateAuthToken();
+  const wsUrl = `ws://localhost:3000?token=${token}`;
+
+  const socket = new WebSocket(wsUrl);
+  const connection = new ShareDBClient.Connection(socket);
+
+  await waitForConnection(connection);
+  return connection;
+}
+
+export async function waitForConnection(
+  connection: Connection,
+  timeout = 3000
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (connection.state === 'connected') {
+      resolve();
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      reject(new Error('Connection timeout'));
+    }, timeout);
+
+    connection.once('state', (state) => {
+      if (state === 'connected') {
+        clearTimeout(timer);
+        resolve();
+      }
+    });
+  });
+}
+
+// test-utils/document-helpers.ts
+export async function createTestDocument(
+  id: string,
+  data: any,
+  connection?: Connection
+): Promise<Doc> {
+  const conn = connection || await createConnection();
+  const doc = conn.get('documents', id);
+
+  await new Promise((resolve, reject) => {
+    doc.fetch((err) => {
+      if (err) return reject(err);
+
+      if (doc.type === null) {
+        doc.create(data, 'json0', (err) => {
+          if (err) reject(err);
+          else resolve(doc);
+        });
+      } else {
+        resolve(doc);
+      }
+    });
+  });
+
+  return doc;
+}
+```
+
+## Testing Best Practices
+
+### 1. Test Real Scenarios
+- Multiple users editing simultaneously
+- Network interruptions during operations
+- Server restarts with active connections
+- Permission changes during active sessions
+
+### 2. Clean Up Resources
+```typescript
+afterEach(async () => {
+  // Close all connections
+  await Promise.all(activeConnections.map(conn => conn.close()));
+
+  // Clean test documents
+  await cleanupTestDocuments();
+
+  // Reset server state if needed
+  await resetServerState();
+});
+```
+
+### 3. Monitor Test Performance
+```typescript
+beforeEach(() => {
+  jest.setTimeout(10000); // Increase timeout for integration tests
+
+  // Track test metrics
+  console.time('test-duration');
+});
+
+afterEach(() => {
+  console.timeEnd('test-duration');
+});
+```
+
+## Test Checklist
+
+- [ ] Connection lifecycle tested
+- [ ] Authentication scenarios covered
+- [ ] Concurrent operations verified
+- [ ] Permission enforcement validated
+- [ ] Error recovery confirmed
+- [ ] Performance benchmarks met
+- [ ] Memory leaks checked
+- [ ] Network failures handled
+- [ ] Data integrity maintained
+- [ ] Clean up implemented

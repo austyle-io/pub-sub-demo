@@ -16,6 +16,9 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
   showLineNumbers = false,
   highlight,
 }) => {
+  // Unused parameters will be used in future implementations
+  void showLineNumbers;
+  void highlight;
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -32,6 +35,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
           <code>{children}</code>
         </pre>
         <button
+          type="button"
           className="copy-button"
           onClick={handleCopy}
           aria-label="Copy code"

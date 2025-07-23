@@ -1,0 +1,212 @@
+# AI Assistant Onboarding for ShareDB Project
+
+Welcome! This guide helps AI assistants understand the ShareDB collaborative editing project and work effectively with the codebase.
+
+## Project Overview
+
+### What is This Project?
+A real-time collaborative document editing system built with:
+- **Frontend**: React + TypeScript + ShareDB client
+- **Backend**: Node.js + Express + ShareDB server
+- **Database**: MongoDB for document persistence
+- **Real-time**: WebSocket connections with JWT authentication
+
+### Core Concepts You Need to Know
+
+#### 1. ShareDB & Operational Transformation (OT)
+ShareDB uses OT to enable real-time collaboration:
+- Every change is an "operation" (op)
+- Operations can be transformed against concurrent operations
+- This ensures all clients converge to the same state
+
+Example operation:
+```typescript
+// Replace "Hello" with "Hello World" at path ['content']
+{
+  p: ['content'],      // Path in document
+  oi: 'Hello World',   // Object insert (new value)
+  od: 'Hello'          // Object delete (old value)
+}
+```
+
+#### 2. Document Structure Quirk
+**IMPORTANT**: ShareDB has an inconsistency in document storage:
+- New documents: Data stored in `create.data`
+- Updated documents: Data stored in `data`
+- Always use: `doc.create?.data || doc.data`
+
+#### 3. WebSocket Authentication Pattern
+Authentication happens during handshake, not after:
+```typescript
+// Correct: Auth in query param
+ws://localhost:3000?token=JWT_TOKEN
+
+// Wrong: Auth after connection
+socket.on('auth', token => {...})
+```
+
+## Key Project Patterns
+
+### 1. No React.FC
+```typescript
+// ❌ Never use
+const Component: React.FC<Props> = () => {}
+
+// ✅ Always use
+const Component = ({ prop }: Props) => {}
+```
+
+### 2. Type Over Interface
+```typescript
+// ❌ Never use
+interface User {}
+
+// ✅ Always use
+type User = {}
+```
+
+### 3. Zod Validation Required
+```typescript
+// All external data must be validated
+const UserSchema = z.object({
+  id: z.string(),
+  email: z.string().email()
+});
+
+const validated = UserSchema.parse(externalData);
+```
+
+### 4. Testing Philosophy
+- **100% focus on user acceptance tests**
+- **No unit test coverage requirements**
+- **Integration tests > unit tests**
+
+## Common Tasks & Solutions
+
+### Creating a Real-time Component
+Use the template at `development/_realtime-component.mdp`
+
+### Adding ShareDB Middleware
+```typescript
+backend.use('submit', async (agent, request, next) => {
+  // Check permissions
+  const canWrite = await checkPermissions(
+    agent.custom.userId,
+    request.collection,
+    request.id
+  );
+
+  if (canWrite) next();
+  else next(new Error('Permission denied'));
+});
+```
+
+### Debugging ShareDB Issues
+1. Enable debug mode: `connection.debug = true`
+2. Check document version: `doc.version`
+3. Monitor operations: `doc.on('op', console.log)`
+4. Use `debug-db.js` to inspect MongoDB directly
+
+## File Structure
+
+```
+apps/
+├── client/          # React frontend
+│   ├── hooks/       # ShareDB hooks
+│   └── components/  # UI components
+├── server/          # Node.js backend
+│   ├── services/    # ShareDB service
+│   └── middleware/  # Auth & permissions
+packages/
+├── shared/          # Shared types & utils
+test/
+├── integration/     # Real-world tests
+```
+
+## Critical Files to Understand
+
+1. **`CLAUDE.md`** - Project memory and lessons learned
+2. **`apps/server/src/services/sharedb.service.ts`** - Core ShareDB setup
+3. **`apps/client/src/hooks/useShareDB.ts`** - Client connection hook
+4. **`apps/server/src/middleware/websocket-auth.ts`** - WebSocket auth
+
+## Common Pitfalls & Solutions
+
+### 1. Direct Mutation
+```typescript
+// ❌ Never mutate directly
+doc.data.field = value;
+
+// ✅ Use operations
+doc.submitOp([{p: ['field'], oi: value, od: oldValue}]);
+```
+
+### 2. Missing Cleanup
+```typescript
+// ❌ Memory leak
+useEffect(() => {
+  doc.subscribe();
+}, []);
+
+// ✅ Always cleanup
+useEffect(() => {
+  doc.subscribe();
+  return () => {
+    doc.unsubscribe();
+    doc.destroy();
+  };
+}, []);
+```
+
+### 3. Synchronous Access
+```typescript
+// ❌ Might be undefined
+const data = doc.data;
+
+// ✅ Wait for subscription
+await new Promise(resolve => {
+  doc.subscribe(() => resolve(doc.data));
+});
+```
+
+## Development Workflow
+
+1. **Check existing patterns**: Search codebase for similar features
+2. **Use prompts**: Check `.cursor/prompts/` for templates
+3. **Follow cursor rules**: See `.cursor/rules/` for standards
+4. **Test with multiple users**: Always test concurrent editing
+5. **Check quality**: Run `pnpm lint:all` before completing
+
+## Getting Help
+
+- **Architecture questions**: Use `@architect-sharedb` persona
+- **Code review**: Use `@mentor-sharedb` persona
+- **Feature development**: Use `development/_realtime-component.mdp`
+- **Testing**: Use `testing/_integration-test-create.mdp`
+
+## Key Commands
+
+```bash
+# Development
+pnpm dev              # Start all services
+pnpm build            # Build for production
+
+# Quality checks
+pnpm lint:all         # Run all linters
+pnpm type-check       # Check TypeScript
+pnpm test:e2e         # Run integration tests
+
+# Debugging
+node debug-db.js      # Inspect MongoDB documents
+```
+
+## Remember
+
+1. **User acceptance > code coverage**
+2. **Integration tests > unit tests**
+3. **Type safety with Zod validation**
+4. **Clean up ShareDB subscriptions**
+5. **Test with concurrent users**
+6. **Follow the cursor rules**
+
+Welcome to the team! Focus on building reliable real-time features that work seamlessly for multiple users.

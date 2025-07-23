@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
-  type JwtPayload,
   decodeToken,
+  type JwtPayload,
   signAccessToken,
   signRefreshToken,
   verifyAccessToken,
@@ -129,7 +129,6 @@ describe('JWT Utilities', () => {
   describe('JWT Secret Handling', () => {
     it('should throw error when JWT_ACCESS_SECRET is missing', () => {
       const originalSecret = process.env['JWT_ACCESS_SECRET'];
-      // biome-ignore lint/performance/noDelete: Required for testing environment variable absence
       delete process.env['JWT_ACCESS_SECRET'];
 
       expect(() => {
@@ -146,7 +145,6 @@ describe('JWT Utilities', () => {
 
     it('should throw error when JWT_REFRESH_SECRET is missing', () => {
       const originalSecret = process.env['JWT_REFRESH_SECRET'];
-      // biome-ignore lint/performance/noDelete: Required for testing environment variable absence
       delete process.env['JWT_REFRESH_SECRET'];
 
       expect(() => {

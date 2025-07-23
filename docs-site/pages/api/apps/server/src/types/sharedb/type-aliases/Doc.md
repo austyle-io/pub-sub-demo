@@ -52,7 +52,7 @@ Defined in: [apps/server/src/types/sharedb.ts:180](https://github.com/austyle-io
 
 `void`
 
-#### Call Signature
+#### Call Signature (with callback)
 
 > **create**(`data`, `type`, `callback?`): `void`
 

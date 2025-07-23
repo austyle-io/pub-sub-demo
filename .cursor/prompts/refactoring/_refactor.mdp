@@ -1,0 +1,439 @@
+# Refactor ShareDB Implementation
+
+Systematically refactor existing ShareDB code to improve performance, maintainability, and reliability.
+
+## Refactoring Analysis Framework
+
+### 1. Code Assessment
+```typescript
+interface RefactoringCandidate {
+  issue: 'performance' | 'maintainability' | 'security' | 'reliability';
+  severity: 'high' | 'medium' | 'low';
+  location: string; // file:line
+  description: string;
+  impact: string;
+  effort: 'small' | 'medium' | 'large';
+}
+```
+
+### 2. Common ShareDB Anti-Patterns to Fix
+
+#### Pattern 1: Direct Document Mutation
+```typescript
+// ❌ Anti-pattern
+doc.data.field = newValue;
+doc.emit('op', makeOp());
+
+// ✅ Refactored
+doc.submitOp([{
+  p: ['field'],
+  oi: newValue,
+  od: doc.data.field
+}]);
+```
+
+#### Pattern 2: Synchronous Document Access
+```typescript
+// ❌ Anti-pattern
+const doc = connection.get('collection', id);
+return doc.data; // Might be undefined!
+
+// ✅ Refactored
+const doc = connection.get('collection', id);
+await new Promise((resolve, reject) => {
+  doc.subscribe((err) => {
+    if (err) reject(err);
+    else resolve(doc.data);
+  });
+});
+```
+
+#### Pattern 3: Memory Leaks
+```typescript
+// ❌ Anti-pattern
+useEffect(() => {
+  const doc = connection.get('collection', id);
+  doc.subscribe();
+  // Missing cleanup!
+}, [id]);
+
+// ✅ Refactored
+useEffect(() => {
+  const doc = connection.get('collection', id);
+  doc.subscribe();
+
+  return () => {
+    doc.unsubscribe();
+    doc.destroy();
+  };
+}, [id]);
+```
+
+#### Pattern 4: Unbatched Operations
+```typescript
+// ❌ Anti-pattern
+fields.forEach(field => {
+  doc.submitOp([{p: [field.name], oi: field.value}]);
+});
+
+// ✅ Refactored
+const ops = fields.map(field => ({
+  p: [field.name],
+  oi: field.value,
+  od: doc.data[field.name]
+}));
+doc.submitOp(ops);
+```
+
+## Refactoring Templates
+
+### 1. Hook Refactoring
+```typescript
+// Before: Mixed concerns, no error handling
+export const useDocument = (id: string) => {
+  const [data, setData] = useState();
+
+  useEffect(() => {
+    const doc = connection.get('docs', id);
+    doc.subscribe(() => {
+      setData(doc.data);
+    });
+  }, [id]);
+
+  return data;
+};
+
+// After: Separated concerns, proper error handling
+export const useShareDBDocument = (
+  collectionName: string,
+  documentId: string,
+  options?: UseShareDBOptions
+) => {
+  const { connection } = useShareDBConnection();
+  const [state, dispatch] = useReducer(shareDBReducer, initialState);
+  const docRef = useRef<Doc | null>(null);
+
+  // Subscription effect
+  useEffect(() => {
+    if (!connection || !documentId) return;
+
+    const doc = connection.get(collectionName, documentId);
+    docRef.current = doc;
+
+    const handleSubscribe = (err: Error | null) => {
+      if (err) {
+        dispatch({ type: 'ERROR', error: err });
+        options?.onError?.(err);
+        return;
+      }
+
+      const validation = options?.schema?.safeParse(doc.data);
+      if (validation?.success) {
+        dispatch({ type: 'DATA', data: validation.data });
+      } else {
+        dispatch({ type: 'ERROR', error: new ValidationError() });
+      }
+    };
+
+    const handleOp = (op: any, source: boolean) => {
+      if (!source) {
+        const validation = options?.schema?.safeParse(doc.data);
+        if (validation?.success) {
+          dispatch({ type: 'DATA', data: validation.data });
+        }
+      }
+    };
+
+    // Subscribe
+    dispatch({ type: 'LOADING' });
+    doc.subscribe(handleSubscribe);
+    doc.on('op', handleOp);
+
+    // Cleanup
+    return () => {
+      doc.removeListener('op', handleOp);
+      if (doc.subscribed) {
+        doc.unsubscribe();
+      }
+      doc.destroy();
+      docRef.current = null;
+    };
+  }, [connection, collectionName, documentId, options]);
+
+  // Operation submission
+  const submitOp = useCallback(async (op: Op[]) => {
+    if (!docRef.current) throw new Error('Document not initialized');
+
+    return submitOpWithRetry(docRef.current, op, options?.retryConfig);
+  }, [options?.retryConfig]);
+
+  return {
+    ...state,
+    submitOp,
+    refresh: () => docRef.current?.fetch(),
+  };
+};
+```
+
+### 2. Component Refactoring
+```typescript
+// Before: Tightly coupled, no separation of concerns
+const Editor = ({ docId }) => {
+  const [content, setContent] = useState('');
+  const doc = useRef();
+
+  useEffect(() => {
+    doc.current = connection.get('docs', docId);
+    doc.current.subscribe(() => {
+      setContent(doc.current.data.content);
+    });
+  }, []);
+
+  const handleChange = (value) => {
+    setContent(value);
+    doc.current.submitOp([{p: ['content'], oi: value}]);
+  };
+
+  return <textarea value={content} onChange={e => handleChange(e.target.value)} />;
+};
+
+// After: Separated concerns, proper abstractions
+const Editor = memo(({ documentId, onError }: EditorProps) => {
+  const {
+    data,
+    isLoading,
+    error,
+    submitOp,
+    hasUnsavedChanges
+  } = useEditorShareDB(documentId);
+
+  const debouncedSubmit = useMemo(
+    () => debounce((value: string) => {
+      submitOp([{
+        p: ['content'],
+        oi: value,
+        od: data?.content
+      }]).catch(onError);
+    }, 300),
+    [submitOp, data?.content, onError]
+  );
+
+  if (isLoading) return <EditorSkeleton />;
+  if (error) return <EditorError error={error} onRetry={refresh} />;
+
+  return (
+    <EditorContainer>
+      <ConnectionIndicator isConnected={isConnected} />
+      <SaveIndicator hasUnsavedChanges={hasUnsavedChanges} />
+      <TextArea
+        value={data.content}
+        onChange={debouncedSubmit}
+        aria-label="Document editor"
+      />
+    </EditorContainer>
+  );
+});
+```
+
+### 3. Service Refactoring
+```typescript
+// Before: Monolithic, hard to test
+class ShareDBService {
+  constructor() {
+    this.backend = new ShareDB({db});
+    this.wss = new WebSocket.Server({port: 8080});
+
+    this.wss.on('connection', (ws, req) => {
+      const userId = getUserId(req);
+      const stream = new WebSocketJSONStream(ws);
+      const agent = this.backend.connect();
+
+      agent.custom.userId = userId;
+
+      this.backend.use('submit', (context, next) => {
+        if (canEdit(context)) next();
+        else next(new Error('Forbidden'));
+      });
+
+      stream.pipe(agent.stream).pipe(stream);
+    });
+  }
+}
+
+// After: Modular, testable, configurable
+export class ShareDBConnectionManager {
+  constructor(
+    private config: ShareDBConfig,
+    private authService: AuthService,
+    private permissionService: PermissionService,
+    private logger: Logger
+  ) {}
+
+  async handleConnection(ws: WebSocket, req: IncomingMessage): Promise<void> {
+    const connectionId = generateId();
+    this.logger.info('WebSocket connection attempt', { connectionId });
+
+    try {
+      // Authenticate
+      const user = await this.authService.authenticateWebSocket(req);
+      if (!user) {
+        ws.close(1008, 'Unauthorized');
+        return;
+      }
+
+      // Create ShareDB connection
+      const agent = this.createAgent(user, connectionId);
+      const stream = new WebSocketJSONStream(ws);
+
+      // Set up middleware
+      this.registerMiddleware(agent);
+
+      // Connect streams
+      const pipeline = stream.pipe(agent.stream).pipe(stream);
+
+      // Monitor connection
+      this.monitorConnection(ws, agent, connectionId);
+
+      // Handle cleanup
+      ws.on('close', () => this.cleanup(agent, connectionId));
+
+    } catch (error) {
+      this.logger.error('Connection setup failed', { error, connectionId });
+      ws.close(1011, 'Internal error');
+    }
+  }
+
+  private createAgent(user: User, connectionId: string): Agent {
+    const agent = this.backend.connect();
+    agent.custom = {
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+      connectionId,
+      connectedAt: Date.now()
+    };
+    return agent;
+  }
+
+  private registerMiddleware(agent: Agent): void {
+    // Read access
+    agent.use('doc', async (request, next) => {
+      const allowed = await this.permissionService.canRead(
+        agent.custom,
+        request.collection,
+        request.id
+      );
+      if (allowed) next();
+      else next(new ForbiddenError());
+    });
+
+    // Write access
+    agent.use('submit', async (request, next) => {
+      const allowed = await this.permissionService.canWrite(
+        agent.custom,
+        request.collection,
+        request.id,
+        request.op
+      );
+      if (allowed) next();
+      else next(new ForbiddenError());
+    });
+  }
+}
+```
+
+## Refactoring Checklist
+
+### Before Starting
+- [ ] Create comprehensive tests for current behavior
+- [ ] Document current API contracts
+- [ ] Set up performance benchmarks
+- [ ] Create rollback plan
+
+### During Refactoring
+- [ ] Maintain backwards compatibility
+- [ ] Update tests as you go
+- [ ] Keep commits atomic and focused
+- [ ] Document breaking changes
+
+### After Refactoring
+- [ ] Run all tests
+- [ ] Compare performance benchmarks
+- [ ] Update documentation
+- [ ] Plan migration for consumers
+- [ ] Monitor for regressions
+
+## Performance Optimization Patterns
+
+### 1. Operation Batching
+```typescript
+class OperationBatcher {
+  private pending: Op[] = [];
+  private timeout: NodeJS.Timeout | null = null;
+
+  constructor(
+    private doc: Doc,
+    private batchDelay = 10
+  ) {}
+
+  add(op: Op): void {
+    this.pending.push(op);
+
+    if (!this.timeout) {
+      this.timeout = setTimeout(() => this.flush(), this.batchDelay);
+    }
+  }
+
+  private flush(): void {
+    if (this.pending.length === 0) return;
+
+    const ops = this.mergeable(this.pending)
+      ? this.merge(this.pending)
+      : this.pending;
+
+    this.doc.submitOp(ops);
+    this.pending = [];
+    this.timeout = null;
+  }
+}
+```
+
+### 2. Subscription Management
+```typescript
+class SubscriptionPool {
+  private subscriptions = new Map<string, ShareDoc>();
+  private refCounts = new Map<string, number>();
+
+  async get(collection: string, id: string): Promise<ShareDoc> {
+    const key = `${collection}:${id}`;
+
+    if (this.subscriptions.has(key)) {
+      this.refCounts.set(key, this.refCounts.get(key)! + 1);
+      return this.subscriptions.get(key)!;
+    }
+
+    const doc = await this.subscribe(collection, id);
+    this.subscriptions.set(key, doc);
+    this.refCounts.set(key, 1);
+
+    return doc;
+  }
+
+  release(collection: string, id: string): void {
+    const key = `${collection}:${id}`;
+    const count = this.refCounts.get(key) || 0;
+
+    if (count <= 1) {
+      const doc = this.subscriptions.get(key);
+      doc?.unsubscribe();
+      doc?.destroy();
+      this.subscriptions.delete(key);
+      this.refCounts.delete(key);
+    } else {
+      this.refCounts.set(key, count - 1);
+    }
+  }
+}
+```
+
+Remember: Good refactoring improves code quality without changing functionality. Always ensure behavior remains consistent while making the code cleaner, faster, and more maintainable.

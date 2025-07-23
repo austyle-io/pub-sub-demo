@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 
-const fs = require('fs').promises;
-const path = require('path');
-const { readdirSync } = require('fs');
+const fs = require('node:fs').promises;
+const path = require('node:path');
 
 /**
  * Migration script to convert existing markdown documentation to Nextra format
@@ -34,7 +33,7 @@ async function ensureDirectory(dirPath) {
   }
 }
 
-function transformMarkdownContent(content, filePath) {
+function transformMarkdownContent(content, _filePath) {
   // Add Nextra-specific frontmatter if missing
   if (!content.startsWith('---')) {
     const title = extractTitle(content);

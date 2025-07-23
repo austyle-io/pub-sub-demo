@@ -4,9 +4,9 @@ import {
   type CreateUserRequest,
   type JwtPayload,
   type LoginRequest,
-  type User,
   signAccessToken,
   signRefreshToken,
+  type User,
   verifyRefreshToken,
 } from '@collab-edit/shared';
 // Import password utilities directly

@@ -41,7 +41,7 @@ Use this checklist when reviewing documentation changes in pull requests.
 ```typescript
 /**
  * Brief one-line description ending with period.
- * 
+ *
  * @description
  * Detailed multi-paragraph explanation. The first paragraph should
  * expand on the brief description. Subsequent paragraphs can provide
@@ -68,7 +68,7 @@ Use this checklist when reviewing documentation changes in pull requests.
  * ```typescript
  * // Single-line example
  * const result = myFunction('input');
- * 
+ *
  * // Multi-line example with context
  * const config = { cache: false };
  * const result = await myFunction('input', config);

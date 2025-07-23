@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-const fs = require('fs').promises;
-const path = require('path');
-const { execSync } = require('child_process');
+const fs = require('node:fs').promises;
+const path = require('node:path');
+const { execSync } = require('node:child_process');
 
 /**
  * Documentation Quality Checker
@@ -257,7 +257,7 @@ class DocumentationChecker {
           fileList.push(filePath);
         }
       }
-    } catch (error) {
+    } catch (_error) {
       // Directory might not exist
     }
 

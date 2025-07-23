@@ -1,0 +1,151 @@
+# WebSocket Feature Development Chain
+# Implements a complete real-time feature with ShareDB
+
+name: websocket-feature
+description: Complete workflow for implementing a WebSocket-based real-time feature
+
+parameters:
+  - name: feature_name
+    description: Name of the feature to implement
+    required: true
+  - name: description
+    description: Description of the feature requirements
+    required: false
+
+steps:
+  - id: analyze_requirements
+    prompt: |
+      Analyze the requirements for implementing a real-time ${feature_name} feature.
+
+      Consider:
+      - Data structure design for ShareDB documents
+      - Required operations (create, read, update, delete)
+      - Permission model needed
+      - UI components required
+      - Performance implications
+
+      ${description}
+
+      Provide a detailed technical specification.
+
+  - id: design_data_model
+    prompt: |
+      Design the ShareDB document structure for ${feature_name}.
+
+      Create:
+      1. Zod schemas for data validation
+      2. TypeScript types
+      3. ShareDB operation types
+      4. Initial document structure
+
+      Follow the patterns in CLAUDE.md for document structure.
+
+  - id: implement_backend
+    prompt: |
+      Implement the backend components for ${feature_name}:
+
+      1. ShareDB middleware for permissions
+      2. REST API endpoints if needed
+      3. WebSocket event handlers
+      4. Database indexes for queries
+      5. Audit logging
+
+      Use the ShareDB patterns from the project.
+
+  - id: create_hooks
+    prompt: |
+      Create React hooks for ${feature_name}:
+
+      1. Main ShareDB hook (use${feature_name}ShareDB)
+      2. Presence hook if applicable
+      3. Permission checking hook
+      4. Error recovery logic
+
+      Follow the pattern in development/_realtime-component.mdp
+
+  - id: build_components
+    prompt: |
+      Build the React components for ${feature_name}:
+
+      1. Main component with real-time sync
+      2. Connection status indicator
+      3. Conflict resolution UI
+      4. Loading and error states
+      5. Accessibility features
+
+      Use the component template from the prompts.
+
+  - id: add_optimizations
+    prompt: |
+      Add performance optimizations:
+
+      1. Operation batching
+      2. Debounced updates
+      3. Optimistic UI updates
+      4. Lazy loading
+      5. Memory cleanup
+
+      Consider the performance limits from architecture context.
+
+  - id: implement_tests
+    prompt: |
+      Create comprehensive tests for ${feature_name}:
+
+      1. Unit tests for hooks
+      2. Component tests
+      3. Integration tests for real-time sync
+      4. Permission tests
+      5. Performance tests
+
+      Use templates from testing/_integration-test-create.mdp
+
+  - id: security_review
+    prompt: |
+      Perform security review for ${feature_name}:
+
+      1. Input validation with Zod
+      2. Permission checks at operation level
+      3. Rate limiting considerations
+      4. XSS prevention
+      5. Audit logging
+
+      Apply the skeptical analyst approach.
+
+  - id: documentation
+    prompt: |
+      Create documentation for ${feature_name}:
+
+      1. API documentation
+      2. Component usage examples
+      3. ShareDB operation reference
+      4. Troubleshooting guide
+      5. Performance considerations
+
+  - id: final_review
+    prompt: |
+      Final review checklist for ${feature_name}:
+
+      - [ ] All tests passing
+      - [ ] No memory leaks
+      - [ ] Proper error handling
+      - [ ] Accessibility compliant
+      - [ ] Performance benchmarks met
+      - [ ] Security review complete
+      - [ ] Documentation updated
+      - [ ] Code follows cursor rules
+
+      Provide a summary of what was implemented.
+
+output:
+  format: markdown
+  sections:
+    - title: Implementation Summary
+      content: Overview of the implemented feature
+    - title: Technical Details
+      content: Key technical decisions and patterns used
+    - title: Usage Examples
+      content: How to use the new feature
+    - title: Testing Instructions
+      content: How to test the implementation
+    - title: Next Steps
+      content: Recommended improvements or extensions

@@ -1,7 +1,6 @@
 import type { DocsThemeConfig } from 'nextra-theme-docs';
-import React from 'react';
 
-const config: DocsThemeConfig = {
+const _config: DocsThemeConfig = {
   logo: <span>Collab Edit Docs</span>,
   project: {
     link: 'https://github.com/austyle-io/pub-sub-demo',
