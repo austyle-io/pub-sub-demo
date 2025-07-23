@@ -1,0 +1,45 @@
+{
+  "entryPoints": [
+    "../apps/client/src",
+    "../apps/server/src",
+    "../packages/shared/src"
+  ],
+  "entryPointStrategy": "expand",
+  "out": "./pages/api",
+  "plugin": ["typedoc-plugin-markdown"],
+  "readme": "none",
+  "githubPages": false,
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/test-setup.ts",
+    "**/node_modules/**"
+  ],
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeInternal": true,
+  "hideGenerator": true,
+  "disableSources": false,
+  "categorizeByGroup": true,
+  "sort": ["source-order"],
+  "visibilityFilters": {
+    "protected": false,
+    "private": false,
+    "inherited": true,
+    "external": false
+  },
+  "theme": "markdown",
+  "lightHighlightTheme": "github-light",
+  "darkHighlightTheme": "github-dark",
+  "markdownItOptions": {
+    "html": true,
+    "linkify": true,
+    "typographer": true
+  },
+  "tsconfig": "../tsconfig.json",
+  "compilerOptions": {
+    "skipLibCheck": true
+  }
+}

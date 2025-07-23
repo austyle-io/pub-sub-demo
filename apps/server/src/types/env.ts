@@ -2,7 +2,8 @@
  * Environment variable validation and type inference
  * This provides both runtime validation and compile-time type safety
  */
-import { isObject, isString } from 'lodash';
+import isObject from 'lodash.isobject';
+import isString from 'lodash.isstring';
 
 // Environment variable schema definition
 export type Env = {
@@ -65,7 +66,9 @@ export function validateEnv(): Env {
   const missing = requiredVars.filter((key) => !process.env[key]);
   if (missing.length > 0) {
     console.error('❌ Missing required environment variables:');
-    missing.forEach((var_) => console.error(`  - ${var_}`));
+    for (const var_ of missing) {
+      console.error(`  - ${var_}`);
+    }
     console.error(
       '\nPlease check your .env file and ensure all required variables are set.',
     );

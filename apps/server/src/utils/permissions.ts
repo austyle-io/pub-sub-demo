@@ -1,19 +1,21 @@
 import type { Document } from '@collab-edit/shared';
 import type { ShareDBDocument } from '../routes/doc.routes';
+import { dbLogger } from '../services/logger';
 import { logAuditEvent } from './audit-logger';
 import { connectToDatabase } from './database';
 
-export async function checkDocumentPermission(
+export const checkDocumentPermission = async (
   collection: string,
   docId: string,
   userId: string,
   permission: 'read' | 'write' | 'delete',
-): Promise<{ allowed: boolean; reason?: string }> {
-  console.log('checkDocumentPermission called with:');
-  console.log('  collection:', collection);
-  console.log('  docId:', docId);
-  console.log('  userId:', userId);
-  console.log('  permission:', permission);
+): Promise<{ allowed: boolean; reason?: string }> => {
+  dbLogger.debug('Checking document permission', {
+    collection,
+    docId,
+    userId,
+    permission,
+  });
 
   // Only check permissions for documents collection
   if (collection !== 'documents') {
@@ -33,10 +35,11 @@ export async function checkDocumentPermission(
     const documents = db.collection<ShareDBDocument>('o_documents');
 
     const doc = await documents.findOne({ d: docId });
-    console.log(
-      'Document found in checkDocumentPermission:',
-      JSON.stringify(doc),
-    );
+    dbLogger.debug('Document found for permission check', {
+      docId,
+      documentFound: !!doc,
+      hasData: !!(doc?.create?.data ?? doc?.data),
+    });
     if (!doc) {
       logAuditEvent({
         userId,
@@ -93,7 +96,14 @@ export async function checkDocumentPermission(
 
     return { allowed: hasPermission };
   } catch (error) {
-    console.error('Error checking document permission:', error);
+    dbLogger.error('Error checking document permission', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      collection,
+      docId,
+      userId,
+      permission,
+    });
     logAuditEvent({
       userId,
       action: permission,
@@ -104,13 +114,13 @@ export async function checkDocumentPermission(
     });
     return { allowed: false, reason: 'Error checking permission' };
   }
-}
+};
 
-export function canUserEditDocument(
+export const canUserEditDocument = (
   doc: Document,
   userId: string,
   userRole: string,
-): boolean {
+): boolean => {
   // Admins can edit anything
   if (userRole === 'admin') {
     return true;
@@ -123,13 +133,13 @@ export function canUserEditDocument(
 
   // Check if user is in editors list
   return doc.acl.editors.includes(userId);
-}
+};
 
-export function canUserViewDocument(
+export const canUserViewDocument = (
   doc: Document,
   userId: string,
   userRole: string,
-): boolean {
+): boolean => {
   // Admins can view anything
   if (userRole === 'admin') {
     return true;
@@ -142,4 +152,4 @@ export function canUserViewDocument(
 
   // Check if user is in viewers list
   return doc.acl.viewers.includes(userId);
-}
+};

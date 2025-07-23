@@ -19,21 +19,14 @@ const verifyTokenAndGetUser = (token: string): User => {
 export const authenticateWebSocket = async (
   req: IncomingMessage,
 ): Promise<User> => {
-  // Method 1: Query parameter (for WebSocket connections)
-  const url = new URL(req.url ?? '', `http://${req.headers.host}`);
-  const tokenFromQuery = url.searchParams.get('token');
-  if (tokenFromQuery) {
-    return verifyTokenAndGetUser(tokenFromQuery);
-  }
-
-  // Method 2: Authorization header (preferred for HTTP)
+  // Method 1: Authorization header (preferred for security)
   const authHeader = req.headers.authorization;
   if (authHeader?.startsWith('Bearer ')) {
     const token = authHeader.substring(7);
     return verifyTokenAndGetUser(token);
   }
 
-  // Method 3: Secure cookie fallback
+  // Method 2: Secure cookie fallback
   const cookieHeader = req.headers.cookie;
   if (cookieHeader) {
     // Simple cookie parsing for sharedb-token
@@ -42,6 +35,10 @@ export const authenticateWebSocket = async (
       return verifyTokenAndGetUser(match[1]);
     }
   }
+
+  // SECURITY: Removed query parameter authentication method
+  // Query parameters are logged by servers and can expose tokens
+  // All WebSocket connections must now use Authorization headers
 
   throw new Error('No valid authentication provided');
 };

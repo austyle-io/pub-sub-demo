@@ -21,6 +21,21 @@ dev: ## Start development servers
 	@docker-compose up -d
 	@pnpm run dev
 
+# Agent system commands
+.PHONY: up
+up: ## Check current progress and update agent state
+	@echo -e "${BLUE}Checking current progress...${NC}"
+	@python3 .agent/tools/update-progress.py
+
+.PHONY: ho
+ho: ## Generate handoff report (usage: make ho "session notes")
+	@echo -e "${BLUE}Generating handoff report...${NC}"
+	@python3 .agent/tools/generate-handoff.py $(filter-out $@,$(MAKECMDGOALS))
+
+# Allow arguments to be passed to make ho
+%:
+	@:
+
 .PHONY: setup
 setup: ## Complete project setup
 	@echo -e "${BLUE}Setting up project...${NC}"
@@ -84,7 +99,7 @@ test-e2e-collaboration: ## Run collaboration E2E tests
 
 # Quality
 .PHONY: quality
-quality: lint type-check test ## Run all quality checks
+quality: lint type-check test knip ## Run all quality checks
 	@echo -e "${GREEN}✅ All quality checks passed!${NC}"
 
 .PHONY: lint
@@ -117,6 +132,32 @@ type-check: ## Run TypeScript type checking
 	@echo -e "${BLUE}Type checking...${NC}"
 	@pnpm type-check
 
+# Bundle Analysis & Unused Code Detection
+.PHONY: knip
+knip: ## Run Knip analysis (unused dependencies, exports, files)
+	@echo -e "${BLUE}Running Knip analysis...${NC}"
+	@pnpm run knip
+
+.PHONY: knip-deps
+knip-deps: ## Check unused dependencies
+	@echo -e "${BLUE}Checking unused dependencies...${NC}"
+	@pnpm run knip:dependencies
+
+.PHONY: knip-exports
+knip-exports: ## Check unused exports
+	@echo -e "${BLUE}Checking unused exports...${NC}"
+	@pnpm run knip:exports
+
+.PHONY: knip-files
+knip-files: ## Check unused files
+	@echo -e "${BLUE}Checking unused files...${NC}"
+	@pnpm run knip:files
+
+.PHONY: knip-types
+knip-types: ## Check unused types
+	@echo -e "${BLUE}Checking unused types...${NC}"
+	@pnpm run knip:types
+
 # Database
 .PHONY: db-debug
 db-debug: ## Debug database state
@@ -142,8 +183,28 @@ clean: ## Clean build artifacts
 
 # Documentation
 .PHONY: docs
-docs: ## Open documentation
-	@echo -e "${BLUE}Opening documentation...${NC}"
+docs: ## Build complete documentation
+	@echo -e "${BLUE}Building complete documentation...${NC}"
+	@cd docs-site && pnpm run build-docs
+
+.PHONY: docs-dev
+docs-dev: ## Start documentation development server
+	@echo -e "${BLUE}Starting documentation development server...${NC}"
+	@cd docs-site && pnpm run dev
+
+.PHONY: docs-build
+docs-build: ## Build documentation site
+	@echo -e "${BLUE}Building documentation site...${NC}"
+	@cd docs-site && pnpm run build
+
+.PHONY: docs-generate
+docs-generate: ## Generate API documentation
+	@echo -e "${BLUE}Generating API documentation...${NC}"
+	@cd docs-site && pnpm run generate-api
+
+.PHONY: docs-legacy
+docs-legacy: ## Open legacy documentation
+	@echo -e "${BLUE}Opening legacy documentation...${NC}"
 	@open docs/00_INDEX.md || echo "📖 See docs/00_INDEX.md"
 
 # Development Utilities

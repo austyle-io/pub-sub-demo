@@ -3,10 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "Collaborative document editing demo application",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
+  "workspaces": ["apps/*", "packages/*", "docs-site"],
   "scripts": {
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
@@ -24,18 +21,42 @@
     "test:e2e:debug": "playwright test --debug --config=test/e2e/setup/playwright.config.ts",
     "test:e2e:report": "playwright show-report test/e2e/reports/html",
     "test:e2e:install": "playwright install",
-    "test:e2e:setup": "playwright install && make db-reset"
+    "test:e2e:setup": "playwright install && ./scripts/development/reset-database.sh",
+    "knip": "knip",
+    "knip:production": "knip --production",
+    "knip:dependencies": "knip --include dependencies",
+    "knip:exports": "knip --include exports",
+    "knip:files": "knip --include files",
+    "knip:types": "knip --include types",
+    "docs:dev": "cd docs-site && pnpm run dev",
+    "docs:build": "cd docs-site && pnpm run build-docs",
+    "docs:generate": "cd docs-site && pnpm run generate-api && node scripts/process-api-docs.js",
+    "docs:analyze": "node docs-site/scripts/analyze-codebase.js",
+    "docs:check": "node docs-site/scripts/check-documentation.js",
+    "docs:enhance": "bash docs-site/scripts/documentation-workflow.sh all",
+    "docs:phase1": "bash docs-site/scripts/documentation-workflow.sh phase1",
+    "docs:phase2": "bash docs-site/scripts/documentation-workflow.sh phase2",
+    "docs:phase3": "bash docs-site/scripts/documentation-workflow.sh phase3",
+    "docs:report": "bash docs-site/scripts/documentation-workflow.sh report"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@playwright/test": "^1.41.0",
     "@types/node": "^20.10.6",
     "@types/sharedb": "^5.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/parser": "^8.38.0",
     "@vitest/coverage-v8": "^2.1.9",
+    "knip": "^5.62.0",
     "markdownlint-cli2": "^0.18.1",
     "mongodb": "^6.12.0",
     "pino-http": "^8.3.0",
     "pino-pretty": "^10.2.0",
+    "ts-morph": "^26.0.0",
+    "tsx": "^4.20.3",
     "turbo": "^2.3.3",
+    "typedoc": "^0.28.7",
+    "typedoc-plugin-markdown": "^4.7.1",
     "typescript": "^5.7.2",
     "ws": "^8.18.0"
   },
@@ -43,11 +64,5 @@
     "node": ">=24.0.0",
     "pnpm": ">=9.0.0"
   },
-  "packageManager": "pnpm@9.15.0",
-  "dependencies": {
-    "@types/lodash": "^4.14.201",
-    "dompurify": "^3.2.6",
-    "lodash": "^4.17.21",
-    "pino": "^8.15.0"
-  }
+  "packageManager": "pnpm@9.15.0"
 }

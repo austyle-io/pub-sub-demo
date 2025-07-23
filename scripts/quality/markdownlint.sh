@@ -38,8 +38,8 @@ main() {
     log "Found $md_count markdown file(s) to check"
 
     # Run markdownlint (all issues treated as errors)
-    # Use double quotes for cross-platform compatibility and exclude node_modules
-    if $markdownlint_cmd "**/*.md" "#node_modules" "#.git" "#apps/*/node_modules"; then
+    # Use configuration file instead of manual globs to ensure consistency
+    if $markdownlint_cmd --config .markdownlint-cli2.yaml; then
         log "🎉 All markdown files passed markdownlint!"
         return 0
     else

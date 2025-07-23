@@ -1,20 +1,13 @@
-import winston from 'winston';
+import { type AppLogger, createAppLogger } from '@collab-edit/shared';
 
-const auditLogger = winston.createLogger({
+// Create dedicated audit logger with file output for production
+const auditLogger: AppLogger = createAppLogger('audit', {
+  enableFile: true,
+  filePath: 'logs/audit.log',
   level: 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json(),
-  ),
-  transports: [
-    new winston.transports.File({ filename: 'logs/audit.log' }),
-    new winston.transports.Console({
-      format: winston.format.simple(),
-    }),
-  ],
 });
 
-export interface AuditEvent {
+export type AuditEvent = {
   userId?: string;
   action: string;
   resource: string;
@@ -22,8 +15,12 @@ export interface AuditEvent {
   result: 'allowed' | 'denied';
   reason?: string;
   metadata?: Record<string, unknown>;
-}
+};
 
 export const logAuditEvent = (event: AuditEvent): void => {
-  auditLogger.info('AUDIT_EVENT', event);
+  auditLogger.info('AUDIT_EVENT', {
+    eventType: 'audit',
+    timestamp: new Date().toISOString(),
+    ...event,
+  });
 };

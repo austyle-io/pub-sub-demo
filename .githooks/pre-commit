@@ -1,0 +1,339 @@
+#!/bin/bash
+# Pre-commit hook for Pub-Sub Collaborative Editing Demo
+# Hybrid approach: Security via pre-commit framework + Development tools directly
+
+set -euo pipefail
+
+# Declare and assign separately to avoid masking return values (SC2155)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+readonly PROJECT_ROOT
+
+# Source shared utilities
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/shared/colors.sh"
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/shared/utils.sh"
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/shared/config.sh"
+
+# Parse arguments
+parse_hook_args "$@"
+
+# Check if bypass is requested
+check_bypass
+
+# Start timer
+timer_start
+
+# Check requirements
+if ! check_requirements; then
+  exit 1
+fi
+
+# Project-specific requirement checks
+check_node_version
+check_pnpm_version
+
+# Check if hook should run
+if ! should_run_hook; then
+  exit 0
+fi
+
+# Stash unstaged changes to test only what's being committed
+STASHED=$(stash_unstaged)
+
+# Trap to ensure we always pop the stash
+# Use single quotes to avoid expansion (SC2064)
+trap 'pop_stash $STASHED' EXIT
+
+print_section "Pre-commit Quality Gates"
+print_info "Running security + development checks on staged files..."
+
+# Track overall status
+HOOK_STATUS=0
+
+# Get staged files by type for efficient processing
+JS_TS_FILES=$(get_staged_files_with_ext "js|jsx|ts|tsx")
+CSS_FILES=$(get_staged_files_with_ext "css|scss")
+MD_FILES=$(get_staged_files_with_ext "md|mdx")
+JSON_YAML_FILES=$(get_staged_files_with_ext "json|ya?ml")
+SH_FILES=$(get_staged_files_with_ext "sh")
+
+# Phase 1: Security checks via pre-commit framework (if available)
+print_subsection "🔒 Security Validation"
+if command_exists pre-commit && [ -f "$PROJECT_ROOT/.pre-commit-config.yaml" ]; then
+  if run_with_timeout "$HOOK_TIMEOUT_LINT" "pre-commit run --files $(get_staged_files | tr '\n' ' ')"; then
+    print_check "Security validation passed"
+  else
+    print_cross "Security validation failed"
+    HOOK_STATUS=1
+    if [ "$HOOK_FAIL_FAST" = "1" ]; then
+      exit 1
+    fi
+  fi
+else
+  print_info "Pre-commit framework not configured, running built-in security checks"
+
+  # Built-in security checks
+  print_progress "Checking for secrets and sensitive files"
+  ALL_FILES=$(get_staged_files)
+
+  # Check for private keys
+  if echo "$ALL_FILES" | xargs grep -l "PRIVATE KEY" 2>/dev/null; then
+    print_cross "Private key detected in staged files"
+    HOOK_STATUS=1
+    if [ "$HOOK_FAIL_FAST" = "1" ]; then
+      exit 1
+    fi
+  fi
+
+  # Check for large files
+  LARGE_FILES=""
+  for file in $ALL_FILES; do
+    if [ -f "$file" ] && ! check_file_size "$file" "$MAX_FILE_SIZE"; then
+      LARGE_FILES="$LARGE_FILES$file\n"
+    fi
+  done
+
+  if [ -n "$LARGE_FILES" ]; then
+    print_cross "Large files detected:"
+    echo -e "$LARGE_FILES" | while read -r file; do
+      [ -n "$file" ] && print_bullet "$file ($(format_size "$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file")"))"
+    done
+    HOOK_STATUS=1
+    if [ "$HOOK_FAIL_FAST" = "1" ]; then
+      exit 1
+    fi
+  else
+    print_check "No large files detected"
+  fi
+fi
+
+# Phase 2: Development tools (optimized for pub-sub-demo)
+print_subsection "🛠️ Development Tools"
+
+# JavaScript/TypeScript processing with Biome
+if [ -n "$JS_TS_FILES" ]; then
+  print_progress "Processing JS/TS files with Biome..."
+
+  # Biome check and format (using pnpm for consistency)
+  # Handle files properly by running biome on the directory if in dry-run mode
+  if [ "$HOOK_DRY_RUN" = "1" ]; then
+    # In dry-run mode, just check current directory
+    if run_with_timeout "$HOOK_TIMEOUT_LINT" "pnpm biome check --write ."; then
+      print_check "Biome formatting and linting completed"
+    else
+      print_cross "Biome formatting/linting failed"
+      HOOK_STATUS=1
+      if [ "$HOOK_FAIL_FAST" = "1" ]; then
+        exit 1
+      fi
+    fi
+  else
+    # In normal mode, process specific files
+    # Use xargs to handle files properly
+    if echo "$JS_TS_FILES" | xargs -r pnpm biome check --write; then
+      print_check "Biome formatting and linting completed"
+    else
+      print_cross "Biome formatting/linting failed"
+      HOOK_STATUS=1
+      if [ "$HOOK_FAIL_FAST" = "1" ]; then
+        exit 1
+      fi
+    fi
+  fi
+fi
+
+# TypeScript type checking (use make command for consistency)
+if [ -n "$JS_TS_FILES" ]; then
+  print_progress "Running TypeScript type checking..."
+  if run_with_timeout "$HOOK_TIMEOUT_LINT" "make type-check"; then
+    print_check "TypeScript type checking passed"
+  else
+    print_cross "TypeScript type checking failed"
+    HOOK_STATUS=1
+    if [ "$HOOK_FAIL_FAST" = "1" ]; then
+      exit 1
+    fi
+  fi
+fi
+
+# CSS processing (minimal, using Biome)
+if [ -n "$CSS_FILES" ]; then
+  print_progress "Processing CSS files..."
+  if run_with_timeout "$HOOK_TIMEOUT_LINT" "pnpm biome format --write $CSS_FILES"; then
+    print_check "CSS formatting completed"
+  else
+    print_cross "CSS formatting failed"
+    HOOK_STATUS=1
+    if [ "$HOOK_FAIL_FAST" = "1" ]; then
+      exit 1
+    fi
+  fi
+fi
+
+# Markdown processing (using existing project tooling)
+if [ -n "$MD_FILES" ]; then
+  print_progress "Processing Markdown files..."
+  if run_with_timeout "$HOOK_TIMEOUT_LINT" "pnpm run lint:markdown"; then
+    print_check "Markdown linting completed"
+  else
+    print_cross "Markdown linting failed"
+    HOOK_STATUS=1
+    if [ "$HOOK_FAIL_FAST" = "1" ]; then
+      exit 1
+    fi
+  fi
+fi
+
+# Shell script validation (using existing tooling)
+if [ -n "$SH_FILES" ]; then
+  print_progress "Validating shell scripts..."
+  if run_with_timeout "$HOOK_TIMEOUT_LINT" "pnpm run lint:shell"; then
+    print_check "Shell script validation completed"
+  else
+    print_cross "Shell script validation failed"
+    HOOK_STATUS=1
+    if [ "$HOOK_FAIL_FAST" = "1" ]; then
+      exit 1
+    fi
+  fi
+fi
+
+# JSON/YAML validation (using Node.js for consistency)
+if [ -n "$JSON_YAML_FILES" ]; then
+  print_progress "Validating JSON/YAML files..."
+  VALIDATION_FAILED=""
+
+  for file in $JSON_YAML_FILES; do
+    case "$file" in
+    *.json)
+      if ! node -e "JSON.parse(require('fs').readFileSync('$file', 'utf8'))" 2>/dev/null; then
+        print_bullet "Invalid JSON: $file"
+        VALIDATION_FAILED="1"
+      fi
+      ;;
+    *.yml | *.yaml)
+      # Basic YAML syntax check (could be enhanced with js-yaml if needed)
+      if ! node -e "require('yaml').parse(require('fs').readFileSync('$file', 'utf8'))" 2>/dev/null; then
+        print_bullet "Invalid YAML: $file"
+        VALIDATION_FAILED="1"
+      fi
+      ;;
+    esac
+  done
+
+  if [ -z "$VALIDATION_FAILED" ]; then
+    print_check "JSON/YAML validation passed"
+  else
+    print_cross "JSON/YAML validation failed"
+    HOOK_STATUS=1
+    if [ "$HOOK_FAIL_FAST" = "1" ]; then
+      exit 1
+    fi
+  fi
+fi
+
+# Phase 3: Project-specific checks for pub-sub-demo
+print_subsection "🎯 Project-Specific Checks"
+
+# Console.log detection (critical for this project's Pino logging requirement)
+if [ -n "$JS_TS_FILES" ]; then
+  print_progress "Checking for console.log statements"
+  if check_console_logs "$JS_TS_FILES"; then
+    print_check "No console.log in production code"
+  else
+    HOOK_STATUS=1
+    if [ "$HOOK_FAIL_FAST" = "1" ]; then
+      exit 1
+    fi
+  fi
+fi
+
+# TypeScript pattern validation (any, interface usage)
+if [ -n "$JS_TS_FILES" ]; then
+  print_progress "Checking TypeScript patterns"
+  if check_typescript_patterns "$JS_TS_FILES"; then
+    print_check "TypeScript patterns validated"
+  else
+    HOOK_STATUS=1
+    if [ "$HOOK_FAIL_FAST" = "1" ]; then
+      exit 1
+    fi
+  fi
+fi
+
+# Lodash import pattern check (project requirement)
+if [ -n "$JS_TS_FILES" ]; then
+  print_progress "Checking Lodash import patterns"
+  LODASH_VIOLATIONS=""
+  LODASH_VIOLATIONS=$(echo "$JS_TS_FILES" | xargs grep -l "import.*lodash'" 2>/dev/null | grep -v "lodash\." || true)
+  if [ -n "$LODASH_VIOLATIONS" ]; then
+    print_cross "Full lodash imports found (use specific imports):"
+    echo "$LODASH_VIOLATIONS" | while read -r file; do
+      print_bullet "$file"
+    done
+    print_info "Use: import { functionName } from 'lodash.functionname'"
+    HOOK_STATUS=1
+    if [ "$HOOK_FAIL_FAST" = "1" ]; then
+      exit 1
+    fi
+  else
+    print_check "Lodash import patterns validated"
+  fi
+fi
+
+# Check for .env files being committed (security)
+ENV_FILES=$(get_staged_files | grep -E "\.env($|\.)" || true)
+if [ -n "$ENV_FILES" ]; then
+  print_cross "Environment files detected in commit:"
+  echo "$ENV_FILES" | while read -r file; do
+    print_bullet "$file"
+  done
+  print_info "Environment files should not be committed"
+  HOOK_STATUS=1
+  if [ "$HOOK_FAIL_FAST" = "1" ]; then
+    exit 1
+  fi
+else
+  print_check "No environment files in commit"
+fi
+
+# Run related tests for changed files (performance-optimized)
+if [ -n "$JS_TS_FILES" ] && command_exists vitest; then
+  print_progress "Running tests for changed files..."
+  # Only run if there are test files that might be affected
+  if run_with_timeout "$HOOK_TIMEOUT_TEST" "pnpm test --run --reporter=basic --passWithNoTests"; then
+    print_check "Tests passed"
+  else
+    print_cross "Some tests failed"
+    HOOK_STATUS=1
+    if [ "$HOOK_FAIL_FAST" = "1" ]; then
+      exit 1
+    fi
+  fi
+fi
+
+# End timer and log
+DURATION=$(timer_end)
+print_info "Pre-commit hook completed in ${DURATION}s"
+
+# Log execution
+if [ "$HOOK_STATUS" = "0" ]; then
+  log_hook_execution "pre-commit" "$DURATION" "success"
+  print_success "All pre-commit checks passed!"
+else
+  log_hook_execution "pre-commit" "$DURATION" "failed"
+  print_error "Pre-commit checks failed!"
+  print_info "Fix the issues above or use 'git commit --no-verify' to bypass (not recommended)"
+  echo ""
+  print_info "💡 Common fixes:"
+  print_info "  • Run: make format"
+  print_info "  • Run: make lint"
+  print_info "  • Fix TypeScript errors: make type-check"
+  print_info "  • Run tests: make test"
+fi
+
+exit $HOOK_STATUS

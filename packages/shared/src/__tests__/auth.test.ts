@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { hashPassword, verifyPassword } from '../auth/password';
 import {
   type CreateUserRequest,
-  getValidationErrors,
   type LoginRequest,
   type RefreshTokenRequest,
+  getValidationErrors,
   validateCreateUserRequest,
   validateLoginRequest,
   validateRefreshTokenRequest,

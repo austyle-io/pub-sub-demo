@@ -205,6 +205,7 @@ All scripts generate detailed logs in `.logs/` directory:
 
 ## Related Documentation
 
+- [Documentation System Implementation](documentation-system-implementation.md) - Comprehensive plan for Nextra + TypeDoc migration
 - [Testing Guide](../04_testing/00_INDEX.md) - Comprehensive testing documentation
 - [Getting Started](../01_getting-started/00_INDEX.md) - Setup and onboarding
 - [Implementation Plans](../../plans/) - Future development roadmaps

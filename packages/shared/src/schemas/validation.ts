@@ -1,4 +1,5 @@
-import { isObject, isString } from 'lodash';
+import isObject from 'lodash.isobject';
+import isString from 'lodash.isstring';
 import type { Document, DocumentACL } from './document';
 
 export const isValidACL = (obj: unknown): obj is DocumentACL => {

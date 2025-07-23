@@ -18,11 +18,11 @@ async function debugDb() {
 
     // Get all unique user IDs
     const allUsers = new Set();
-    docs.forEach((doc) => {
+    for (const doc of docs) {
       if (doc.create?.data?.acl?.owner) {
         allUsers.add(doc.create.data.acl.owner);
       }
-    });
+    }
     console.log('\nUnique user IDs in database:', Array.from(allUsers));
 
     // Check specific test user's documents

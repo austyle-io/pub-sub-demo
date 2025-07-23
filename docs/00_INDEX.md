@@ -55,6 +55,7 @@ make setup        # Complete setup
 - **Turborepo** monorepo structure
 - **Biome** for linting and formatting
 - **Safe scripts** with timeout protection
+- **Documentation System** - [Nextra + TypeDoc Implementation Plan](03_development/documentation-system-implementation.md)
 
 ## Getting Started
 

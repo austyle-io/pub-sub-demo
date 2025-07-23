@@ -1,0 +1,53 @@
+{
+  "agentSystem": {
+    "enabled": true,
+    "handoffTemplate": ".agent/templates/handoff.md",
+    "progressTracking": {
+      "enabled": true,
+      "metricsFile": ".agent/current/progress.json",
+      "updateFrequency": "daily"
+    },
+    "toolsPath": ".agent/tools"
+  },
+  "development": {
+    "logging": {
+      "forbidConsole": true,
+      "framework": "pino",
+      "structuredOnly": true
+    },
+    "qualityGates": {
+      "enabled": true,
+      "preCommit": true,
+      "prePush": true,
+      "testCoverage": 80,
+      "typeCheck": true
+    }
+  },
+  "features": {
+    "customAgents": true,
+    "handoffReports": true,
+    "mcpIntegration": true,
+    "progressTracking": true,
+    "rules": true
+  },
+  "project": "pub-sub-demo",
+  "rules": {
+    "alwaysApplyRules": [
+      "typescript-safety",
+      "no-console-log",
+      "structured-logging",
+      "security-first",
+      "pnpm-only"
+    ],
+    "enabled": true,
+    "rulesDirectory": ".cursor/rules"
+  },
+  "settings": {
+    "autoSave": true,
+    "contextWindow": 8192,
+    "formatOnSave": true,
+    "packageManager": "pnpm",
+    "temperature": 0.7
+  },
+  "version": "2.0.0"
+}

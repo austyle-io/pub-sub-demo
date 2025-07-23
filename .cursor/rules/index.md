@@ -1,67 +1,166 @@
 # Cursor Rules Index
 
-This directory contains comprehensive coding standards and best practices for the project.
+This directory contains comprehensive coding standards and best practices for the pub-sub-demo project.
 
-## Core Rules
+## 📚 **Quick Reference**
 
-### [TypeScript Safety](./typescript-safety.md) 🔒
+### Core TypeScript/JavaScript Patterns
 
-Comprehensive TypeScript type safety rules covering:
+- `@rules/core/union-literals.md` - Union literal constants with `as const`
+- `@rules/core/logical-operators.md` - Nullish coalescing and optional chaining
+- `@rules/core/type-system.md` - Type system preferences (`type` over `interface`)
+- `@rules/core/imports.md` - Import/export patterns and lodash usage
+- `@rules/typescript-safety.md` - Comprehensive TypeScript safety rules
 
-- Nullish coalescing (`??`) over logical OR (`||`)
-- Optional chaining (`?.`) over manual guards
-- Lodash type helpers for clarity
-- Runtime type guards for external data
-- Strict typing patterns (`type` over `interface`, `unknown` over `any`)
-- Safe casting with `satisfies` instead of `as`
+### React Patterns
 
-## Quick Reference
+- `@rules/react/component-patterns.md` - Component structure and prop patterns
+- `@rules/react/hooks-patterns.md` - Custom hooks and state management
 
-### Essential TypeScript Patterns
+### Architecture & Organization
 
-```ts
-// ✅ Safe defaults - preserves 0, false, ''
-const count = userInput ?? 10;
+- `@rules/architecture/file-organization.md` - File size limits and organization
+- `@rules/architecture/monorepo-patterns.md` - Workspace and package structure
 
-// ✅ Safe navigation - handles intermediate nulls
-const theme = user?.profile?.settings?.theme;
+### Code Quality
 
-// ✅ Type-safe external data
-const data = await response.json();
-if (!isUser(data)) throw new Error('Invalid user data');
-console.log(data.name); // type-safe after guard
+- `@rules/quality/bundle-optimization.md` - Tree-shaking and bundle size optimization
+- `@rules/quality/error-handling.md` - Error handling patterns
+- `@rules/quality/testing-patterns.md` - Testing standards and patterns
+- `@rules/quality/logging-patterns.md` - Structured logging requirements
 
-// ✅ Clear type checking
-import { isNil, isObject } from 'lodash';
-if (!isNil(value) && isObject(config)) { /* ... */ }
+### Security
+
+- `@rules/security/input-validation.md` - Input sanitization and validation
+- `@rules/security/auth-patterns.md` - Authentication and authorization
+
+## 🎯 **Usage Patterns**
+
+### Include All Rules
+
+```
+@rules/index.md - Follow all established coding patterns
 ```
 
-### Code Review Checklist
+### Include Specific Categories
 
-- [ ] **Nullish coalescing**: No `||` for defaults (use `??`)
-- [ ] **Optional chaining**: No manual null checks (use `?.`)
-- [ ] **Type guards**: External data validated with `isType()` functions
-- [ ] **Strict types**: No `any` (use `unknown` + guards), no unsafe `as` casts
-- [ ] **Lodash helpers**: Use `isNil()`, `isObject()`, etc. for clarity
-- [ ] **Specific imports**: No wildcard imports, prefer tree-shakable imports
+```
+@rules/core/ @rules/react/
+@rules/architecture/ @rules/quality/
+```
 
-## Integration
+### Common Combinations
 
-These rules are designed to work with:
+```
+# Frontend Development
+@rules/core/ @rules/react/ @rules/quality/
 
-- **TypeScript 5.7+**
-- **Lodash** for type checking utilities
+# Backend Development
+@rules/core/ @rules/security/ @rules/quality/
+
+# Performance & Bundle Optimization
+@rules/core/imports.md @rules/quality/bundle-optimization.md
+
+# Full Stack Review
+@rules/typescript-safety.md @rules/security/ @rules/quality/bundle-optimization.md
+```
+
+## 📋 **Core Rules Summary**
+
+| Category         | Rules  | Focus                                  |
+| ---------------- | ------ | -------------------------------------- |
+| **Core**         | 4      | TypeScript/JavaScript fundamentals     |
+| **React**        | 2      | React component architecture           |
+| **Architecture** | 2      | File organization and structure        |
+| **Quality**      | 4      | Code quality and maintainability       |
+| **Security**     | 2      | Authentication and input validation    |
+| **Legacy**       | 1      | Existing TypeScript safety rules       |
+| **Total**        | **15** | **Complete coverage**                  |
+
+## 🔧 **Key Patterns Enforced**
+
+### TypeScript Safety
+
+```typescript
+// ✅ Nullish coalescing - preserves falsy values
+const count = userInput ?? 10;
+
+// ✅ Optional chaining - safe navigation
+const theme = user?.profile?.settings?.theme;
+
+// ✅ Runtime type guards for external data
+if (!isUser(data)) throw new Error('Invalid user data');
+console.log(data.name); // type-safe after guard
+```
+
+### Bundle Optimization
+
+```typescript
+// ✅ Individual package imports for tree-shaking
+import isNil from 'lodash.isnil';
+import isObject from 'lodash.isobject';
+import isString from 'lodash.isstring';
+
+// ✅ Dynamic imports for code splitting
+const Editor = lazy(() => import('./DocumentEditor'));
+
+// ✅ Workspace-specific dependencies only
+// Each package.json contains only what's needed
+```
+
+### Collaborative Editing Context
+
+```typescript
+// ✅ ShareDB document handling
+const doc = connection.get('documents', docId);
+if (!isShareDBDoc(doc)) throw new Error('Invalid document');
+
+// ✅ WebSocket message validation
+if (!isWebSocketMessage(message)) {
+  logger.warn('Invalid WebSocket message received');
+  return;
+}
+```
+
+### Security Patterns
+
+```typescript
+// ✅ Input sanitization
+const sanitizedInput = sanitizeHtml(userInput);
+
+// ✅ JWT validation
+if (!isValidJWT(token)) {
+  throw new UnauthorizedError('Invalid token');
+}
+```
+
+## 🚀 **Project Context**
+
+These rules are tailored for:
+
+- **Real-time collaborative editing** with ShareDB
+- **React + TypeScript** frontend development
+- **Node.js + TypeScript** backend services
+- **WebSocket-based** real-time communication
+- **JWT authentication** and security
+- **Monorepo structure** with pnpm workspaces
+
+## 🎓 **Integration**
+
+- **TypeScript 5.7+** with strict mode
 - **Biome** for linting and formatting
-- **Runtime type validation** for API boundaries
+- **Lodash** for type checking utilities
+- **Vitest** for unit testing
+- **Playwright** for E2E testing
+- **Pino** for structured logging (planned)
 
-## Benefits
+## 📈 **Benefits**
 
-Following these rules provides:
-
-- 🛡️ **Type Safety**: Fewer runtime errors through compile-time checks
-- 🎯 **Intent Clarity**: Code expresses exactly what it means
-- ⚡ **Performance**: Tree-shaking and efficient runtime checks
-- 🔍 **Maintainability**: Consistent patterns across the codebase
-- 🚀 **Developer Experience**: Better IntelliSense and error messages
+- 🛡️ **Type Safety**: Runtime errors prevented through compile-time checks
+- 🎯 **Security**: Input validation and authentication patterns
+- ⚡ **Performance**: Optimized patterns for real-time collaboration
+- 🔍 **Maintainability**: Consistent code organization across packages
+- 🚀 **Developer Experience**: Clear patterns and better tooling
+- 🤝 **Collaboration**: Shared standards across frontend/backend
 
 For detailed examples and rationale, see individual rule files.

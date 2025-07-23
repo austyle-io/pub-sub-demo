@@ -1,5 +1,6 @@
 import DOMPurify from 'dompurify';
-import { isNil, isString } from 'lodash';
+import isNil from 'lodash.isnil';
+import isString from 'lodash.isstring';
 
 // Configure DOMPurify for safe HTML
 const purifyConfig = {

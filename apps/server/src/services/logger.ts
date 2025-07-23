@@ -56,14 +56,13 @@ export const logPerformance = <T>(
           throw error;
         },
       );
-    } else {
-      const duration = performance.now() - start;
-      logger.info(`${operation} completed`, {
-        duration: `${duration.toFixed(2)}ms`,
-        operation,
-      });
-      return result;
     }
+    const duration = performance.now() - start;
+    logger.info(`${operation} completed`, {
+      duration: `${duration.toFixed(2)}ms`,
+      operation,
+    });
+    return result;
   } catch (error) {
     const duration = performance.now() - start;
     logger.error(`${operation} failed`, {
