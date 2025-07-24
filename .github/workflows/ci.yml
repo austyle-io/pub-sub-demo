@@ -79,6 +79,19 @@ jobs:
         fail_ci_if_error: false
       continue-on-error: true
 
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Run ShellCheck
+      uses: ludeeus/action-shellcheck@master
+      with:
+        severity: warning
+        check_together: 'yes'
+        scandir: '.'
+        format: gcc
+
   security:
     runs-on: ubuntu-latest
     steps:

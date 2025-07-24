@@ -1,0 +1,49 @@
+ShellCheck Baseline Report for .cursor/prompts/chains/run.sh
+===========================================================
+Generated on: $(date)
+Command: shellcheck .cursor/prompts/chains/run.sh
+
+FINDINGS:
+---------
+
+In .cursor/prompts/chains/run.sh line 66:
+trap "rm -rf $TEMP_DIR" EXIT
+             ^-------^ SC2064 (warning): Use single quotes, otherwise this expands now rather than when signalled.
+
+
+In .cursor/prompts/chains/run.sh line 79:
+    local fs=$(echo @|tr @ '\034')
+          ^-- SC2155 (warning): Declare and assign separately to avoid masking return values.
+
+
+In .cursor/prompts/chains/run.sh line 83:
+    awk -F$fs '{
+          ^-^ SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+    awk -F"$fs" '{
+
+
+In .cursor/prompts/chains/run.sh line 89:
+            printf("%s%s%s=\"%s\"\n", "'$prefix'", vn, $2, $3);
+                                        ^-----^ SC2086 (info): Double quote to prevent globbing and word splitting.
+
+Did you mean:
+            printf("%s%s%s=\"%s\"\n", "'"$prefix"'", vn, $2, $3);
+
+
+In .cursor/prompts/chains/run.sh line 101:
+echo "" >> "$OUTPUT_FILE"
+^-----------------------^ SC2129 (style): Consider using { cmd1; cmd2; } >> file instead of individual redirects.
+
+For more information:
+  https://www.shellcheck.net/wiki/SC2064 -- Use single quotes, otherwise this...
+  https://www.shellcheck.net/wiki/SC2155 -- Declare and assign separately to ...
+  https://www.shellcheck.net/wiki/SC2086 -- Double quote to prevent globbing ...
+
+SUMMARY:
+--------
+Total warnings: 2
+Total info: 2
+Total style: 1
+Exit code: 1 (ShellCheck found issues)
