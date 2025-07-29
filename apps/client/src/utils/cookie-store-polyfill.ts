@@ -6,11 +6,19 @@
 
 import { getCookieString, setCookieString } from './cookie-dom-interface';
 
+/**
+ * Options for cookie store get.
+ * @since 1.0.0
+ */
 export type CookieStoreGetOptions = {
   name?: string;
   url?: string;
 };
 
+/**
+ * Type definition for cookie init.
+ * @since 1.0.0
+ */
 export type CookieInit = {
   name?: string;
   value?: string;
@@ -22,6 +30,10 @@ export type CookieInit = {
   httpOnly?: boolean;
 };
 
+/**
+ * Type definition for cookie.
+ * @since 1.0.0
+ */
 export type Cookie = {
   name: string;
   value: string;
@@ -33,6 +45,10 @@ export type Cookie = {
   httpOnly?: boolean;
 };
 
+/**
+ * Type definition for cookie store.
+ * @since 1.0.0
+ */
 export type CookieStore = {
   get(name: string): Promise<Cookie | undefined>;
   get(options?: CookieStoreGetOptions): Promise<Cookie | undefined>;

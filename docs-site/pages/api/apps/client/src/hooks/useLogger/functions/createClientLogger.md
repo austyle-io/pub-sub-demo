@@ -8,7 +8,9 @@
 
 > **createClientLogger**(`module`, `context?`): [`ClientLogger`](../type-aliases/ClientLogger.md)
 
-Defined in: [apps/client/src/hooks/useLogger.ts:149](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/hooks/useLogger.ts#L149)
+Defined in: [apps/client/src/hooks/useLogger.ts:169](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/hooks/useLogger.ts#L169)
+
+Creates client logger.
 
 ## Parameters
 
@@ -23,3 +25,7 @@ Defined in: [apps/client/src/hooks/useLogger.ts:149](https://github.com/austyle-
 ## Returns
 
 [`ClientLogger`](../type-aliases/ClientLogger.md)
+
+## Since
+
+1.0.0

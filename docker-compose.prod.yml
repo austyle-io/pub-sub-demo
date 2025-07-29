@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:5.0
+    container_name: collab-demo-mongo-prod
+    ports:
+      - "27018:27017" # Use a different port to avoid conflicts with dev
+    volumes:
+      - mongo-data-prod:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: collab_demo_prod
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - collab-network-prod
+    restart: unless-stopped
+
+  server:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+    container_name: collab-demo-server-prod
+    ports:
+      - "3002:8080" # Use a different port to avoid conflicts with dev
+    environment:
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - MONGO_URL=mongodb://mongo:27017/collab_demo_prod
+      - PORT=8080
+      - CLIENT_URL=http://localhost:3003
+      - NODE_ENV=production
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - collab-network-prod
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  client:
+    build:
+      context: .
+      dockerfile: apps/client/Dockerfile
+    container_name: collab-demo-client-prod
+    ports:
+      - "3003:80" # Use a different port to avoid conflicts with dev
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - server
+    networks:
+      - collab-network-prod
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  mongo-data-prod:
+
+networks:
+  collab-network-prod:
+    driver: bridge

@@ -36,6 +36,10 @@ const routeTree = rootRoute.addChildren([
   documentRoute,
 ]);
 
+/**
+ * router.
+ * @since 1.0.0
+ */
 export const router = new Router({ routeTree });
 
 declare module '@tanstack/react-router' {

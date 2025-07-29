@@ -11,6 +11,21 @@ type SecureTextAreaProps = {
   rows?: number;
 };
 
+/**
+ * @summary A React component that provides a secure text area with input sanitization.
+ * @remarks
+ * This component sanitizes user input to prevent XSS attacks. It performs basic
+ * sanitization while the user is typing and a full sanitization on blur.
+ * @param props - The component props.
+ * @param props.value - The value of the text area.
+ * @param props.onChange - A callback function that is called when the value changes.
+ * @param props.placeholder - The placeholder text for the text area.
+ * @param props.maxLength - The maximum length of the text.
+ * @param props.className - The CSS class name for the text area.
+ * @param props.rows - The number of rows for the text area.
+ * @returns A JSX element.
+ * @since 1.0.0
+ */
 export const SecureTextArea: React.FC<SecureTextAreaProps> = ({
   value,
   onChange,

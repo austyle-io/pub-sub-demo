@@ -8,13 +8,13 @@
 
 > **ShareDBQueryResult**\<`T`\> = `object`
 
-Defined in: [apps/server/src/utils/sharedb-query-helper.ts:12](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/sharedb-query-helper.ts#L12)
+Defined in: [apps/server/src/utils/sharedb-query-helper.ts:16](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/sharedb-query-helper.ts#L16)
 
-ShareDB Query Helper - Provides race-condition-free document access
+Type definition for share d b query result.
 
-This utility solves the ShareDB-MongoDB synchronization issue by querying
-ShareDB directly instead of MongoDB, ensuring we always get the latest
-document state including recent operations that may not have synced yet.
+## Since
+
+1.0.0
 
 ## Type Parameters
 
@@ -28,7 +28,7 @@ document state including recent operations that may not have synced yet.
 
 > **success**: `boolean`
 
-Defined in: [apps/server/src/utils/sharedb-query-helper.ts:13](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/sharedb-query-helper.ts#L13)
+Defined in: [apps/server/src/utils/sharedb-query-helper.ts:17](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/sharedb-query-helper.ts#L17)
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: [apps/server/src/utils/sharedb-query-helper.ts:13](https://github.co
 
 > `optional` **data**: `T`
 
-Defined in: [apps/server/src/utils/sharedb-query-helper.ts:14](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/sharedb-query-helper.ts#L14)
+Defined in: [apps/server/src/utils/sharedb-query-helper.ts:18](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/sharedb-query-helper.ts#L18)
 
 ***
 
@@ -44,4 +44,4 @@ Defined in: [apps/server/src/utils/sharedb-query-helper.ts:14](https://github.co
 
 > `optional` **error**: `string`
 
-Defined in: [apps/server/src/utils/sharedb-query-helper.ts:15](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/sharedb-query-helper.ts#L15)
+Defined in: [apps/server/src/utils/sharedb-query-helper.ts:19](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/sharedb-query-helper.ts#L19)

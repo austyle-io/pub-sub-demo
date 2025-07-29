@@ -8,7 +8,7 @@
 
 > **isSnapshotsArray**(`arr`): `arr is ShareDBSnapshot[]`
 
-Defined in: [apps/server/src/utils/type-guards.ts:65](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/type-guards.ts#L65)
+Defined in: [apps/server/src/utils/type-guards.ts:71](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/type-guards.ts#L71)
 
 Type guard to check if an array contains valid ShareDB snapshots
 
@@ -21,3 +21,7 @@ Type guard to check if an array contains valid ShareDB snapshots
 ## Returns
 
 `arr is ShareDBSnapshot[]`
+
+## Since
+
+1.0.0

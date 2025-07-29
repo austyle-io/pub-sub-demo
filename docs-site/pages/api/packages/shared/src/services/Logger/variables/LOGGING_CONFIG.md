@@ -8,7 +8,9 @@
 
 > `const` **LOGGING\_CONFIG**: `object`
 
-Defined in: [packages/shared/src/services/Logger.ts:37](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/packages/shared/src/services/Logger.ts#L37)
+Defined in: [packages/shared/src/services/Logger.ts:61](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/packages/shared/src/services/Logger.ts#L61)
+
+logging config constant.
 
 ## Type declaration
 
@@ -87,3 +89,7 @@ Defined in: [packages/shared/src/services/Logger.ts:37](https://github.com/austy
 #### test.pretty
 
 > `readonly` **pretty**: `false` = `false`
+
+## Since
+
+1.0.0

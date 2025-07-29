@@ -102,7 +102,7 @@ NC := \033[0m
 help: ## Show available commands
  @echo -e "${BLUE}Pub-Sub Demo - Available Commands${NC}"
  @echo -e "${BLUE}==================================${NC}"
- @grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "${GREEN}%-20s${NC} %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk -v green="${GREEN}" -v nc="${NC}" 'BEGIN {FS = ":.*?## "}; {printf "%s%-20s%s %s\n", green, $$1, nc, $$2}'
 
 # Development
 .PHONY: dev

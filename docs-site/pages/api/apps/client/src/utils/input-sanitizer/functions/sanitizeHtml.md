@@ -8,7 +8,9 @@
 
 > **sanitizeHtml**(`html`): `string`
 
-Defined in: [apps/client/src/utils/input-sanitizer.ts:14](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/utils/input-sanitizer.ts#L14)
+Defined in: [apps/client/src/utils/input-sanitizer.ts:18](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/utils/input-sanitizer.ts#L18)
+
+sanitize Html.
 
 ## Parameters
 
@@ -19,3 +21,7 @@ Defined in: [apps/client/src/utils/input-sanitizer.ts:14](https://github.com/aus
 ## Returns
 
 `string`
+
+## Since
+
+1.0.0

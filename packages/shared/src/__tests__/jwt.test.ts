@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
-  decodeToken,
   type JwtPayload,
+  decodeToken,
   signAccessToken,
   signRefreshToken,
   verifyAccessToken,

@@ -8,7 +8,9 @@
 
 > **useAuthFetch**(): (`url`, `options`) => `Promise`\<`Response`\>
 
-Defined in: [apps/client/src/hooks/useAuthFetch.ts:4](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/hooks/useAuthFetch.ts#L4)
+Defined in: [apps/client/src/hooks/useAuthFetch.ts:8](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/hooks/useAuthFetch.ts#L8)
+
+React hook for auth fetch.
 
 ## Returns
 
@@ -27,3 +29,7 @@ Defined in: [apps/client/src/hooks/useAuthFetch.ts:4](https://github.com/austyle
 ### Returns
 
 `Promise`\<`Response`\>
+
+## Since
+
+1.0.0

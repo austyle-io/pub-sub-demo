@@ -8,7 +8,9 @@
 
 > **requestLogger**(`req`, `_res`, `next`): `void`
 
-Defined in: [apps/server/src/services/logger.ts:12](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/services/logger.ts#L12)
+Defined in: [apps/server/src/services/logger.ts:36](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/services/logger.ts#L36)
+
+request Logger.
 
 ## Parameters
 
@@ -27,3 +29,7 @@ Defined in: [apps/server/src/services/logger.ts:12](https://github.com/austyle-i
 ## Returns
 
 `void`
+
+## Since
+
+1.0.0

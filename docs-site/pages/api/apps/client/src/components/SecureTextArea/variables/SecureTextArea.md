@@ -8,4 +8,10 @@
 
 > `const` **SecureTextArea**: `React.FC`\<`SecureTextAreaProps`\>
 
-Defined in: [apps/client/src/components/SecureTextArea.tsx:14](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/components/SecureTextArea.tsx#L14)
+Defined in: [apps/client/src/components/SecureTextArea.tsx:18](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/components/SecureTextArea.tsx#L18)
+
+React component for secure text area.
+
+## Since
+
+1.0.0

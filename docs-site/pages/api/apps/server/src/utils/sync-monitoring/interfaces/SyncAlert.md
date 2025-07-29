@@ -6,7 +6,13 @@
 
 # Interface: SyncAlert
 
-Defined in: [apps/server/src/utils/sync-monitoring.ts:49](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/sync-monitoring.ts#L49)
+Defined in: [apps/server/src/utils/sync-monitoring.ts:57](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/sync-monitoring.ts#L57)
+
+Type definition for sync alert.
+
+## Since
+
+1.0.0
 
 ## Properties
 
@@ -14,7 +20,7 @@ Defined in: [apps/server/src/utils/sync-monitoring.ts:49](https://github.com/aus
 
 > **type**: `"error"` \| `"latency"` \| `"consistency"` \| `"performance"`
 
-Defined in: [apps/server/src/utils/sync-monitoring.ts:50](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/sync-monitoring.ts#L50)
+Defined in: [apps/server/src/utils/sync-monitoring.ts:58](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/sync-monitoring.ts#L58)
 
 ***
 
@@ -22,7 +28,7 @@ Defined in: [apps/server/src/utils/sync-monitoring.ts:50](https://github.com/aus
 
 > **severity**: `"warning"` \| `"critical"`
 
-Defined in: [apps/server/src/utils/sync-monitoring.ts:51](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/sync-monitoring.ts#L51)
+Defined in: [apps/server/src/utils/sync-monitoring.ts:59](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/sync-monitoring.ts#L59)
 
 ***
 
@@ -30,7 +36,7 @@ Defined in: [apps/server/src/utils/sync-monitoring.ts:51](https://github.com/aus
 
 > **message**: `string`
 
-Defined in: [apps/server/src/utils/sync-monitoring.ts:52](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/sync-monitoring.ts#L52)
+Defined in: [apps/server/src/utils/sync-monitoring.ts:60](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/sync-monitoring.ts#L60)
 
 ***
 
@@ -38,7 +44,7 @@ Defined in: [apps/server/src/utils/sync-monitoring.ts:52](https://github.com/aus
 
 > **timestamp**: `number`
 
-Defined in: [apps/server/src/utils/sync-monitoring.ts:53](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/sync-monitoring.ts#L53)
+Defined in: [apps/server/src/utils/sync-monitoring.ts:61](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/sync-monitoring.ts#L61)
 
 ***
 
@@ -46,4 +52,4 @@ Defined in: [apps/server/src/utils/sync-monitoring.ts:53](https://github.com/aus
 
 > **metrics**: `Record`\<`string`, `number`\>
 
-Defined in: [apps/server/src/utils/sync-monitoring.ts:54](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/sync-monitoring.ts#L54)
+Defined in: [apps/server/src/utils/sync-monitoring.ts:62](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/sync-monitoring.ts#L62)

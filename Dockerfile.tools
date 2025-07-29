@@ -1,0 +1,31 @@
+# Tools container for running scripts and maintenance tasks
+FROM node:24-alpine
+
+# Install system dependencies
+RUN apk add --no-cache \
+    libc6-compat \
+    python3 \
+    make \
+    g++ \
+    git \
+    bash \
+    curl
+
+# Enable pnpm
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+
+# Create workspace directory
+WORKDIR /workspace
+
+# Install global tools that might be useful
+RUN npm install -g tsx turbo
+
+# Set up a non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
+# Switch to non-root user
+USER nodejs
+
+# Keep container running
+CMD ["tail", "-f", "/dev/null"]

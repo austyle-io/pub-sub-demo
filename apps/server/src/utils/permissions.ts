@@ -4,6 +4,19 @@ import { dbLogger } from '../services/logger';
 import { logAuditEvent } from './audit-logger';
 import { connectToDatabase } from './database';
 
+/**
+ * @summary Checks if a user has a specific permission for a document.
+ * @remarks
+ * This function checks if a user has read, write, or delete permissions for a
+ * document by checking the document's ACL in the database.
+ * @param collection - The name of the collection.
+ * @param docId - The ID of the document.
+ * @param userId - The ID of the user.
+ * @param permission - The permission to check.
+ * @returns A promise that resolves to an object containing a boolean indicating
+ * whether the user has the permission and an optional reason for denial.
+ * @since 1.0.0
+ */
 export const checkDocumentPermission = async (
   collection: string,
   docId: string,
@@ -116,6 +129,14 @@ export const checkDocumentPermission = async (
   }
 };
 
+/**
+ * @summary Checks if a user can edit a document.
+ * @param doc - The document to check.
+ * @param userId - The ID of the user.
+ * @param userRole - The role of the user.
+ * @returns `true` if the user can edit the document, `false` otherwise.
+ * @since 1.0.0
+ */
 export const canUserEditDocument = (
   doc: Document,
   userId: string,
@@ -135,6 +156,14 @@ export const canUserEditDocument = (
   return doc.acl.editors.includes(userId);
 };
 
+/**
+ * @summary Checks if a user can view a document.
+ * @param doc - The document to check.
+ * @param userId - The ID of the user.
+ * @param userRole - The role of the user.
+ * @returns `true` if the user can view the document, `false` otherwise.
+ * @since 1.0.0
+ */
 export const canUserViewDocument = (
   doc: Document,
   userId: string,

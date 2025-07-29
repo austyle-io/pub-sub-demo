@@ -2,8 +2,19 @@ import type { IncomingMessage } from 'node:http';
 import { type User, verifyAccessToken } from '@collab-edit/shared';
 import type { Request } from 'express';
 
+/**
+ * @summary Type definition for an authenticated request.
+ * @remarks This type extends the Express `Request` object to include the `user` property.
+ * @since 1.0.0
+ */
 export type AuthenticatedRequest = Request & { user: User };
 
+/**
+ * @summary Verifies a JWT and returns a user object.
+ * @param token - The JWT to verify.
+ * @returns A user object.
+ * @private
+ */
 const verifyTokenAndGetUser = (token: string): User => {
   const decoded = verifyAccessToken(token);
   return {
@@ -16,6 +27,17 @@ const verifyTokenAndGetUser = (token: string): User => {
   };
 };
 
+/**
+ * @summary Authenticates a WebSocket connection.
+ * @remarks
+ * This function authenticates a WebSocket connection by checking for a JWT in the
+ * `Authorization` header or a secure cookie. It no longer supports authentication
+ * via query parameters for security reasons.
+ * @param req - The incoming HTTP request.
+ * @returns A promise that resolves to the authenticated user.
+ * @throws {Error} If no valid authentication is provided.
+ * @since 1.0.0
+ */
 export const authenticateWebSocket = async (
   req: IncomingMessage,
 ): Promise<User> => {

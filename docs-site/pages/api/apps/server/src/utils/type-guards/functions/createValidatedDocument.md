@@ -8,7 +8,7 @@
 
 > **createValidatedDocument**(`data`): `object`
 
-Defined in: [apps/server/src/utils/type-guards.ts:168](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/type-guards.ts#L168)
+Defined in: [apps/server/src/utils/type-guards.ts:190](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/type-guards.ts#L190)
 
 Creates a validated Document from DocumentData
 
@@ -57,3 +57,7 @@ Creates a validated Document from DocumentData
 ### updatedAt
 
 > **updatedAt**: `string`
+
+## Since
+
+1.0.0

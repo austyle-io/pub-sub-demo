@@ -1,0 +1,11 @@
+# ShellCheck Baseline Report
+
+This file previously tracked ShellCheck issues for shell scripts that have been converted to TypeScript.
+
+## Converted Scripts:
+- `.cursor/prompts/chains/run.sh` → `.cursor/prompts/chains/run.ts`
+- `scripts/development/reset-database.sh` → `scripts/development/reset-database.ts`
+- `scripts/setup-env.sh` → `scripts/setup-env.ts`
+- `scripts/quality/lint-safe.sh` → `scripts/quality/lint-safe.ts`
+
+All shell scripts with TypeScript equivalents have been removed.

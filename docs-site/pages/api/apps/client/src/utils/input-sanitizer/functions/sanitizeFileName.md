@@ -8,7 +8,9 @@
 
 > **sanitizeFileName**(`filename`): `string`
 
-Defined in: [apps/client/src/utils/input-sanitizer.ts:21](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/utils/input-sanitizer.ts#L21)
+Defined in: [apps/client/src/utils/input-sanitizer.ts:29](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/utils/input-sanitizer.ts#L29)
+
+sanitize File Name.
 
 ## Parameters
 
@@ -19,3 +21,7 @@ Defined in: [apps/client/src/utils/input-sanitizer.ts:21](https://github.com/aus
 ## Returns
 
 `string`
+
+## Since
+
+1.0.0

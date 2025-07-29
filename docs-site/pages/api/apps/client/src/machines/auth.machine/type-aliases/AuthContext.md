@@ -8,7 +8,13 @@
 
 > **AuthContext** = `object`
 
-Defined in: [apps/client/src/machines/auth.machine.ts:10](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/machines/auth.machine.ts#L10)
+Defined in: [apps/client/src/machines/auth.machine.ts:14](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/machines/auth.machine.ts#L14)
+
+Type definition for auth context.
+
+## Since
+
+1.0.0
 
 ## Properties
 
@@ -16,7 +22,7 @@ Defined in: [apps/client/src/machines/auth.machine.ts:10](https://github.com/aus
 
 > **user**: `PublicUser` \| `null`
 
-Defined in: [apps/client/src/machines/auth.machine.ts:11](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/machines/auth.machine.ts#L11)
+Defined in: [apps/client/src/machines/auth.machine.ts:15](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/machines/auth.machine.ts#L15)
 
 ***
 
@@ -24,7 +30,7 @@ Defined in: [apps/client/src/machines/auth.machine.ts:11](https://github.com/aus
 
 > **accessToken**: `string` \| `null`
 
-Defined in: [apps/client/src/machines/auth.machine.ts:12](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/machines/auth.machine.ts#L12)
+Defined in: [apps/client/src/machines/auth.machine.ts:16](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/machines/auth.machine.ts#L16)
 
 ***
 
@@ -32,7 +38,7 @@ Defined in: [apps/client/src/machines/auth.machine.ts:12](https://github.com/aus
 
 > **refreshToken**: `string` \| `null`
 
-Defined in: [apps/client/src/machines/auth.machine.ts:13](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/machines/auth.machine.ts#L13)
+Defined in: [apps/client/src/machines/auth.machine.ts:17](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/machines/auth.machine.ts#L17)
 
 ***
 
@@ -40,4 +46,4 @@ Defined in: [apps/client/src/machines/auth.machine.ts:13](https://github.com/aus
 
 > **error**: `string` \| `null`
 
-Defined in: [apps/client/src/machines/auth.machine.ts:14](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/machines/auth.machine.ts#L14)
+Defined in: [apps/client/src/machines/auth.machine.ts:18](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/machines/auth.machine.ts#L18)

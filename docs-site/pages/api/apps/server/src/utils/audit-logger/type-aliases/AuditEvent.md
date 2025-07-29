@@ -8,7 +8,13 @@
 
 > **AuditEvent** = `object`
 
-Defined in: [apps/server/src/utils/audit-logger.ts:10](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/audit-logger.ts#L10)
+Defined in: [apps/server/src/utils/audit-logger.ts:14](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/audit-logger.ts#L14)
+
+Type definition for audit event.
+
+## Since
+
+1.0.0
 
 ## Properties
 
@@ -16,7 +22,7 @@ Defined in: [apps/server/src/utils/audit-logger.ts:10](https://github.com/austyl
 
 > `optional` **userId**: `string`
 
-Defined in: [apps/server/src/utils/audit-logger.ts:11](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/audit-logger.ts#L11)
+Defined in: [apps/server/src/utils/audit-logger.ts:15](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/audit-logger.ts#L15)
 
 ***
 
@@ -24,7 +30,7 @@ Defined in: [apps/server/src/utils/audit-logger.ts:11](https://github.com/austyl
 
 > **action**: `string`
 
-Defined in: [apps/server/src/utils/audit-logger.ts:12](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/audit-logger.ts#L12)
+Defined in: [apps/server/src/utils/audit-logger.ts:16](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/audit-logger.ts#L16)
 
 ***
 
@@ -32,7 +38,7 @@ Defined in: [apps/server/src/utils/audit-logger.ts:12](https://github.com/austyl
 
 > **resource**: `string`
 
-Defined in: [apps/server/src/utils/audit-logger.ts:13](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/audit-logger.ts#L13)
+Defined in: [apps/server/src/utils/audit-logger.ts:17](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/audit-logger.ts#L17)
 
 ***
 
@@ -40,7 +46,7 @@ Defined in: [apps/server/src/utils/audit-logger.ts:13](https://github.com/austyl
 
 > `optional` **resourceId**: `string`
 
-Defined in: [apps/server/src/utils/audit-logger.ts:14](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/audit-logger.ts#L14)
+Defined in: [apps/server/src/utils/audit-logger.ts:18](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/audit-logger.ts#L18)
 
 ***
 
@@ -48,7 +54,7 @@ Defined in: [apps/server/src/utils/audit-logger.ts:14](https://github.com/austyl
 
 > **result**: `"allowed"` \| `"denied"`
 
-Defined in: [apps/server/src/utils/audit-logger.ts:15](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/audit-logger.ts#L15)
+Defined in: [apps/server/src/utils/audit-logger.ts:19](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/audit-logger.ts#L19)
 
 ***
 
@@ -56,7 +62,7 @@ Defined in: [apps/server/src/utils/audit-logger.ts:15](https://github.com/austyl
 
 > `optional` **reason**: `string`
 
-Defined in: [apps/server/src/utils/audit-logger.ts:16](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/audit-logger.ts#L16)
+Defined in: [apps/server/src/utils/audit-logger.ts:20](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/audit-logger.ts#L20)
 
 ***
 
@@ -64,4 +70,4 @@ Defined in: [apps/server/src/utils/audit-logger.ts:16](https://github.com/austyl
 
 > `optional` **metadata**: `Record`\<`string`, `unknown`\>
 
-Defined in: [apps/server/src/utils/audit-logger.ts:17](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/audit-logger.ts#L17)
+Defined in: [apps/server/src/utils/audit-logger.ts:21](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/audit-logger.ts#L21)

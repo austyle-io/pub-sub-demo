@@ -1,10 +1,18 @@
-import { getAccessTokenSecret, type JwtPayload } from '@collab-edit/shared';
+import { type JwtPayload, getAccessTokenSecret } from '@collab-edit/shared';
 import type { NextFunction, Request, Response } from 'express';
 import passport from 'passport';
 import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt';
 
 let isConfigured = false;
 
+/**
+ * @summary Configures the Passport.js JWT authentication strategy.
+ * @remarks
+ * This function sets up the JWT strategy for Passport.js, which is used to
+ * protect API endpoints. It configures the strategy to extract the JWT from
+ * the authorization header and verifies it using the access token secret.
+ * @since 1.0.0
+ */
 export function configurePassport(): void {
   if (isConfigured) return;
 
@@ -39,6 +47,17 @@ declare global {
   }
 }
 
+/**
+ * @summary Middleware for authenticating requests using Passport.js.
+ * @remarks
+ * This middleware uses the configured JWT strategy to authenticate incoming
+ * requests. It ensures that the `configurePassport` function has been called
+ * before attempting to authenticate.
+ * @param req - The Express request object.
+ * @param res - The Express response object.
+ * @param next - The next middleware function.
+ * @since 1.0.0
+ */
 export const authenticate = (
   req: Request,
   res: Response,

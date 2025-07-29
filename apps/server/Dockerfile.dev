@@ -1,4 +1,6 @@
-FROM node:24.4.1
-RUN corepack enable && corepack prepare pnpm@latest --activate
+FROM node:24-alpine
+RUN apk add --no-cache libc6-compat python3 make g++ git
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 WORKDIR /workspace
-CMD ["sh", "-c", "pnpm install && pnpm --workspace-root turbo run dev --filter=@collab-edit/server"]
+EXPOSE 3001
+CMD ["sh", "-c", "pnpm install && pnpm --filter @collab-edit/server dev"]

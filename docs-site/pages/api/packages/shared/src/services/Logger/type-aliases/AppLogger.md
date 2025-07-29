@@ -8,7 +8,13 @@
 
 > **AppLogger** = `object`
 
-Defined in: [packages/shared/src/services/Logger.ts:26](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/packages/shared/src/services/Logger.ts#L26)
+Defined in: [packages/shared/src/services/Logger.ts:46](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/packages/shared/src/services/Logger.ts#L46)
+
+Type definition for app logger.
+
+## Since
+
+1.0.0
 
 ## Properties
 
@@ -16,7 +22,7 @@ Defined in: [packages/shared/src/services/Logger.ts:26](https://github.com/austy
 
 > **error**: (`message`, `context?`) => `void`
 
-Defined in: [packages/shared/src/services/Logger.ts:27](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/packages/shared/src/services/Logger.ts#L27)
+Defined in: [packages/shared/src/services/Logger.ts:47](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/packages/shared/src/services/Logger.ts#L47)
 
 #### Parameters
 
@@ -38,7 +44,7 @@ Defined in: [packages/shared/src/services/Logger.ts:27](https://github.com/austy
 
 > **warn**: (`message`, `context?`) => `void`
 
-Defined in: [packages/shared/src/services/Logger.ts:28](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/packages/shared/src/services/Logger.ts#L28)
+Defined in: [packages/shared/src/services/Logger.ts:48](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/packages/shared/src/services/Logger.ts#L48)
 
 #### Parameters
 
@@ -60,7 +66,7 @@ Defined in: [packages/shared/src/services/Logger.ts:28](https://github.com/austy
 
 > **info**: (`message`, `context?`) => `void`
 
-Defined in: [packages/shared/src/services/Logger.ts:29](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/packages/shared/src/services/Logger.ts#L29)
+Defined in: [packages/shared/src/services/Logger.ts:49](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/packages/shared/src/services/Logger.ts#L49)
 
 #### Parameters
 
@@ -82,7 +88,7 @@ Defined in: [packages/shared/src/services/Logger.ts:29](https://github.com/austy
 
 > **debug**: (`message`, `context?`) => `void`
 
-Defined in: [packages/shared/src/services/Logger.ts:30](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/packages/shared/src/services/Logger.ts#L30)
+Defined in: [packages/shared/src/services/Logger.ts:50](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/packages/shared/src/services/Logger.ts#L50)
 
 #### Parameters
 
@@ -104,7 +110,7 @@ Defined in: [packages/shared/src/services/Logger.ts:30](https://github.com/austy
 
 > **trace**: (`message`, `context?`) => `void`
 
-Defined in: [packages/shared/src/services/Logger.ts:31](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/packages/shared/src/services/Logger.ts#L31)
+Defined in: [packages/shared/src/services/Logger.ts:51](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/packages/shared/src/services/Logger.ts#L51)
 
 #### Parameters
 
@@ -126,7 +132,7 @@ Defined in: [packages/shared/src/services/Logger.ts:31](https://github.com/austy
 
 > **child**: (`bindings`) => `AppLogger`
 
-Defined in: [packages/shared/src/services/Logger.ts:32](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/packages/shared/src/services/Logger.ts#L32)
+Defined in: [packages/shared/src/services/Logger.ts:52](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/packages/shared/src/services/Logger.ts#L52)
 
 #### Parameters
 
@@ -144,7 +150,7 @@ Defined in: [packages/shared/src/services/Logger.ts:32](https://github.com/austy
 
 > **flush**: () => `Promise`\<`void`\>
 
-Defined in: [packages/shared/src/services/Logger.ts:33](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/packages/shared/src/services/Logger.ts#L33)
+Defined in: [packages/shared/src/services/Logger.ts:53](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/packages/shared/src/services/Logger.ts#L53)
 
 #### Returns
 

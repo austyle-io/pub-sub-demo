@@ -8,7 +8,13 @@
 
 > **LoggerConfig** = `object`
 
-Defined in: [packages/shared/src/services/Logger.ts:16](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/packages/shared/src/services/Logger.ts#L16)
+Defined in: [packages/shared/src/services/Logger.ts:32](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/packages/shared/src/services/Logger.ts#L32)
+
+Configuration for logger.
+
+## Since
+
+1.0.0
 
 ## Properties
 
@@ -16,7 +22,7 @@ Defined in: [packages/shared/src/services/Logger.ts:16](https://github.com/austy
 
 > **level**: [`LogLevel`](LogLevel.md)
 
-Defined in: [packages/shared/src/services/Logger.ts:17](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/packages/shared/src/services/Logger.ts#L17)
+Defined in: [packages/shared/src/services/Logger.ts:33](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/packages/shared/src/services/Logger.ts#L33)
 
 ***
 
@@ -24,7 +30,7 @@ Defined in: [packages/shared/src/services/Logger.ts:17](https://github.com/austy
 
 > **module**: `string`
 
-Defined in: [packages/shared/src/services/Logger.ts:18](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/packages/shared/src/services/Logger.ts#L18)
+Defined in: [packages/shared/src/services/Logger.ts:34](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/packages/shared/src/services/Logger.ts#L34)
 
 ***
 
@@ -32,7 +38,7 @@ Defined in: [packages/shared/src/services/Logger.ts:18](https://github.com/austy
 
 > **enableConsole**: `boolean`
 
-Defined in: [packages/shared/src/services/Logger.ts:19](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/packages/shared/src/services/Logger.ts#L19)
+Defined in: [packages/shared/src/services/Logger.ts:35](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/packages/shared/src/services/Logger.ts#L35)
 
 ***
 
@@ -40,7 +46,7 @@ Defined in: [packages/shared/src/services/Logger.ts:19](https://github.com/austy
 
 > **enableFile**: `boolean`
 
-Defined in: [packages/shared/src/services/Logger.ts:20](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/packages/shared/src/services/Logger.ts#L20)
+Defined in: [packages/shared/src/services/Logger.ts:36](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/packages/shared/src/services/Logger.ts#L36)
 
 ***
 
@@ -48,7 +54,7 @@ Defined in: [packages/shared/src/services/Logger.ts:20](https://github.com/austy
 
 > `optional` **filePath**: `string`
 
-Defined in: [packages/shared/src/services/Logger.ts:21](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/packages/shared/src/services/Logger.ts#L21)
+Defined in: [packages/shared/src/services/Logger.ts:37](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/packages/shared/src/services/Logger.ts#L37)
 
 ***
 
@@ -56,7 +62,7 @@ Defined in: [packages/shared/src/services/Logger.ts:21](https://github.com/austy
 
 > **enableExternal**: `boolean`
 
-Defined in: [packages/shared/src/services/Logger.ts:22](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/packages/shared/src/services/Logger.ts#L22)
+Defined in: [packages/shared/src/services/Logger.ts:38](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/packages/shared/src/services/Logger.ts#L38)
 
 ***
 
@@ -64,4 +70,4 @@ Defined in: [packages/shared/src/services/Logger.ts:22](https://github.com/austy
 
 > `optional` **pretty**: `boolean`
 
-Defined in: [packages/shared/src/services/Logger.ts:23](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/packages/shared/src/services/Logger.ts#L23)
+Defined in: [packages/shared/src/services/Logger.ts:39](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/packages/shared/src/services/Logger.ts#L39)

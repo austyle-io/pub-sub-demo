@@ -5,9 +5,9 @@
   "description": "Backend server for collaborative document editing",
   "main": "dist/server.js",
   "scripts": {
-    "setup": "../../scripts/setup-env.sh",
+    "setup": "node --experimental-strip-types ../../scripts/setup-env.ts",
     "validate-env": "tsx src/config/env-validator.ts",
-    "build": "tsc",
+    "build": "tsc -p ./tsconfig.json",
     "dev": "tsx src/server.ts",
     "start": "node dist/server.js",
     "test": "vitest run",
@@ -59,7 +59,7 @@
     "@types/ws": "^8.5.11",
     "supertest": "^7.0.0",
     "tsx": "^4.16.2",
-    "typescript": "^5.5.4",
+    "typescript": "^5.7.2",
     "vitest": "^2.0.4"
   }
 }

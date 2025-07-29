@@ -8,7 +8,9 @@
 
 > **logAuditEvent**(`event`): `void`
 
-Defined in: [apps/server/src/utils/audit-logger.ts:20](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/audit-logger.ts#L20)
+Defined in: [apps/server/src/utils/audit-logger.ts:28](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/audit-logger.ts#L28)
+
+log Audit Event.
 
 ## Parameters
 
@@ -19,3 +21,7 @@ Defined in: [apps/server/src/utils/audit-logger.ts:20](https://github.com/austyl
 ## Returns
 
 `void`
+
+## Since
+
+1.0.0

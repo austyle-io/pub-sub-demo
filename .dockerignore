@@ -1,7 +1,78 @@
-.git
+# Dependencies
 node_modules
-dist
-coverage
+.pnpm-store
+**/node_modules
 **/pnpm-store
+
+# Build outputs
+dist
+build
+.turbo
+**/dist
+**/build
+**/.turbo
+
+# Version control
+.git
+.gitignore
+
+# IDE
 .vscode
+.idea
+*.swp
+*.swo
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Environment files (copy separately if needed)
+.env
+.env.local
+.env.*.local
+**/.env
+**/.env.local
+
+# Test coverage
+coverage
+.nyc_output
+**/coverage
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Documentation
+docs
+*.md
+!README.md
+
+# Development files
+.eslintrc*
+.prettierrc*
+.biome*
+*.test.ts
+*.spec.ts
+__tests__
+*.backup
+
+# Docker files themselves
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Scripts not needed in production
+scripts/__tests__
+scripts/test-setup.ts
+scripts/vitest.config.ts
+
+# Temporary files
+tmp
+temp
+*.tmp
+*.temp

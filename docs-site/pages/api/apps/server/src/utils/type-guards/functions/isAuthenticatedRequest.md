@@ -8,7 +8,7 @@
 
 > **isAuthenticatedRequest**(`req`): `req is AuthenticatedRequest`
 
-Defined in: [apps/server/src/utils/type-guards.ts:95](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/type-guards.ts#L95)
+Defined in: [apps/server/src/utils/type-guards.ts:107](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/type-guards.ts#L107)
 
 Type guard to check if a request is authenticated
 
@@ -21,3 +21,7 @@ Type guard to check if a request is authenticated
 ## Returns
 
 `req is AuthenticatedRequest`
+
+## Since
+
+1.0.0

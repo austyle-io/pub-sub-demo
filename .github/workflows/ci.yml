@@ -38,6 +38,7 @@ jobs:
         echo "PNPM version: $(pnpm --version)"
         echo "NODE_ENV: $NODE_ENV"
         echo "CI: $CI"
+        echo "TypeScript support: Node.js v24 includes native TypeScript execution"
 
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
@@ -55,6 +56,12 @@ jobs:
 
     - name: Run type check
       run: pnpm run type-check
+
+    - name: Validate TypeScript scripts
+      run: |
+        echo "Validating TypeScript scripts..."
+        pnpm exec tsc -p scripts/tsconfig.json --noEmit
+        echo "TypeScript scripts validated successfully"
 
     - name: Run tests
       run: pnpm run test
@@ -78,6 +85,19 @@ jobs:
         name: codecov-umbrella
         fail_ci_if_error: false
       continue-on-error: true
+
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Run ShellCheck
+      uses: ludeeus/action-shellcheck@master
+      with:
+        severity: warning
+        check_together: 'yes'
+        scandir: '.'
+        format: gcc
 
   security:
     runs-on: ubuntu-latest

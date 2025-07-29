@@ -1,5 +1,5 @@
 import {
-  type Document,
+  type Document as SharedDocument,
   validateUpdateDocumentRequest,
 } from '@collab-edit/shared';
 import { type Request, type Response, Router } from 'express';
@@ -12,20 +12,26 @@ import { checkDocumentPermission } from '../utils/permissions';
 import { checkDocumentPermissionViaShareDB } from '../utils/sharedb-query-helper';
 import { getValidatedDocumentData } from '../utils/type-guards';
 
-// Type for ShareDB documents stored in MongoDB
+/**
+ * @summary Type definition for a ShareDB document stored in MongoDB.
+ * @private
+ */
 export type ShareDBDocument = {
   d: string;
   _v: number;
-  data: Document;
+  data: SharedDocument;
   create?: {
-    data: Document;
+    data: SharedDocument;
   };
 };
 
 const router: Router = Router();
 
 /**
- * Create a new document
+ * @summary Creates a new document.
+ * @route POST /api/documents
+ * @param req.body - The document creation data.
+ * @returns A 201 response with the created document, or an error response.
  */
 router.post('/', authenticate, async (req: Request, res: Response) => {
   if (!req.user) {
@@ -58,7 +64,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     const doc = connection.get('documents', docId);
 
     const now = new Date().toISOString();
-    const documentData: Document = {
+    const documentData: SharedDocument = {
       id: docId,
       title,
       content,
@@ -91,7 +97,10 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
 });
 
 /**
- * Get document permissions for current user
+ * @summary Gets the permissions for the current user on a specific document.
+ * @route GET /api/documents/:id/permissions
+ * @param req.params.id - The ID of the document.
+ * @returns A 200 response with the user's permissions, or an error response.
  */
 router.get(
   '/:id/permissions',
@@ -157,7 +166,11 @@ router.get(
 );
 
 /**
- * Update document permissions (ACL)
+ * @summary Updates the permissions (ACL) for a document.
+ * @route PUT /api/documents/:id/permissions
+ * @param req.params.id - The ID of the document.
+ * @param req.body - The new permissions data.
+ * @returns A 200 response with a success message, or an error response.
  */
 router.put(
   '/:id/permissions',
@@ -256,7 +269,10 @@ router.put(
 );
 
 /**
- * Get a specific document by ID
+ * @summary Gets a specific document by its ID.
+ * @route GET /api/documents/:id
+ * @param req.params.id - The ID of the document.
+ * @returns A 200 response with the document data, or an error response.
  */
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   if (!req.user) {
@@ -316,7 +332,13 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
 });
 
 /**
- * Update a document (metadata only, not content - content is updated via ShareDB)
+ * @summary Updates a document's metadata.
+ * @remarks This route only updates the document's metadata (e.g., title).
+ * The content is updated via ShareDB.
+ * @route PATCH /api/documents/:id
+ * @param req.params.id - The ID of the document.
+ * @param req.body - The new metadata.
+ * @returns A 200 response with a success message, or an error response.
  */
 router.patch('/:id', async (req: Request, res: Response) => {
   if (!req.user) {
@@ -402,7 +424,10 @@ router.patch('/:id', async (req: Request, res: Response) => {
 });
 
 /**
- * Delete a document
+ * @summary Deletes a document.
+ * @route DELETE /api/documents/:id
+ * @param req.params.id - The ID of the document.
+ * @returns A 204 response, or an error response.
  */
 router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   if (!req.user) {

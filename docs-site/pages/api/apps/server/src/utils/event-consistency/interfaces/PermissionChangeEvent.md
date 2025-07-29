@@ -6,18 +6,13 @@
 
 # Interface: PermissionChangeEvent
 
-Defined in: [apps/server/src/utils/event-consistency.ts:26](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/event-consistency.ts#L26)
+Defined in: [apps/server/src/utils/event-consistency.ts:34](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/event-consistency.ts#L34)
 
-Event-Based Consistency System for ShareDB Operations
+Type definition for permission change event.
 
-This system provides a robust alternative to direct MongoDB queries by listening
-to ShareDB operation completion events and providing consistency guarantees.
+## Since
 
-Key benefits:
-- Eliminates race conditions between ShareDB and MongoDB
-- Provides real-time notifications of document changes
-- Enables reactive programming patterns for document state
-- Supports caching invalidation strategies
+1.0.0
 
 ## Extends
 
@@ -29,7 +24,7 @@ Key benefits:
 
 > **collection**: `string`
 
-Defined in: [apps/server/src/utils/event-consistency.ts:18](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/event-consistency.ts#L18)
+Defined in: [apps/server/src/utils/event-consistency.ts:22](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/event-consistency.ts#L22)
 
 #### Inherited from
 
@@ -41,7 +36,7 @@ Defined in: [apps/server/src/utils/event-consistency.ts:18](https://github.com/a
 
 > **docId**: `string`
 
-Defined in: [apps/server/src/utils/event-consistency.ts:19](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/event-consistency.ts#L19)
+Defined in: [apps/server/src/utils/event-consistency.ts:23](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/event-consistency.ts#L23)
 
 #### Inherited from
 
@@ -53,7 +48,7 @@ Defined in: [apps/server/src/utils/event-consistency.ts:19](https://github.com/a
 
 > **userId**: `string`
 
-Defined in: [apps/server/src/utils/event-consistency.ts:21](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/event-consistency.ts#L21)
+Defined in: [apps/server/src/utils/event-consistency.ts:25](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/event-consistency.ts#L25)
 
 #### Inherited from
 
@@ -65,7 +60,7 @@ Defined in: [apps/server/src/utils/event-consistency.ts:21](https://github.com/a
 
 > **timestamp**: `string`
 
-Defined in: [apps/server/src/utils/event-consistency.ts:22](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/event-consistency.ts#L22)
+Defined in: [apps/server/src/utils/event-consistency.ts:26](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/event-consistency.ts#L26)
 
 #### Inherited from
 
@@ -77,7 +72,7 @@ Defined in: [apps/server/src/utils/event-consistency.ts:22](https://github.com/a
 
 > `optional` **changes**: `Record`\<`string`, `unknown`\>
 
-Defined in: [apps/server/src/utils/event-consistency.ts:23](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/event-consistency.ts#L23)
+Defined in: [apps/server/src/utils/event-consistency.ts:27](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/event-consistency.ts#L27)
 
 #### Inherited from
 
@@ -89,7 +84,7 @@ Defined in: [apps/server/src/utils/event-consistency.ts:23](https://github.com/a
 
 > **operation**: `"update"`
 
-Defined in: [apps/server/src/utils/event-consistency.ts:27](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/event-consistency.ts#L27)
+Defined in: [apps/server/src/utils/event-consistency.ts:35](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/event-consistency.ts#L35)
 
 #### Overrides
 
@@ -101,7 +96,7 @@ Defined in: [apps/server/src/utils/event-consistency.ts:27](https://github.com/a
 
 > **permissionChanges**: `object`
 
-Defined in: [apps/server/src/utils/event-consistency.ts:28](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/event-consistency.ts#L28)
+Defined in: [apps/server/src/utils/event-consistency.ts:36](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/event-consistency.ts#L36)
 
 #### oldAcl?
 

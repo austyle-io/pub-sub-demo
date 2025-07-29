@@ -8,6 +8,7 @@
  * Set a cookie string directly to the DOM
  * This is the only function in the codebase that should access document.cookie
  * @internal Used only by the Cookie Store polyfill
+ * @since 1.0.0
  */
 export function setCookieString(cookieString: string): void {
   if (typeof document === 'undefined') {
@@ -22,6 +23,7 @@ export function setCookieString(cookieString: string): void {
 /**
  * Get the raw cookie string from the DOM
  * @internal Used only by the Cookie Store polyfill
+ * @since 1.0.0
  */
 export function getCookieString(): string {
   if (typeof document === 'undefined') {

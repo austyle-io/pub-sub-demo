@@ -9,6 +9,11 @@ import { initializeShareDB } from '../services/sharedb.service';
  * document state including recent operations that may not have synced yet.
  */
 
+/**
+ * @summary Defines the result of a ShareDB query.
+ * @template T - The type of the data returned by the query.
+ * @since 1.0.0
+ */
 export type ShareDBQueryResult<T = unknown> = {
   success: boolean;
   data?: T;
@@ -16,14 +21,18 @@ export type ShareDBQueryResult<T = unknown> = {
 };
 
 /**
- * Fetch a document using ShareDB connection (guarantees latest state)
- *
- * @param collection - ShareDB collection name
- * @param docId - Document ID
- * @param userId - User ID for authentication context
- * @param userEmail - User email for authentication context
- * @param userRole - User role for authentication context
- * @returns Promise with document data or error
+ * @summary Fetches a document using a ShareDB connection.
+ * @remarks
+ * This function fetches a document directly from ShareDB, which guarantees that
+ * the latest state of the document is returned, including any recent operations
+ * that may not have been synced to the database yet.
+ * @param collection - The name of the ShareDB collection.
+ * @param docId - The ID of the document.
+ * @param userId - The ID of the user for the authentication context.
+ * @param userEmail - The email of the user for the authentication context.
+ * @param userRole - The role of the user for the authentication context.
+ * @returns A promise that resolves to the document data or an error.
+ * @since 1.0.0
  */
 export const queryShareDBDocument = async (
   collection: string,
@@ -80,10 +89,19 @@ export const queryShareDBDocument = async (
 };
 
 /**
- * Check document permissions using ShareDB direct query
- *
- * This replaces the MongoDB-based permission checking to avoid
- * race conditions with ShareDB operations.
+ * @summary Checks document permissions using a direct ShareDB query.
+ * @remarks
+ * This function replaces the MongoDB-based permission checking to avoid race
+ * conditions with ShareDB operations.
+ * @param collection - The name of the ShareDB collection.
+ * @param docId - The ID of the document.
+ * @param userId - The ID of the user.
+ * @param userEmail - The email of the user.
+ * @param userRole - The role of the user.
+ * @param permission - The permission to check.
+ * @returns A promise that resolves to an object containing a boolean indicating
+ * whether the user has the permission and an optional reason for denial.
+ * @since 1.0.0
  */
 export const checkDocumentPermissionViaShareDB = async (
   collection: string,

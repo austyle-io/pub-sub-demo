@@ -17,13 +17,20 @@ import { connectToDatabase } from './utils/database';
 const env = validateEnv();
 
 /**
- * Main Express application. Sets up middleware, routes, and ShareDB server.
+ * @summary The main Express application.
+ * @remarks This application is configured with security middleware, rate limiting,
+ * request logging, and CORS. It also initializes the ShareDB service and sets up
+ * the API routes.
  */
 const app: Express = express();
 const PORT = Number.parseInt(env.PORT, 10);
 const shareDBService = initializeShareDB();
 
-// Enhanced Security Headers with Helmet
+/**
+ * @summary Security headers middleware.
+ * @remarks This middleware configures Helmet to set various security headers,
+ * such as Content-Security-Policy, Strict-Transport-Security, and others.
+ */
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -62,7 +69,11 @@ app.use(
   }),
 );
 
-// Additional Security Headers
+/**
+ * @summary Additional security headers middleware.
+ * @remarks This middleware sets several additional security headers that are
+ * not configured by Helmet by default.
+ */
 app.use((_req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Download-Options', 'noopen');
@@ -81,7 +92,11 @@ app.use((_req, res, next) => {
   next();
 });
 
-// Request Logging Middleware
+/**
+ * @summary Request logging middleware.
+ * @remarks This middleware logs information about each incoming request, including
+ * the method, path, IP address, and user agent. It also logs the response time.
+ */
 app.use((req, res, next) => {
   const start = Date.now();
 
@@ -118,7 +133,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// Enhanced Rate Limiting
+/**
+ * @summary Rate limiting middleware.
+ * @remarks This middleware configures rate limiting for different parts of the
+ * API to prevent abuse.
+ */
 const isTestEnvironment = env.NODE_ENV === 'test';
 
 const generalLimiter = rateLimit({
@@ -196,11 +215,19 @@ app.use('/api/', generalLimiter);
 app.use('/api/auth/', authLimiter);
 app.use('/api/documents/', documentLimiter);
 
-// Request size limits with security consideration
+/**
+ * @summary Request size limiting middleware.
+ * @remarks This middleware sets limits on the size of request bodies to prevent
+ * denial-of-service attacks.
+ */
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
-// Input Sanitization Middleware
+/**
+ * @summary Input sanitization middleware.
+ * @remarks This middleware sanitizes request bodies and queries to prevent
+ * cross-site scripting (XSS) attacks.
+ */
 app.use((req, _res, next) => {
   if (req.body && typeof req.body === 'object') {
     sanitizeObject(req.body);
@@ -225,7 +252,11 @@ function sanitizeObject(obj: Record<string, unknown>): void {
   }
 }
 
-// CORS configuration
+/**
+ * @summary CORS middleware.
+ * @remarks This middleware enables Cross-Origin Resource Sharing (CORS) for
+ * the client application.
+ */
 app.use(
   cors({
     origin: env.CLIENT_URL,
@@ -236,7 +267,11 @@ app.use(
 app.use(cookieParser());
 app.use(passport.initialize());
 
-// Health check endpoint
+/**
+ * @summary Health check endpoint.
+ * @route GET /health
+ * @returns A 200 response with the server status.
+ */
 app.get('/health', (_req, res) => {
   res.json({
     status: 'ok',
@@ -249,7 +284,11 @@ app.get('/health', (_req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', docRoutes);
 
-// Global Error Handler
+/**
+ * @summary Global error handler.
+ * @remarks This middleware catches all unhandled errors and returns a JSON
+ * response with the error message.
+ */
 app.use(
   (
     err: Error,
@@ -278,7 +317,10 @@ app.use(
 const server = http.createServer(app);
 
 /**
- * Initialize database, attach ShareDB, and start HTTP/WebSocket server.
+ * @summary Initializes the database, attaches ShareDB, and starts the server.
+ * @remarks
+ * This function connects to the database, attaches the ShareDB service to the
+ * HTTP server, and then starts the server on the configured port.
  */
 async function startServer(): Promise<void> {
   try {
@@ -312,7 +354,7 @@ async function startServer(): Promise<void> {
 }
 
 // Only start if this is the main module
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (require.main === module) {
   startServer();
 }
 

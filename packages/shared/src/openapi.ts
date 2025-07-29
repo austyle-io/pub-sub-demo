@@ -14,6 +14,14 @@ import {
   PermissionsSchema,
 } from './schemas';
 
+/**
+ * @summary The OpenAPI 3.1 specification for the Collaborative Document Editor API.
+ * @remarks
+ * This specification provides a detailed description of the API endpoints, including
+ * authentication, document management, and health checks. It is used for generating
+ * API documentation and client libraries.
+ * @since 1.0.0
+ */
 export const openApiSpec = {
   openapi: '3.1.0',
   info: {

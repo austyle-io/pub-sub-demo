@@ -8,7 +8,7 @@
 
 > **LoginForm**(): `Element`
 
-Defined in: [apps/client/src/components/LoginForm.tsx:9](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/components/LoginForm.tsx#L9)
+Defined in: [apps/client/src/components/LoginForm.tsx:11](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/components/LoginForm.tsx#L11)
 
 LoginForm renders a form for users to log in or sign up.
 Handles form state, validation, and authentication actions.
@@ -16,3 +16,7 @@ Handles form state, validation, and authentication actions.
 ## Returns
 
 `Element`
+
+## Since
+
+1.0.0

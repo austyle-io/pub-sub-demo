@@ -8,7 +8,9 @@
 
 > **AuthProvider**(`__namedParameters`): `Element`
 
-Defined in: [apps/client/src/contexts/AuthContext.tsx:24](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/contexts/AuthContext.tsx#L24)
+Defined in: [apps/client/src/contexts/AuthContext.tsx:28](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/contexts/AuthContext.tsx#L28)
+
+Auth Provider.
 
 ## Parameters
 
@@ -21,3 +23,7 @@ Defined in: [apps/client/src/contexts/AuthContext.tsx:24](https://github.com/aus
 ## Returns
 
 `Element`
+
+## Since
+
+1.0.0

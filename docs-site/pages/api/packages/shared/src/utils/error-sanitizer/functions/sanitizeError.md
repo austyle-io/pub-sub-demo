@@ -8,7 +8,9 @@
 
 > **sanitizeError**(`error`): `string`
 
-Defined in: [packages/shared/src/utils/error-sanitizer.ts:31](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/packages/shared/src/utils/error-sanitizer.ts#L31)
+Defined in: [packages/shared/src/utils/error-sanitizer.ts:35](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/packages/shared/src/utils/error-sanitizer.ts#L35)
+
+sanitize Error.
 
 ## Parameters
 
@@ -19,3 +21,7 @@ Defined in: [packages/shared/src/utils/error-sanitizer.ts:31](https://github.com
 ## Returns
 
 `string`
+
+## Since
+
+1.0.0

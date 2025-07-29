@@ -1,3 +1,5 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+  - 'scripts'
+  # - 'docs-site' # Temporarily disabled due to dependency conflict

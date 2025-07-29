@@ -33,6 +33,14 @@ repos:
                     pnpm-lock\.yaml$
                 )$
 
+    # Shell script validation
+    - repo: https://github.com/shellcheck-py/shellcheck-py
+      rev: v0.10.0.1
+      hooks:
+          - id: shellcheck
+            args: ["--severity=warning"]
+            files: \.sh$
+
     # Biome linting and formatting
     - repo: https://github.com/biomejs/pre-commit
       rev: v2.1.2

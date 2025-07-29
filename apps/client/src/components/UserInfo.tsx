@@ -1,8 +1,10 @@
 import { useAuth } from '../contexts/AuthContext';
 
 /**
- * UserInfo displays the current authenticated user's email and role with a logout button.
- * @returns null if no user is authenticated
+ * @summary A component that displays the current authenticated user's email and role,
+ * along with a logout button.
+ * @returns A JSX element, or `null` if no user is authenticated.
+ * @since 1.0.0
  */
 export function UserInfo(): React.JSX.Element | null {
   const { user, logout } = useAuth();

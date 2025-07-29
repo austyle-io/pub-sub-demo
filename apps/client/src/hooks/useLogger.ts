@@ -1,6 +1,9 @@
 import { useCallback, useMemo } from 'react';
 
-// Define log levels
+/**
+ * @summary Defines the available log levels.
+ * @since 1.0.0
+ */
 export const LOG_LEVEL = {
   ERROR: 'error',
   WARN: 'warn',
@@ -8,10 +11,22 @@ export const LOG_LEVEL = {
   DEBUG: 'debug',
 } as const;
 
+/**
+ * @summary Type definition for the available log levels.
+ * @since 1.0.0
+ */
 export type LogLevel = (typeof LOG_LEVEL)[keyof typeof LOG_LEVEL];
+
+/**
+ * @summary Type definition for the log context object.
+ * @since 1.0.0
+ */
 export type LogContext = Record<string, unknown>;
 
-// Client-side logger interface
+/**
+ * @summary Interface for the client-side logger.
+ * @since 1.0.0
+ */
 export type ClientLogger = {
   error: (message: string, context?: LogContext) => void;
   warn: (message: string, context?: LogContext) => void;
@@ -79,11 +94,20 @@ const sendToRemote = async (logEntry: unknown) => {
 };
 
 /**
- * React hook for structured client-side logging
- *
- * @param module - Module name for context
- * @param baseContext - Base context to include in all logs
- * @returns ClientLogger instance with structured logging methods
+ * @summary A React hook for structured client-side logging.
+ * @remarks
+ * This hook provides a logging instance that can be used to send structured
+ * logs to the console in development and to a remote endpoint in production.
+ * It supports different log levels and allows for adding contextual information.
+ * @param module - The name of the module for context.
+ * @param baseContext - A base context to include in all logs.
+ * @returns A `ClientLogger` instance with structured logging methods.
+ * @since 1.0.0
+ * @example
+ * ```typescript
+ * const logger = useLogger('MyComponent');
+ * logger.info('Component mounted');
+ * ```
  */
 export const useLogger = (
   module: string,
@@ -145,7 +169,21 @@ export const useLogger = (
   );
 };
 
-// Default logger instance
+/**
+ * @summary Creates a client-side logger instance.
+ * @remarks
+ * This function creates a logger that can be used outside of React components.
+ * It provides the same functionality as the `useLogger` hook.
+ * @param module - The name of the module for context.
+ * @param context - A base context to include in all logs.
+ * @returns A `ClientLogger` instance.
+ * @since 1.0.0
+ * @example
+ * ```typescript
+ * const logger = createClientLogger('MyService');
+ * logger.info('Service initialized');
+ * ```
+ */
 export const createClientLogger = (
   module: string,
   context?: LogContext,

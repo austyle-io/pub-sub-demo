@@ -12,6 +12,13 @@ type State = {
   error?: Error;
 };
 
+/**
+ * @summary A React component that catches JavaScript errors anywhere in its child component tree.
+ * @remarks
+ * This component logs the errors and displays a fallback UI instead of the component
+ * tree that crashed.
+ * @since 1.0.0
+ */
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);

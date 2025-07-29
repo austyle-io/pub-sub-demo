@@ -1,28 +1,18 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "composite": true,
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-    "noEmit": true,
     "jsx": "react-jsx",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "types": ["react", "react-dom", "node"],
+    "types": ["vite/client", "node"],
     "moduleResolution": "bundler",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "baseUrl": ".",
-    "typeRoots": [
-      "../../node_modules/@types",
-      "./node_modules/@types",
-      "./@types"
-    ],
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
     "paths": {
-      "@shared/*": ["../../packages/shared/src/*"]
+      "@/*": ["./src/*"],
+      "@collab-edit/shared": ["../../packages/shared/src"],
+      "@collab-edit/shared/*": ["../../packages/shared/src/*"]
     }
   },
-  "include": ["src/**/*"],
-  "references": [{ "path": "../../packages/shared" }]
+  "include": ["src/**/*", "vite.config.ts"],
+  "exclude": ["node_modules", "dist", "build"]
 }
