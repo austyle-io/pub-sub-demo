@@ -8,7 +8,9 @@
 
 > `const` **LOG\_LEVEL**: `object`
 
-Defined in: [apps/client/src/hooks/useLogger.ts:4](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/hooks/useLogger.ts#L4)
+Defined in: [apps/client/src/hooks/useLogger.ts:8](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/hooks/useLogger.ts#L8)
+
+log level constant.
 
 ## Type declaration
 
@@ -27,3 +29,7 @@ Defined in: [apps/client/src/hooks/useLogger.ts:4](https://github.com/austyle-io
 ### DEBUG
 
 > `readonly` **DEBUG**: `"debug"` = `'debug'`
+
+## Since
+
+1.0.0

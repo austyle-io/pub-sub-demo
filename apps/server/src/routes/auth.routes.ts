@@ -13,7 +13,10 @@ import { authLogger } from '../services/logger';
 import { validateEnv } from '../types/env';
 
 /**
- * Authentication routes: signup, login, and token refresh endpoints.
+ * @summary Defines the authentication routes for the application.
+ * @remarks
+ * This router handles user signup, login, token refreshing, and logout.
+ * It uses the `AuthService` to perform the actual authentication logic.
  */
 const router: Router = Router();
 const authService = new AuthService();
@@ -28,10 +31,10 @@ interface AuthenticatedRequest extends Request {
 }
 
 /**
- * Register a new user.
+ * @summary Registers a new user.
  * @route POST /api/auth/signup
- * @param req.body CreateUserRequest payload
- * @returns 201 with auth tokens or error response
+ * @param req.body - The user creation data.
+ * @returns A 201 response with an access token and user data, or an error response.
  */
 router.post(
   '/signup',
@@ -88,10 +91,10 @@ router.post(
 );
 
 /**
- * Authenticate an existing user.
+ * @summary Authenticates an existing user.
  * @route POST /api/auth/login
- * @param req.body LoginRequest payload
- * @returns auth tokens or error response
+ * @param req.body - The login data.
+ * @returns A 200 response with an access token and user data, or an error response.
  */
 router.post(
   '/login',
@@ -141,10 +144,10 @@ router.post(
 );
 
 /**
- * Refresh access and refresh tokens.
+ * @summary Refreshes the access and refresh tokens.
  * @route POST /api/auth/refresh
- * @param req.body RefreshTokenRequest payload
- * @returns new auth tokens or error response
+ * @param req.cookies.refreshToken - The refresh token.
+ * @returns A 200 response with a new access token and user data, or an error response.
  */
 router.post(
   '/refresh',
@@ -187,6 +190,11 @@ router.post(
   },
 );
 
+/**
+ * @summary Logs the user out.
+ * @route POST /api/auth/logout
+ * @returns A 204 response.
+ */
 router.post('/logout', (_req, res) => {
   res.clearCookie('refreshToken', { path: '/api/auth/refresh' });
   res.status(204).send();

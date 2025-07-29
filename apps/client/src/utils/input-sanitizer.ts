@@ -11,6 +11,15 @@ const purifyConfig = {
   STRIP_COMMENTS: true,
 };
 
+/**
+ * @summary Sanitizes an HTML string to prevent XSS attacks.
+ * @remarks
+ * This function uses DOMPurify to remove any potentially malicious HTML, allowing
+ * only a safe subset of tags and attributes.
+ * @param html - The HTML string to sanitize.
+ * @returns The sanitized HTML string.
+ * @since 1.0.0
+ */
 export const sanitizeHtml = (html: string): string => {
   if (isNil(html) || !isString(html)) {
     return '';
@@ -18,6 +27,12 @@ export const sanitizeHtml = (html: string): string => {
   return DOMPurify.sanitize(html, purifyConfig);
 };
 
+/**
+ * @summary Sanitizes a filename to prevent directory traversal and other attacks.
+ * @param filename - The filename to sanitize.
+ * @returns The sanitized filename.
+ * @since 1.0.0
+ */
 export const sanitizeFileName = (filename: string): string => {
   if (isNil(filename) || !isString(filename)) {
     return 'untitled';
@@ -32,6 +47,15 @@ export const sanitizeFileName = (filename: string): string => {
     .toLowerCase();
 };
 
+/**
+ * @summary Sanitizes a plain text string.
+ * @remarks
+ * This function removes control characters and normalizes whitespace to ensure
+ * that the text is safe for display and storage.
+ * @param text - The text to sanitize.
+ * @returns The sanitized text.
+ * @since 1.0.0
+ */
 export const sanitizeText = (text: string): string => {
   if (isNil(text) || !isString(text)) {
     return '';
@@ -54,6 +78,12 @@ export const sanitizeText = (text: string): string => {
     .substring(0, 10000); // Reasonable text limit
 };
 
+/**
+ * @summary Sanitizes a document title.
+ * @param title - The title to sanitize.
+ * @returns The sanitized title.
+ * @since 1.0.0
+ */
 export const sanitizeDocumentTitle = (title: string): string => {
   const sanitized = sanitizeText(title);
   return sanitized.length > 0 ? sanitized : 'Untitled Document';

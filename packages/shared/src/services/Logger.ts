@@ -1,6 +1,10 @@
 import isNil from 'lodash.isnil';
 import pino, { type Logger as PinoLogger } from 'pino';
 
+/**
+ * @summary Defines the available log levels.
+ * @since 1.0.0
+ */
 export const LOG_LEVEL = {
   ERROR: 'error',
   WARN: 'warn',
@@ -9,10 +13,22 @@ export const LOG_LEVEL = {
   TRACE: 'trace',
 } as const;
 
+/**
+ * @summary Type definition for the available log levels.
+ * @since 1.0.0
+ */
 export type LogLevel = (typeof LOG_LEVEL)[keyof typeof LOG_LEVEL];
 
+/**
+ * @summary Type definition for the log context object.
+ * @since 1.0.0
+ */
 export type LogContext = Record<string, unknown>;
 
+/**
+ * @summary Configuration for the application logger.
+ * @since 1.0.0
+ */
 export type LoggerConfig = {
   level: LogLevel;
   module: string;
@@ -23,6 +39,10 @@ export type LoggerConfig = {
   pretty?: boolean;
 };
 
+/**
+ * @summary Interface for the application logger.
+ * @since 1.0.0
+ */
 export type AppLogger = {
   error: (message: string, context?: LogContext) => void;
   warn: (message: string, context?: LogContext) => void;
@@ -33,7 +53,10 @@ export type AppLogger = {
   flush: () => Promise<void>;
 };
 
-// Environment-specific configurations
+/**
+ * @summary Environment-specific logging configurations.
+ * @since 1.0.0
+ */
 export const LOGGING_CONFIG = {
   development: {
     level: LOG_LEVEL.DEBUG,
@@ -65,6 +88,22 @@ const getEnvironmentConfig = (): Partial<LoggerConfig> => {
   return LOGGING_CONFIG[env] || LOGGING_CONFIG.development;
 };
 
+/**
+ * @summary Creates an application logger instance.
+ * @remarks
+ * This function creates a logger with a specified module name and optional
+ * configuration. It automatically uses the correct configuration based on the
+ * environment.
+ * @param module - The name of the module for context.
+ * @param config - Optional configuration to override the environment defaults.
+ * @returns An `AppLogger` instance.
+ * @since 1.0.0
+ * @example
+ * ```typescript
+ * const logger = createAppLogger('MyModule');
+ * logger.info('Module initialized');
+ * ```
+ */
 export const createAppLogger = (
   module: string,
   config?: Partial<LoggerConfig>,
@@ -182,5 +221,8 @@ export const createAppLogger = (
   return appLogger;
 };
 
-// Export default logger instance
+/**
+ * @summary The default application logger instance.
+ * @since 1.0.0
+ */
 export const logger = createAppLogger('app');

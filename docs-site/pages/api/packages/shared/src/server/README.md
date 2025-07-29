@@ -10,10 +10,10 @@
 
 ### hashPassword
 
-Re-exports [hashPassword](../auth/password/functions/hashPassword.md)
+Re-exports [hashPassword](../../../../auth/password/functions/hashPassword.md)
 
 ***
 
 ### verifyPassword
 
-Re-exports [verifyPassword](../auth/password/functions/verifyPassword.md)
+Re-exports [verifyPassword](../../../../auth/password/functions/verifyPassword.md)

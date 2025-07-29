@@ -8,7 +8,9 @@
 
 > **useShareDB**(`docId`): `null` \| `ShareDBDocument`
 
-Defined in: [apps/client/src/hooks/useShareDB.ts:44](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/hooks/useShareDB.ts#L44)
+Defined in: [apps/client/src/hooks/useShareDB.ts:52](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/hooks/useShareDB.ts#L52)
+
+React hook for share d b.
 
 ## Parameters
 
@@ -19,3 +21,7 @@ Defined in: [apps/client/src/hooks/useShareDB.ts:44](https://github.com/austyle-
 ## Returns
 
 `null` \| `ShareDBDocument`
+
+## Since
+
+1.0.0

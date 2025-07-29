@@ -17,29 +17,72 @@ import {
   isShareDBContext,
 } from '../utils/type-guards';
 
+/**
+ * @summary Singleton instance of the ShareDB service.
+ * @private
+ */
 let shareDBService: ShareDBService;
 
-// Create typed wrappers for untyped modules
+/**
+ * @summary Creates a new ShareDB backend instance with the given options.
+ * @param options - ShareDB configuration options.
+ * @param options.db - Database adapter instance.
+ * @returns A new ShareDB backend instance.
+ * @private
+ * @since 1.0.0
+ */
 const createShareDB = (options?: { db?: unknown }) => {
   // ShareDB constructor returns an instance
   return new ShareDB(options);
 };
 
+/**
+ * @summary Creates a MongoDB adapter for ShareDB.
+ * @param url - The MongoDB connection URL.
+ * @returns A ShareDB MongoDB adapter instance.
+ * @private
+ * @since 1.0.0
+ */
 const createMongoAdapter = (url: string): unknown => {
   // ShareDBMongo returns a database adapter
   return ShareDBMongo(url);
 };
 
+/**
+ * @summary Creates a WebSocket JSON stream for ShareDB communication.
+ * @param ws - The WebSocket connection instance.
+ * @returns A Duplex stream for bidirectional data flow.
+ * @private
+ * @since 1.0.0
+ */
 const createWebSocketStream = (ws: WebSocket): Duplex => {
   // WebSocketJSONStream extends Duplex
   return new WebSocketJSONStream(ws) satisfies Duplex;
 };
 
 /**
- * Service to configure and attach ShareDB for real-time document collaboration.
+ * @summary Service to configure and attach ShareDB for real-time document collaboration.
+ * @remarks
+ * This service manages the ShareDB backend, WebSocket connections, and middleware
+ * for authentication and permission checking in a collaborative editing environment.
+ * @example
+ * ```typescript
+ * const shareDBService = initializeShareDB();
+ * shareDBService.attachToServer(httpServer);
+ * ```
+ * @since 1.0.0
  */
 export class ShareDBService {
+  /**
+   * @summary The ShareDB backend instance for document operations.
+   * @private
+   */
   private backend: InstanceType<typeof ShareDB>;
+
+  /**
+   * @summary The WebSocket server for real-time communication.
+   * @private
+   */
   private wss: WebSocketServer;
 
   constructor() {
@@ -58,7 +101,14 @@ export class ShareDBService {
   }
 
   /**
-   * Register ShareDB middleware for authentication and permission checks.
+   * @summary Registers ShareDB middleware for authentication and permission checks.
+   * @remarks
+   * Sets up three main middleware handlers:
+   * - `connect`: Attaches user information to the ShareDB agent.
+   * - `submit`: Validates write permissions before allowing document changes.
+   * - `readSnapshots`: Validates read permissions for document access.
+   * @private
+   * @since 1.0.0
    */
   private setupMiddleware(): void {
     // Connect middleware - attach user info to agent
@@ -182,8 +232,18 @@ export class ShareDBService {
   }
 
   /**
-   * Attach the WebSocket server to the given HTTP server, with auth upgrade handling.
-   * @param server HTTP server instance to upgrade
+   * @summary Attaches the WebSocket server to the given HTTP server, with auth upgrade handling.
+   * @remarks
+   * This method sets up the WebSocket upgrade handler on the HTTP server, authenticates
+   * incoming WebSocket connections, and establishes ShareDB communication streams.
+   * @param server - The HTTP server instance to upgrade.
+   * @throws Will reject WebSocket connections that fail authentication.
+   * @since 1.0.0
+   * @example
+   * ```typescript
+   * const server = http.createServer(app);
+   * shareDBService.attachToServer(server);
+   * ```
    */
   attachToServer(server: Server): void {
     // Handle WebSocket upgrade with authentication
@@ -219,15 +279,38 @@ export class ShareDBService {
   }
 
   /**
-   * Access the underlying ShareDB backend instance.
-   * @returns configured ShareDB backend
+   * @summary Accesses the underlying ShareDB backend instance.
+   * @returns The configured ShareDB backend instance.
+   * @since 1.0.0
+   * @example
+   * ```typescript
+   * const backend = shareDBService.getShareDB();
+   * const doc = backend.connect().get('documents', 'doc-id');
+   * ```
    */
   getShareDB() {
     return this.backend;
   }
 
   /**
-   * Create a connection with user context for backend operations
+   * @summary Creates a connection with user context for backend operations.
+   * @remarks
+   * This method creates a ShareDB connection with authenticated user context,
+   * allowing backend operations to respect permission checks.
+   * @param userId - The unique identifier of the user.
+   * @param email - The email address of the user.
+   * @param role - The user role (e.g., 'admin', 'user').
+   * @returns A ShareDB connection with authenticated context.
+   * @since 1.0.0
+   * @example
+   * ```typescript
+   * const connection = shareDBService.createAuthenticatedConnection(
+   *   'user-123',
+   *   'user@example.com',
+   *   'user'
+   * );
+   * const doc = connection.get('documents', 'doc-id');
+   * ```
    */
   createAuthenticatedConnection(userId: string, email: string, role: string) {
     const connection = this.backend.connect();
@@ -249,6 +332,21 @@ export class ShareDBService {
   }
 }
 
+/**
+ * @summary Initializes the ShareDB service singleton.
+ * @remarks
+ * Creates a new ShareDB service instance if one doesn't exist, or returns
+ * the existing instance. This ensures a single ShareDB backend is used
+ * throughout the application.
+ * @returns The ShareDB service instance.
+ * @since 1.0.0
+ * @example
+ * ```typescript
+ * // In server initialization
+ * const shareDBService = initializeShareDB();
+ * shareDBService.attachToServer(httpServer);
+ * ```
+ */
 export const initializeShareDB = (): ShareDBService => {
   if (!shareDBService) {
     shareDBService = new ShareDBService();
@@ -256,6 +354,22 @@ export const initializeShareDB = (): ShareDBService => {
   return shareDBService;
 };
 
+/**
+ * @summary Gets the ShareDB backend instance.
+ * @remarks
+ * Provides access to the underlying ShareDB backend for direct operations.
+ * The ShareDB service must be initialized before calling this function.
+ * @returns The ShareDB backend instance.
+ * @throws {Error} If the ShareDB service has not been initialized.
+ * @since 1.0.0
+ * @example
+ * ```typescript
+ * // Get backend for direct operations
+ * const backend = getShareDB();
+ * const connection = backend.connect();
+ * ```
+ * @see {@link initializeShareDB} for initialization.
+ */
 export const getShareDB = (): InstanceType<typeof ShareDB> => {
   if (!shareDBService) {
     throw new Error('ShareDB service has not been initialized');

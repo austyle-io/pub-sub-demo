@@ -2,13 +2,43 @@ import { type AppLogger, createAppLogger } from '@collab-edit/shared';
 import type { NextFunction, Request, Response } from 'express';
 
 // Module-specific loggers
+/**
+ * @summary Logger instance for general server-related events.
+ * @since 1.0.0
+ */
 export const serverLogger = createAppLogger('server');
+/**
+ * @summary Logger instance for authentication-related events.
+ * @since 1.0.0
+ */
 export const authLogger = createAppLogger('auth');
+/**
+ * @summary Logger instance for ShareDB-related events.
+ * @since 1.0.0
+ */
 export const sharedbLogger = createAppLogger('sharedb');
+/**
+ * @summary Logger instance for API-related events.
+ * @since 1.0.0
+ */
 export const apiLogger = createAppLogger('api');
+/**
+ * @summary Logger instance for database-related events.
+ * @since 1.0.0
+ */
 export const dbLogger = createAppLogger('database');
 
 // Simple request logging middleware
+/**
+ * @summary Middleware for logging incoming HTTP requests.
+ * @remarks
+ * This middleware logs the method and URL of each incoming request, and assigns
+ * a unique request ID for tracing.
+ * @param req - The Express request object.
+ * @param _res - The Express response object (unused).
+ * @param next - The next middleware function.
+ * @since 1.0.0
+ */
 export const requestLogger = (
   req: Request,
   _res: Response,
@@ -26,6 +56,19 @@ export const requestLogger = (
 };
 
 // Performance logging utility
+/**
+ * @summary A utility function to log the performance of a given operation.
+ * @remarks
+ * This function wraps a synchronous or asynchronous function, logs the execution time,
+ * and includes the operation name in the log message. It logs success and failure
+ * cases separately.
+ * @template T - The return type of the wrapped function.
+ * @param operation - A descriptive name for the operation being measured.
+ * @param fn - The function to execute and measure.
+ * @param logger - The logger instance to use for logging.
+ * @returns The result of the wrapped function.
+ * @since 1.0.0
+ */
 export const logPerformance = <T>(
   operation: string,
   fn: () => T | Promise<T>,

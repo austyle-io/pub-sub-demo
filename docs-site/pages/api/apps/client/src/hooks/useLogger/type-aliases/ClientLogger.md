@@ -8,7 +8,13 @@
 
 > **ClientLogger** = `object`
 
-Defined in: [apps/client/src/hooks/useLogger.ts:15](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/hooks/useLogger.ts#L15)
+Defined in: [apps/client/src/hooks/useLogger.ts:31](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/hooks/useLogger.ts#L31)
+
+Type definition for client logger.
+
+## Since
+
+1.0.0
 
 ## Properties
 
@@ -16,7 +22,7 @@ Defined in: [apps/client/src/hooks/useLogger.ts:15](https://github.com/austyle-i
 
 > **error**: (`message`, `context?`) => `void`
 
-Defined in: [apps/client/src/hooks/useLogger.ts:16](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/hooks/useLogger.ts#L16)
+Defined in: [apps/client/src/hooks/useLogger.ts:32](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/hooks/useLogger.ts#L32)
 
 #### Parameters
 
@@ -38,7 +44,7 @@ Defined in: [apps/client/src/hooks/useLogger.ts:16](https://github.com/austyle-i
 
 > **warn**: (`message`, `context?`) => `void`
 
-Defined in: [apps/client/src/hooks/useLogger.ts:17](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/hooks/useLogger.ts#L17)
+Defined in: [apps/client/src/hooks/useLogger.ts:33](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/hooks/useLogger.ts#L33)
 
 #### Parameters
 
@@ -60,7 +66,7 @@ Defined in: [apps/client/src/hooks/useLogger.ts:17](https://github.com/austyle-i
 
 > **info**: (`message`, `context?`) => `void`
 
-Defined in: [apps/client/src/hooks/useLogger.ts:18](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/hooks/useLogger.ts#L18)
+Defined in: [apps/client/src/hooks/useLogger.ts:34](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/hooks/useLogger.ts#L34)
 
 #### Parameters
 
@@ -82,7 +88,7 @@ Defined in: [apps/client/src/hooks/useLogger.ts:18](https://github.com/austyle-i
 
 > **debug**: (`message`, `context?`) => `void`
 
-Defined in: [apps/client/src/hooks/useLogger.ts:19](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/hooks/useLogger.ts#L19)
+Defined in: [apps/client/src/hooks/useLogger.ts:35](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/hooks/useLogger.ts#L35)
 
 #### Parameters
 
@@ -104,7 +110,7 @@ Defined in: [apps/client/src/hooks/useLogger.ts:19](https://github.com/austyle-i
 
 > **child**: (`context`) => `ClientLogger`
 
-Defined in: [apps/client/src/hooks/useLogger.ts:20](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/hooks/useLogger.ts#L20)
+Defined in: [apps/client/src/hooks/useLogger.ts:36](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/hooks/useLogger.ts#L36)
 
 #### Parameters
 

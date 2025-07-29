@@ -7,6 +7,10 @@ import { isAuthResponse, isJwtPayload } from '@collab-edit/shared';
 import { assign, createMachine, fromPromise } from 'xstate';
 import { authService } from '../services/auth.service';
 
+/**
+ * @summary Defines the context for the authentication state machine.
+ * @since 1.0.0
+ */
 export type AuthContext = {
   user: PublicUser | null;
   accessToken: string | null;
@@ -14,6 +18,10 @@ export type AuthContext = {
   error: string | null;
 };
 
+/**
+ * @summary Defines the events for the authentication state machine.
+ * @since 1.0.0
+ */
 export type AuthEvent =
   | { type: 'LOGIN'; data: LoginRequest }
   | { type: 'SIGNUP'; data: CreateUserRequest }
@@ -32,6 +40,13 @@ const isSignupEvent = (
 ): event is { type: 'SIGNUP'; data: CreateUserRequest } =>
   event.type === 'SIGNUP' && 'data' in event;
 
+/**
+ * @summary The XState machine for handling authentication.
+ * @remarks
+ * This machine manages the user's authentication state, including login, signup,
+ * logout, and token refreshing.
+ * @since 1.0.0
+ */
 export const authMachine = createMachine({
   id: 'auth',
   initial: 'checkingAuth',

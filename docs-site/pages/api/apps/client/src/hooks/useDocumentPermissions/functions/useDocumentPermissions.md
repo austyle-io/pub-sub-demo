@@ -8,7 +8,9 @@
 
 > **useDocumentPermissions**(`docId`): `object`
 
-Defined in: [apps/client/src/hooks/useDocumentPermissions.ts:5](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/hooks/useDocumentPermissions.ts#L5)
+Defined in: [apps/client/src/hooks/useDocumentPermissions.ts:9](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/hooks/useDocumentPermissions.ts#L9)
+
+React hook for document permissions.
 
 ## Parameters
 
@@ -31,3 +33,7 @@ Defined in: [apps/client/src/hooks/useDocumentPermissions.ts:5](https://github.c
 ### error
 
 > **error**: `undefined` \| `string`
+
+## Since
+
+1.0.0

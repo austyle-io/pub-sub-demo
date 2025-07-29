@@ -19,8 +19,16 @@ type LoggerProviderProps = {
 };
 
 /**
- * Logger Provider Component
- * Provides centralized logging configuration and context to the entire React app
+ * @summary Provides a centralized logging configuration and context to the application.
+ * @remarks
+ * This component creates a logger instance and a factory function for creating
+ * module-specific loggers. It should be used to wrap the entire application.
+ * @param props - The component props.
+ * @param props.children - The child components.
+ * @param props.appVersion - The version of the application.
+ * @param props.userId - The ID of the current user.
+ * @returns A JSX element.
+ * @since 1.0.0
  */
 export const LoggerProvider = ({
   children,
@@ -57,8 +65,13 @@ export const LoggerProvider = ({
 };
 
 /**
- * Hook to access the logger context
- * Throws an error if used outside of LoggerProvider
+ * @summary A hook to access the logger context.
+ * @remarks
+ * This hook provides access to the logger instance and the `createLogger` function.
+ * It must be used within a `LoggerProvider`.
+ * @returns The logger context value.
+ * @throws {Error} If used outside of a `LoggerProvider`.
+ * @since 1.0.0
  */
 export const useLoggerContext = (): LoggerContextType => {
   const context = useContext(LoggerContext);
@@ -71,8 +84,10 @@ export const useLoggerContext = (): LoggerContextType => {
 };
 
 /**
- * Hook to get a module-specific logger
- * Automatically includes global context from LoggerProvider
+ * @summary A hook to create a module-specific logger.
+ * @param module - The name of the module for the logger.
+ * @returns A `ClientLogger` instance for the specified module.
+ * @since 1.0.0
  */
 export const useModuleLogger = (module: string): ClientLogger => {
   const { createLogger } = useLoggerContext();

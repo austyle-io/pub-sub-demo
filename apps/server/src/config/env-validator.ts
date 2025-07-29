@@ -1,5 +1,9 @@
 import isString from 'lodash.isstring';
 
+/**
+ * @summary Defines the shape of the required environment variables.
+ * @private
+ */
 type RequiredEnvVars = {
   JWT_ACCESS_SECRET: string;
   JWT_REFRESH_SECRET: string;
@@ -9,7 +13,13 @@ type RequiredEnvVars = {
   CLIENT_URL?: string;
 };
 
-// Type guard for required environment variables
+/**
+ * @summary Retrieves a required environment variable and ensures it is not empty.
+ * @param key - The name of the environment variable to retrieve.
+ * @returns The value of the environment variable.
+ * @throws {Error} If the environment variable is missing or empty.
+ * @private
+ */
 const getRequiredEnvVar = (key: string): string => {
   const value = process.env[key];
   if (!isString(value) || value.trim() === '') {
@@ -18,6 +28,16 @@ const getRequiredEnvVar = (key: string): string => {
   return value;
 };
 
+/**
+ * @summary Validates the environment variables required by the application.
+ * @remarks
+ * This function checks for the presence and validity of all required environment
+ * variables. It also performs security checks, such as ensuring that JWT secrets
+ * are strong enough and that they are different from each other. If any validation
+ * fails, the process will exit with an error.
+ * @returns The validated environment variables.
+ * @since 1.0.0
+ */
 export const validateEnvironment = (): RequiredEnvVars => {
   const requiredVars = ['JWT_ACCESS_SECRET', 'JWT_REFRESH_SECRET', 'MONGO_URL'];
   const missing = requiredVars.filter((key) => !process.env[key]);
@@ -135,4 +155,8 @@ export const validateEnvironment = (): RequiredEnvVars => {
   return validatedConfig;
 };
 
+/**
+ * @summary Type alias for the validated environment variables.
+ * @since 1.0.0
+ */
 export type Config = RequiredEnvVars;

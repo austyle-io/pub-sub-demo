@@ -8,7 +8,7 @@
 
 > **emitDocumentChangeEvent**(`collection`, `docId`, `operation`, `userId`, `changes?`): `void`
 
-Defined in: [apps/server/src/utils/event-consistency.ts:157](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/event-consistency.ts#L157)
+Defined in: [apps/server/src/utils/event-consistency.ts:169](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/event-consistency.ts#L169)
 
 Helper function to manually emit document change events
 

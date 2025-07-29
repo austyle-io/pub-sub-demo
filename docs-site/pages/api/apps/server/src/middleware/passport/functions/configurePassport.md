@@ -8,8 +8,14 @@
 
 > **configurePassport**(): `void`
 
-Defined in: [apps/server/src/middleware/passport.ts:8](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/middleware/passport.ts#L8)
+Defined in: [apps/server/src/middleware/passport.ts:12](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/middleware/passport.ts#L12)
+
+configure Passport.
 
 ## Returns
 
 `void`
+
+## Since
+
+1.0.0

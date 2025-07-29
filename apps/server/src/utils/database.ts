@@ -5,6 +5,14 @@ import { dbLogger } from '../services/logger';
 let client: MongoClient | null = null;
 let db: Db | null = null;
 
+/**
+ * @summary Connects to the MongoDB database.
+ * @remarks
+ * This function establishes a connection to the MongoDB database using the URL
+ * from the environment variables. It also creates necessary indexes.
+ * @returns A promise that resolves to the database instance.
+ * @since 1.0.0
+ */
 export const connectToDatabase = async (): Promise<Db> => {
   if (db) return db;
 
@@ -35,6 +43,10 @@ export const connectToDatabase = async (): Promise<Db> => {
   }
 };
 
+/**
+ * @summary Closes the database connection.
+ * @since 1.0.0
+ */
 export const closeDatabaseConnection = async (): Promise<void> => {
   if (client) {
     await client.close();
@@ -43,10 +55,21 @@ export const closeDatabaseConnection = async (): Promise<void> => {
   }
 };
 
+/**
+ * @summary Disconnects from the database.
+ * @remarks This is an alias for `closeDatabaseConnection`.
+ * @since 1.0.0
+ */
 export const disconnectFromDatabase = async (): Promise<void> => {
   return closeDatabaseConnection();
 };
 
+/**
+ * @summary Gets the users collection from the database.
+ * @returns The users collection.
+ * @throws {Error} If the database is not connected.
+ * @since 1.0.0
+ */
 export const getUsersCollection = (): Collection<User> => {
   if (!db) {
     throw new Error('Database not connected');
@@ -54,6 +77,12 @@ export const getUsersCollection = (): Collection<User> => {
   return db.collection<User>('users');
 };
 
+/**
+ * @summary Gets the database instance.
+ * @returns The database instance.
+ * @throws {Error} If the database is not connected.
+ * @since 1.0.0
+ */
 export const getDatabase = (): Db => {
   if (!db) {
     throw new Error('Database not connected');

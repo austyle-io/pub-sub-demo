@@ -8,4 +8,10 @@
 
 > `const` **permissionCache**: `PermissionCache`
 
-Defined in: [apps/server/src/utils/permission-cache.ts:236](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/permission-cache.ts#L236)
+Defined in: [apps/server/src/utils/permission-cache.ts:248](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/permission-cache.ts#L248)
+
+permission Cache.
+
+## Since
+
+1.0.0

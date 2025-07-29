@@ -1,0 +1,24 @@
+name: Example Chain
+description: A test chain for validating script functionality
+parameters:
+  - name: param1
+    description: First parameter
+  - name: param2
+    description: Second parameter
+
+steps:
+  - id: step-one
+    prompt: |
+      This is step one with parameters:
+      - Parameter 1: {{param1}}
+      - Parameter 2: {{param2}}
+
+  - id: step-two
+    prompt: |
+      This is step two of the example chain.
+      Testing chain execution.
+
+  - id: step-three
+    prompt: |
+      Final step of the example chain.
+      All parameters: {{param1}}, {{param2}}

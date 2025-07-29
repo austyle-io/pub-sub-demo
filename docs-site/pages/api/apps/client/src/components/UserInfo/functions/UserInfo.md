@@ -8,7 +8,7 @@
 
 > **UserInfo**(): `null` \| `Element`
 
-Defined in: [apps/client/src/components/UserInfo.tsx:7](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/components/UserInfo.tsx#L7)
+Defined in: [apps/client/src/components/UserInfo.tsx:9](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/components/UserInfo.tsx#L9)
 
 UserInfo displays the current authenticated user's email and role with a logout button.
 
@@ -17,3 +17,7 @@ UserInfo displays the current authenticated user's email and role with a logout 
 `null` \| `Element`
 
 null if no user is authenticated
+
+## Since
+
+1.0.0

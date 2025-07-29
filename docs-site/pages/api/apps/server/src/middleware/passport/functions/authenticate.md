@@ -8,7 +8,9 @@
 
 > **authenticate**(`req`, `res`, `next`): `any`
 
-Defined in: [apps/server/src/middleware/passport.ts:42](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/middleware/passport.ts#L42)
+Defined in: [apps/server/src/middleware/passport.ts:50](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/middleware/passport.ts#L50)
+
+authenticate.
 
 ## Parameters
 
@@ -27,3 +29,7 @@ Defined in: [apps/server/src/middleware/passport.ts:42](https://github.com/austy
 ## Returns
 
 `any`
+
+## Since
+
+1.0.0

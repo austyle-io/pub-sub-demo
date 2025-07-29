@@ -8,7 +8,7 @@
 
 > **isShareDBSnapshot**(`obj`): `obj is ShareDBSnapshot`
 
-Defined in: [apps/server/src/utils/type-guards.ts:50](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/type-guards.ts#L50)
+Defined in: [apps/server/src/utils/type-guards.ts:54](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/type-guards.ts#L54)
 
 Type guard to check if an object is a valid ShareDB snapshot
 
@@ -21,3 +21,7 @@ Type guard to check if an object is a valid ShareDB snapshot
 ## Returns
 
 `obj is ShareDBSnapshot`
+
+## Since
+
+1.0.0

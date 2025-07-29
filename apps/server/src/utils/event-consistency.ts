@@ -14,6 +14,10 @@ import { logAuditEvent } from './audit-logger';
  * - Supports caching invalidation strategies
  */
 
+/**
+ * Type definition for document change event.
+ * @since 1.0.0
+ */
 export interface DocumentChangeEvent {
   collection: string;
   docId: string;
@@ -23,6 +27,10 @@ export interface DocumentChangeEvent {
   changes?: Record<string, unknown>;
 }
 
+/**
+ * Type definition for permission change event.
+ * @since 1.0.0
+ */
 export interface PermissionChangeEvent extends DocumentChangeEvent {
   operation: 'update';
   permissionChanges: {
@@ -145,6 +153,10 @@ class DocumentEventSystem extends EventEmitter {
   }
 }
 
+/**
+ * document Events.
+ * @since 1.0.0
+ */
 export const documentEvents = DocumentEventSystem.getInstance();
 
 /**

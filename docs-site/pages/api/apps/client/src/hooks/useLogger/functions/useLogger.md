@@ -8,7 +8,7 @@
 
 > **useLogger**(`module`, `baseContext?`): [`ClientLogger`](../type-aliases/ClientLogger.md)
 
-Defined in: [apps/client/src/hooks/useLogger.ts:88](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/hooks/useLogger.ts#L88)
+Defined in: [apps/client/src/hooks/useLogger.ts:104](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/hooks/useLogger.ts#L104)
 
 React hook for structured client-side logging
 

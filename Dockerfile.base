@@ -1,0 +1,43 @@
+# Base Dockerfile for all services
+FROM node:24-alpine AS base
+
+# Install system dependencies needed for native modules
+RUN apk add --no-cache \
+    libc6-compat \
+    python3 \
+    make \
+    g++ \
+    git
+
+# Enable pnpm with corepack
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package.json pnpm-workspace.yaml ./
+COPY apps/*/package.json apps/
+COPY packages/*/package.json packages/
+COPY scripts/package.json scripts/
+
+# Install dependencies with frozen lockfile
+COPY pnpm-lock.yaml ./
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+
+# Copy source files
+COPY . .
+
+# Build all packages
+RUN pnpm run build
+
+# Production base with minimal dependencies
+FROM node:24-alpine AS production-base
+
+# Install only runtime dependencies
+RUN apk add --no-cache libc6-compat
+
+# Enable pnpm
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+
+WORKDIR /app

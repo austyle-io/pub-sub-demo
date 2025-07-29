@@ -8,7 +8,13 @@
 
 > **ShareDBDocument** = `object`
 
-Defined in: [apps/server/src/routes/doc.routes.ts:16](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/routes/doc.routes.ts#L16)
+Defined in: [apps/server/src/routes/doc.routes.ts:20](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/routes/doc.routes.ts#L20)
+
+Type definition for share d b document.
+
+## Since
+
+1.0.0
 
 ## Properties
 
@@ -16,7 +22,7 @@ Defined in: [apps/server/src/routes/doc.routes.ts:16](https://github.com/austyle
 
 > **d**: `string`
 
-Defined in: [apps/server/src/routes/doc.routes.ts:17](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/routes/doc.routes.ts#L17)
+Defined in: [apps/server/src/routes/doc.routes.ts:21](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/routes/doc.routes.ts#L21)
 
 ***
 
@@ -24,7 +30,7 @@ Defined in: [apps/server/src/routes/doc.routes.ts:17](https://github.com/austyle
 
 > **\_v**: `number`
 
-Defined in: [apps/server/src/routes/doc.routes.ts:18](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/routes/doc.routes.ts#L18)
+Defined in: [apps/server/src/routes/doc.routes.ts:22](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/routes/doc.routes.ts#L22)
 
 ***
 
@@ -32,7 +38,7 @@ Defined in: [apps/server/src/routes/doc.routes.ts:18](https://github.com/austyle
 
 > **data**: `Document`
 
-Defined in: [apps/server/src/routes/doc.routes.ts:19](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/routes/doc.routes.ts#L19)
+Defined in: [apps/server/src/routes/doc.routes.ts:23](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/routes/doc.routes.ts#L23)
 
 ***
 
@@ -40,7 +46,7 @@ Defined in: [apps/server/src/routes/doc.routes.ts:19](https://github.com/austyle
 
 > `optional` **create**: `object`
 
-Defined in: [apps/server/src/routes/doc.routes.ts:20](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/routes/doc.routes.ts#L20)
+Defined in: [apps/server/src/routes/doc.routes.ts:24](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/routes/doc.routes.ts#L24)
 
 #### data
 

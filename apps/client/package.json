@@ -5,9 +5,10 @@
   "description": "Frontend client for collaborative document editing",
   "main": "src/main.tsx",
   "scripts": {
-    "setup": "../../scripts/setup-env.sh",
+    "setup": "node --experimental-strip-types ../../scripts/setup-env.ts",
     "validate-env": "tsx src/config/env-validator.ts",
-    "build": "tsc",
+    "build": "vite build",
+    "build:tsc": "tsc -p ./tsconfig.json",
     "dev": "vite",
     "start": "vite preview",
     "format": "biome format --write .",
@@ -52,7 +53,7 @@
     "@vitejs/plugin-react-swc": "^3.11.0",
     "jsdom": "^25.0.1",
     "tsx": "^4.16.2",
-    "typescript": "^5.5.4",
+    "typescript": "^5.7.2",
     "vite": "^5.4.19",
     "vitest": "^2.0.4"
   }

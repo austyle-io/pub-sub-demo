@@ -7,6 +7,10 @@ const auditLogger: AppLogger = createAppLogger('audit', {
   level: 'info',
 });
 
+/**
+ * Type definition for audit event.
+ * @since 1.0.0
+ */
 export type AuditEvent = {
   userId?: string;
   action: string;
@@ -17,6 +21,10 @@ export type AuditEvent = {
   metadata?: Record<string, unknown>;
 };
 
+/**
+ * log Audit Event.
+ * @since 1.0.0
+ */
 export const logAuditEvent = (event: AuditEvent): void => {
   auditLogger.info('AUDIT_EVENT', {
     eventType: 'audit',

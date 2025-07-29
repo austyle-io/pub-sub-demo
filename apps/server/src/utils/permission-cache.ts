@@ -15,6 +15,10 @@ import { documentEvents } from './event-consistency';
  * - Memory-efficient storage
  */
 
+/**
+ * Type definition for cached permission.
+ * @since 1.0.0
+ */
 export interface CachedPermission {
   userId: string;
   docId: string;
@@ -26,6 +30,10 @@ export interface CachedPermission {
   ttl: number;
 }
 
+/**
+ * Type definition for cache metrics.
+ * @since 1.0.0
+ */
 export interface CacheMetrics {
   hits: number;
   misses: number;
@@ -233,6 +241,10 @@ class PermissionCache {
 }
 
 // Singleton instance
+/**
+ * permission Cache.
+ * @since 1.0.0
+ */
 export const permissionCache = new PermissionCache({
   maxSize: 2000, // Cache up to 2000 permission entries
   ttlMs: 10 * 60 * 1000, // 10 minute TTL

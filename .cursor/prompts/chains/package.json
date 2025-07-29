@@ -1,0 +1,22 @@
+{
+  "name": "@cursor/chains",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Chain runner for Cursor prompts",
+  "scripts": {
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "run": "node --experimental-strip-types run.ts"
+  },
+  "dependencies": {
+    "glob": "^11.0.0",
+    "yaml": "^2.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "@typescript-eslint/parser": "^8.38.0",
+    "@typescript-eslint/types": "^8.38.0",
+    "vitest": "^2.1.8"
+  }
+}

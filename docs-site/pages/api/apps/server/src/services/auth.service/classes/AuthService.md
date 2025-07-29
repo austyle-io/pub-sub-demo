@@ -6,7 +6,13 @@
 
 # Class: AuthService
 
-Defined in: [apps/server/src/services/auth.service.ts:19](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/services/auth.service.ts#L19)
+Defined in: [apps/server/src/services/auth.service.ts:23](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/services/auth.service.ts#L23)
+
+Service for auth operations.
+
+## Since
+
+1.0.0
 
 ## Constructors
 
@@ -22,9 +28,9 @@ Defined in: [apps/server/src/services/auth.service.ts:19](https://github.com/aus
 
 ### createUser()
 
-> **createUser**(`data`): `Promise`\<\{ `accessToken`: `string`; `refreshToken`: `string`; `user`: \{ `email`: `string`; `role`: `"viewer"` \| `"editor"` \| `"owner"` \| `"admin"`; `id`: `string`; `createdAt`: `string`; `updatedAt`: `string`; \}; \}\>
+> **createUser**(`data`): `Promise`\<\{ `accessToken`: `string`; `refreshToken`: `string`; `user`: \{ `email`: `string`; `id`: `string`; `role`: `"viewer"` \| `"editor"` \| `"owner"` \| `"admin"`; `createdAt`: `string`; `updatedAt`: `string`; \}; \}\>
 
-Defined in: [apps/server/src/services/auth.service.ts:20](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/services/auth.service.ts#L20)
+Defined in: [apps/server/src/services/auth.service.ts:24](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/services/auth.service.ts#L24)
 
 #### Parameters
 
@@ -40,15 +46,15 @@ Defined in: [apps/server/src/services/auth.service.ts:20](https://github.com/aus
 
 #### Returns
 
-`Promise`\<\{ `accessToken`: `string`; `refreshToken`: `string`; `user`: \{ `email`: `string`; `role`: `"viewer"` \| `"editor"` \| `"owner"` \| `"admin"`; `id`: `string`; `createdAt`: `string`; `updatedAt`: `string`; \}; \}\>
+`Promise`\<\{ `accessToken`: `string`; `refreshToken`: `string`; `user`: \{ `email`: `string`; `id`: `string`; `role`: `"viewer"` \| `"editor"` \| `"owner"` \| `"admin"`; `createdAt`: `string`; `updatedAt`: `string`; \}; \}\>
 
 ***
 
 ### login()
 
-> **login**(`data`): `Promise`\<\{ `accessToken`: `string`; `refreshToken`: `string`; `user`: \{ `email`: `string`; `role`: `"viewer"` \| `"editor"` \| `"owner"` \| `"admin"`; `id`: `string`; `createdAt`: `string`; `updatedAt`: `string`; \}; \}\>
+> **login**(`data`): `Promise`\<\{ `accessToken`: `string`; `refreshToken`: `string`; `user`: \{ `email`: `string`; `id`: `string`; `role`: `"viewer"` \| `"editor"` \| `"owner"` \| `"admin"`; `createdAt`: `string`; `updatedAt`: `string`; \}; \}\>
 
-Defined in: [apps/server/src/services/auth.service.ts:64](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/services/auth.service.ts#L64)
+Defined in: [apps/server/src/services/auth.service.ts:68](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/services/auth.service.ts#L68)
 
 #### Parameters
 
@@ -64,15 +70,15 @@ Defined in: [apps/server/src/services/auth.service.ts:64](https://github.com/aus
 
 #### Returns
 
-`Promise`\<\{ `accessToken`: `string`; `refreshToken`: `string`; `user`: \{ `email`: `string`; `role`: `"viewer"` \| `"editor"` \| `"owner"` \| `"admin"`; `id`: `string`; `createdAt`: `string`; `updatedAt`: `string`; \}; \}\>
+`Promise`\<\{ `accessToken`: `string`; `refreshToken`: `string`; `user`: \{ `email`: `string`; `id`: `string`; `role`: `"viewer"` \| `"editor"` \| `"owner"` \| `"admin"`; `createdAt`: `string`; `updatedAt`: `string`; \}; \}\>
 
 ***
 
 ### refreshTokens()
 
-> **refreshTokens**(`refreshToken`): `Promise`\<\{ `accessToken`: `string`; `refreshToken`: `string`; `user`: \{ `email`: `string`; `role`: `"viewer"` \| `"editor"` \| `"owner"` \| `"admin"`; `id`: `string`; `createdAt`: `string`; `updatedAt`: `string`; \}; \}\>
+> **refreshTokens**(`refreshToken`): `Promise`\<\{ `accessToken`: `string`; `refreshToken`: `string`; `user`: \{ `email`: `string`; `id`: `string`; `role`: `"viewer"` \| `"editor"` \| `"owner"` \| `"admin"`; `createdAt`: `string`; `updatedAt`: `string`; \}; \}\>
 
-Defined in: [apps/server/src/services/auth.service.ts:99](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/services/auth.service.ts#L99)
+Defined in: [apps/server/src/services/auth.service.ts:103](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/services/auth.service.ts#L103)
 
 #### Parameters
 
@@ -82,7 +88,7 @@ Defined in: [apps/server/src/services/auth.service.ts:99](https://github.com/aus
 
 #### Returns
 
-`Promise`\<\{ `accessToken`: `string`; `refreshToken`: `string`; `user`: \{ `email`: `string`; `role`: `"viewer"` \| `"editor"` \| `"owner"` \| `"admin"`; `id`: `string`; `createdAt`: `string`; `updatedAt`: `string`; \}; \}\>
+`Promise`\<\{ `accessToken`: `string`; `refreshToken`: `string`; `user`: \{ `email`: `string`; `id`: `string`; `role`: `"viewer"` \| `"editor"` \| `"owner"` \| `"admin"`; `createdAt`: `string`; `updatedAt`: `string`; \}; \}\>
 
 ***
 
@@ -90,7 +96,7 @@ Defined in: [apps/server/src/services/auth.service.ts:99](https://github.com/aus
 
 > **getUserById**(`userId`): `Promise`\<`null` \| \{ `id`: `string`; `email`: `string`; `password`: `string`; `role`: `"viewer"` \| `"editor"` \| `"owner"` \| `"admin"`; `createdAt`: `string`; `updatedAt`: `string`; \}\>
 
-Defined in: [apps/server/src/services/auth.service.ts:135](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/services/auth.service.ts#L135)
+Defined in: [apps/server/src/services/auth.service.ts:139](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/services/auth.service.ts#L139)
 
 #### Parameters
 

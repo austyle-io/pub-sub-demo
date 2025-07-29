@@ -8,4 +8,10 @@
 
 > **LogContext** = `Record`\<`string`, `unknown`\>
 
-Defined in: [packages/shared/src/services/Logger.ts:14](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/packages/shared/src/services/Logger.ts#L14)
+Defined in: [packages/shared/src/services/Logger.ts:26](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/packages/shared/src/services/Logger.ts#L26)
+
+Type definition for log context.
+
+## Since
+
+1.0.0

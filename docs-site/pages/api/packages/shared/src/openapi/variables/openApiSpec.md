@@ -8,7 +8,9 @@
 
 > `const` **openApiSpec**: `object`
 
-Defined in: [packages/shared/src/openapi.ts:17](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/packages/shared/src/openapi.ts#L17)
+Defined in: [packages/shared/src/openapi.ts:21](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/packages/shared/src/openapi.ts#L21)
+
+open Api Spec.
 
 ## Type declaration
 
@@ -1291,3 +1293,7 @@ Defined in: [packages/shared/src/openapi.ts:17](https://github.com/austyle-io/pu
 ### tags
 
 > **tags**: `object`[]
+
+## Since
+
+1.0.0

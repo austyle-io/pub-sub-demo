@@ -8,10 +8,9 @@
 
 > **useModuleLogger**(`module`): [`ClientLogger`](../../../hooks/useLogger/type-aliases/ClientLogger.md)
 
-Defined in: [apps/client/src/contexts/LoggerContext.tsx:77](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/contexts/LoggerContext.tsx#L77)
+Defined in: [apps/client/src/contexts/LoggerContext.tsx:85](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/contexts/LoggerContext.tsx#L85)
 
-Hook to get a module-specific logger
-Automatically includes global context from LoggerProvider
+Hook to create a module-specific logger.
 
 ## Parameters
 
@@ -19,6 +18,14 @@ Automatically includes global context from LoggerProvider
 
 `string`
 
+Module name for the logger
+
 ## Returns
 
 [`ClientLogger`](../../../hooks/useLogger/type-aliases/ClientLogger.md)
+
+ClientLogger instance for the specified module
+
+## Since
+
+1.0.0

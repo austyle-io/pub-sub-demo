@@ -8,7 +8,10 @@ import { Connection } from 'sharedb/lib/client';
 import { useAuth } from '../contexts/AuthContext';
 import { cookieManager } from '../utils/cookie-manager';
 
-// ShareDB Document type with proper typing
+/**
+ * @summary Represents a ShareDB document with typed data and methods.
+ * @private
+ */
 type ShareDBDocument = {
   data: { content?: string; title?: string; [key: string]: unknown };
   on(event: string, callback: (...args: unknown[]) => void): void;
@@ -17,14 +20,25 @@ type ShareDBDocument = {
   destroy(): void;
 };
 
-// Type guard for ShareDB document data
+/**
+ * @summary Type guard to check if an object has the expected data structure for a document.
+ * @param data - The unknown data to validate.
+ * @returns `true` if the data is a valid document data object, `false` otherwise.
+ * @since 1.0.0
+ */
 export const isDocumentData = (data: unknown): data is { content?: string } => {
   if (!isObject(data)) return false;
   const obj = data as Record<string, unknown>;
   return isNil(obj['content']) || isString(obj['content']);
 };
 
-// Type guard for ShareDB document
+/**
+ * @summary Type guard to validate the structure of a ShareDB document object.
+ * @description Checks for the presence and correct type of essential ShareDB document properties.
+ * @param doc - The unknown object to validate.
+ * @returns `true` if the object is a valid ShareDB document, `false` otherwise.
+ * @private
+ */
 const isShareDBDocument = (doc: unknown): doc is ShareDBDocument => {
   if (!isObject(doc)) return false;
   const obj = doc as Record<string, unknown>;
@@ -41,6 +55,38 @@ const isShareDBDocument = (doc: unknown): doc is ShareDBDocument => {
   );
 };
 
+/**
+ * @summary A React hook to connect to and interact with a ShareDB document.
+ * @remarks
+ * This hook manages the lifecycle of a ShareDB connection for a specific document.
+ * It handles WebSocket connection, authentication via secure cookies, and document
+ * subscription. The hook returns the live ShareDB document object, which updates
+ * in real-time.
+ *
+ * Authentication is handled by setting a secure, HttpOnly cookie with the access
+ * token, which is then read by the server during the WebSocket upgrade request.
+ * This avoids exposing the token in URL query parameters.
+ *
+ * @param docId - The ID of the ShareDB document to subscribe to.
+ * @returns The ShareDB document object, or `null` if the connection is not yet
+ * established or an error occurs.
+ * @since 1.0.0
+ *
+ * @example
+ * '''tsx
+ * import { useShareDB } from './useShareDB';
+ *
+ * const MyDocumentEditor = ({ docId }) => {
+ *   const doc = useShareDB(docId);
+ *
+ *   if (!doc) {
+ *     return <div>Loading document...</div>;
+ *   }
+ *
+ *   return <textarea value={doc.data.content} />;
+ * };
+ * '''
+ */
 export function useShareDB(docId: string) {
   const [doc, setDoc] = useState<ShareDBDocument | null>(null);
   const connectionRef = useRef<Connection | null>(null);

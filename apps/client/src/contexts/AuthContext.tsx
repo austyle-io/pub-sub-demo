@@ -21,6 +21,16 @@ type AuthContextValue = AuthState & {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+/**
+ * @summary Provides authentication state and actions to its children.
+ * @remarks
+ * This component uses an XState machine to manage the authentication state.
+ * It also handles automatic token refreshing.
+ * @param props - The component props.
+ * @param props.children - The child components.
+ * @returns A JSX element.
+ * @since 1.0.0
+ */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, send] = useMachine(authMachine);
 
@@ -87,6 +97,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+/**
+ * @summary A hook to access the authentication context.
+ * @remarks
+ * This hook provides access to the authentication state and actions.
+ * It must be used within an `AuthProvider`.
+ * @returns The authentication context value.
+ * @throws {Error} If used outside of an `AuthProvider`.
+ * @since 1.0.0
+ */
 export function useAuth(): AuthContextValue {
   const context = useContext(AuthContext);
   if (!context) {

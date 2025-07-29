@@ -1,11 +1,10 @@
-/**
- * Environment variable validation and type inference
- * This provides both runtime validation and compile-time type safety
- */
 import isObject from 'lodash.isobject';
 import isString from 'lodash.isstring';
 
-// Environment variable schema definition
+/**
+ * @summary Defines the shape of the application's environment variables.
+ * @since 1.0.0
+ */
 export type Env = {
   NODE_ENV: 'development' | 'production' | 'test';
   PORT: string;
@@ -19,7 +18,13 @@ export type Env = {
   LOG_LEVEL?: 'error' | 'warn' | 'info' | 'verbose' | 'debug' | 'silly';
 };
 
-// Type guard for required environment variables
+/**
+ * @summary Retrieves a required environment variable and ensures it is not empty.
+ * @param key - The name of the environment variable to retrieve.
+ * @returns The value of the environment variable.
+ * @throws {Error} If the environment variable is missing or empty.
+ * @private
+ */
 const getRequiredEnvVar = (key: string): string => {
   const value = process.env[key];
   if (!isString(value) || value.trim() === '') {
@@ -29,8 +34,14 @@ const getRequiredEnvVar = (key: string): string => {
 };
 
 /**
- * Environment validation function with detailed error messages
- * Validates all required environment variables and returns typed configuration
+ * @summary Validates the environment variables required by the application.
+ * @remarks
+ * This function checks for the presence and validity of all required environment
+ * variables. It also performs security checks, such as ensuring that JWT secrets
+ * are strong enough and that they are different from each other. If any validation
+ * fails, the process will exit with an error.
+ * @returns The validated environment variables.
+ * @since 1.0.0
  */
 export function validateEnv(): Env {
   const requiredVars = ['MONGO_URL'];
@@ -172,7 +183,12 @@ export function validateEnv(): Env {
   return validatedConfig;
 }
 
-// Type guard function for safe environment access
+/**
+ * @summary Type guard to check if an object is a valid `Env` object.
+ * @param env - The unknown object to validate.
+ * @returns `true` if the object is a valid `Env` object, `false` otherwise.
+ * @since 1.0.0
+ */
 export function isValidEnv(env: unknown): env is Env {
   if (!isObject(env)) return false;
 

@@ -16,6 +16,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    networks:
+      - collab-network
 
   server:
     build:
@@ -27,8 +29,10 @@ services:
     volumes:
       - .:/workspace
       - /workspace/node_modules
+      - /workspace/.pnpm-store
     environment:
-      - JWT_SECRET=${JWT_SECRET:-dev-secret}
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-dev-access-secret}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-dev-refresh-secret}
       - MONGO_URL=mongodb://mongo:27017/collab_demo
       - PORT=3001
       - CLIENT_URL=http://localhost:3000
@@ -36,6 +40,9 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
+    networks:
+      - collab-network
+    command: sh -c "cd /workspace && pnpm install && pnpm --filter @collab-edit/server dev"
 
   client:
     build:
@@ -47,11 +54,44 @@ services:
     volumes:
       - .:/workspace
       - /workspace/node_modules
+      - /workspace/.pnpm-store
     environment:
       - VITE_API_URL=http://localhost:3001/api
+      - VITE_WS_URL=ws://localhost:3001
       - NODE_ENV=development
     depends_on:
       - server
+    networks:
+      - collab-network
+    command: sh -c "cd /workspace && pnpm install && pnpm --filter @collab-edit/client dev"
+
+  # Development tools container for running scripts
+  tools:
+    build:
+      context: .
+      dockerfile: Dockerfile.tools
+    container_name: collab-demo-tools
+    volumes:
+      - .:/workspace
+      - /workspace/node_modules
+      - /workspace/.pnpm-store
+    environment:
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-dev-access-secret}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-dev-refresh-secret}
+      - MONGO_URL=mongodb://mongo:27017/collab_demo
+      - NODE_ENV=development
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - collab-network
+    profiles:
+      - tools
+    command: tail -f /dev/null
 
 volumes:
   mongo-data:
+
+networks:
+  collab-network:
+    driver: bridge

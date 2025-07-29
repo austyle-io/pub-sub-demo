@@ -8,4 +8,10 @@
 
 > `const` **DocumentListSchema**: `TArray`\<`TObject`\<\{ `id`: `TString`; `title`: `TString`; `content`: `TString`; `acl`: `TObject`\<\{ `owner`: `TString`; `editors`: `TArray`\<`TString`\>; `viewers`: `TArray`\<`TString`\>; \}\>; `createdAt`: `TString`; `updatedAt`: `TString`; \}\>\>
 
-Defined in: [packages/shared/src/schemas/document.ts:54](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/packages/shared/src/schemas/document.ts#L54)
+Defined in: [packages/shared/src/schemas/document.ts:74](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/packages/shared/src/schemas/document.ts#L74)
+
+Document List Schema.
+
+## Since
+
+1.0.0

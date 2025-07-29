@@ -1,0 +1,107 @@
+name: agent-documentation
+description: Autonomous documentation generation workflow
+
+parameters:
+  - name: target_dir
+    description: Directory to document
+    default: "packages/shared/src"
+  - name: output_format
+    description: Documentation format (markdown, jsdoc, typedoc)
+    default: "jsdoc"
+
+context:
+  requiredCommands:
+    - node
+    - pnpm
+  requiredFiles:
+    - package.json
+    - tsconfig.json
+
+steps:
+  - id: scan_files
+    description: Scan for TypeScript files needing documentation
+    actions:
+      - type: execute
+        command: find ${target_dir} -name "*.ts" -not -path "*/node_modules/*" -not -path "*/dist/*"
+        outputs:
+          - file-list.txt
+
+  - id: analyze_coverage
+    description: Analyze current documentation coverage
+    actions:
+      - type: execute
+        command: pnpm run docs:check || true
+        outputs:
+          - coverage-report.json
+      - type: analyze
+        target: docs-site/reports/documentation-check.json
+        outputs:
+          - coverage-analysis.json
+
+  - id: identify_gaps
+    description: Identify files with missing documentation
+    dependsOn: 
+      - analyze_coverage
+    actions:
+      - type: analyze
+        inputs:
+          - coverage-analysis.json
+        outputs:
+          - documentation-gaps.json
+
+  - id: generate_templates
+    description: Generate documentation templates
+    dependsOn:
+      - identify_gaps
+    actions:
+      - type: generate
+        template: templates/jsdoc-template.md
+        outputs:
+          - generated-docs/
+
+  - id: validate_documentation
+    description: Validate generated documentation
+    dependsOn:
+      - generate_templates
+    actions:
+      - type: validate
+        validation:
+          type: passes
+          command: node --experimental-strip-types scripts/validate-jsdoc.ts
+        outputs:
+          - validation-report.json
+
+  - id: apply_documentation
+    description: Apply documentation to source files
+    dependsOn:
+      - validate_documentation
+    actions:
+      - type: modify
+        command: apply-jsdoc
+        target: ${target_dir}
+        outputs:
+          - modified-files.json
+
+  - id: generate_report
+    description: Generate final documentation report
+    dependsOn:
+      - apply_documentation
+    actions:
+      - type: execute
+        command: pnpm run docs:check
+        outputs:
+          - final-coverage-report.json
+      - type: generate
+        template: templates/documentation-report.md
+        outputs:
+          - documentation-report.md
+
+outputs:
+  summary: true
+  artifacts:
+    - documentation-report.md
+    - final-coverage-report.json
+    - modified-files.json
+  reports:
+    - coverage-improvement.json
+    - documentation-quality.json

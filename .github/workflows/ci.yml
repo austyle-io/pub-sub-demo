@@ -38,6 +38,7 @@ jobs:
         echo "PNPM version: $(pnpm --version)"
         echo "NODE_ENV: $NODE_ENV"
         echo "CI: $CI"
+        echo "TypeScript support: Node.js v24 includes native TypeScript execution"
 
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
@@ -55,6 +56,12 @@ jobs:
 
     - name: Run type check
       run: pnpm run type-check
+
+    - name: Validate TypeScript scripts
+      run: |
+        echo "Validating TypeScript scripts..."
+        pnpm exec tsc -p scripts/tsconfig.json --noEmit
+        echo "TypeScript scripts validated successfully"
 
     - name: Run tests
       run: pnpm run test

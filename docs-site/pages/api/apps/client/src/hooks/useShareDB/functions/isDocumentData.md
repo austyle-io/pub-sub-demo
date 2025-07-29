@@ -8,7 +8,9 @@
 
 > **isDocumentData**(`data`): `data is { content?: string }`
 
-Defined in: [apps/client/src/hooks/useShareDB.ts:21](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/client/src/hooks/useShareDB.ts#L21)
+Defined in: [apps/client/src/hooks/useShareDB.ts:25](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/client/src/hooks/useShareDB.ts#L25)
+
+Checks if document data.
 
 ## Parameters
 
@@ -19,3 +21,7 @@ Defined in: [apps/client/src/hooks/useShareDB.ts:21](https://github.com/austyle-
 ## Returns
 
 `data is { content?: string }`
+
+## Since
+
+1.0.0

@@ -1,3 +1,7 @@
+/**
+ * @summary A dictionary of safe error keys that can be exposed to the client.
+ * @private
+ */
 const SAFE_ERROR_KEY = {
   INVALID_CREDENTIALS: 'Invalid credentials',
   ACCOUNT_LOCKED: 'Account temporarily locked',
@@ -10,6 +14,10 @@ const SAFE_ERROR_KEY = {
   USER_ALREADY_EXISTS: 'User already exists',
 } as const;
 
+/**
+ * @summary A mapping of safe error keys to user-friendly error messages.
+ * @private
+ */
 const SAFE_ERROR_MESSAGES: Record<SafeErrorKey, string> = {
   [SAFE_ERROR_KEY.INVALID_CREDENTIALS]: 'Invalid credentials',
   [SAFE_ERROR_KEY.ACCOUNT_LOCKED]: 'Account temporarily locked',
@@ -28,6 +36,16 @@ const isSafeErrorKey = (key: string): key is SafeErrorKey => {
   return Object.values(SAFE_ERROR_KEY).includes(key as SafeErrorKey);
 };
 
+/**
+ * @summary Sanitizes an error message to ensure it is safe for client-side display.
+ * @remarks
+ * This function checks if the error message is a known safe error. If it is, it
+ * returns the corresponding user-friendly message. Otherwise, it returns a generic
+ * error message to avoid exposing sensitive information.
+ * @param error - The error message to sanitize.
+ * @returns A safe error message.
+ * @since 1.0.0
+ */
 export const sanitizeError = (error: string): string => {
   // Check if it's a known safe error
   if (isSafeErrorKey(error)) {
@@ -38,6 +56,15 @@ export const sanitizeError = (error: string): string => {
   return 'An error occurred. Please try again.';
 };
 
+/**
+ * @summary Sanitizes an error of unknown type to ensure it is safe for client-side display.
+ * @remarks
+ * This function handles errors of any type, extracts the message if it's an `Error`
+ * object or a string, and then sanitizes it using the `sanitizeError` function.
+ * @param error - The error to sanitize.
+ * @returns A safe error message.
+ * @since 1.0.0
+ */
 export const sanitizeApiError = (error: unknown): string => {
   if (error instanceof Error) {
     return sanitizeError(error.message);

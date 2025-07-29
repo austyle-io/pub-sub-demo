@@ -6,6 +6,13 @@ import { useDocumentPermissions } from '../hooks/useDocumentPermissions';
 import { sanitizeDocumentTitle, sanitizeText } from '../utils/input-sanitizer';
 import { ErrorBoundary } from './ErrorBoundary';
 
+/**
+ * @summary A component that displays a single document in the document list.
+ * @param props - The component props.
+ * @param props.doc - The document to display.
+ * @returns A JSX element, or `null` if the user does not have permission to view the document.
+ * @private
+ */
 function DocumentListItem({ doc }: { doc: Document }) {
   const { perms, loading } = useDocumentPermissions(doc.id);
 
@@ -22,6 +29,14 @@ function DocumentListItem({ doc }: { doc: Document }) {
   );
 }
 
+/**
+ * @summary A component that displays a list of documents.
+ * @remarks
+ * This component fetches the list of documents from the API and displays them.
+ * It also provides a button for creating new documents.
+ * @returns A JSX element.
+ * @since 1.0.0
+ */
 export function DocumentList(): React.JSX.Element {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [error, setError] = useState<string | null>(null);

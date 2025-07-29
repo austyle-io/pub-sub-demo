@@ -6,7 +6,13 @@
 
 # Interface: CacheMetrics
 
-Defined in: [apps/server/src/utils/permission-cache.ts:29](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/permission-cache.ts#L29)
+Defined in: [apps/server/src/utils/permission-cache.ts:37](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/permission-cache.ts#L37)
+
+Type definition for cache metrics.
+
+## Since
+
+1.0.0
 
 ## Properties
 
@@ -14,7 +20,7 @@ Defined in: [apps/server/src/utils/permission-cache.ts:29](https://github.com/au
 
 > **hits**: `number`
 
-Defined in: [apps/server/src/utils/permission-cache.ts:30](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/permission-cache.ts#L30)
+Defined in: [apps/server/src/utils/permission-cache.ts:38](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/permission-cache.ts#L38)
 
 ***
 
@@ -22,7 +28,7 @@ Defined in: [apps/server/src/utils/permission-cache.ts:30](https://github.com/au
 
 > **misses**: `number`
 
-Defined in: [apps/server/src/utils/permission-cache.ts:31](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/permission-cache.ts#L31)
+Defined in: [apps/server/src/utils/permission-cache.ts:39](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/permission-cache.ts#L39)
 
 ***
 
@@ -30,7 +36,7 @@ Defined in: [apps/server/src/utils/permission-cache.ts:31](https://github.com/au
 
 > **invalidations**: `number`
 
-Defined in: [apps/server/src/utils/permission-cache.ts:32](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/permission-cache.ts#L32)
+Defined in: [apps/server/src/utils/permission-cache.ts:40](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/permission-cache.ts#L40)
 
 ***
 
@@ -38,7 +44,7 @@ Defined in: [apps/server/src/utils/permission-cache.ts:32](https://github.com/au
 
 > **size**: `number`
 
-Defined in: [apps/server/src/utils/permission-cache.ts:33](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/permission-cache.ts#L33)
+Defined in: [apps/server/src/utils/permission-cache.ts:41](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/permission-cache.ts#L41)
 
 ***
 
@@ -46,4 +52,4 @@ Defined in: [apps/server/src/utils/permission-cache.ts:33](https://github.com/au
 
 > **hitRate**: `number`
 
-Defined in: [apps/server/src/utils/permission-cache.ts:34](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/permission-cache.ts#L34)
+Defined in: [apps/server/src/utils/permission-cache.ts:42](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/permission-cache.ts#L42)

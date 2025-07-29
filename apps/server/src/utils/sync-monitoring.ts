@@ -18,6 +18,10 @@ import { permissionCache } from './permission-cache';
  * - Historical trending
  */
 
+/**
+ * Type definition for sync metrics.
+ * @since 1.0.0
+ */
 export interface SyncMetrics {
   // Latency metrics (in milliseconds)
   avgSyncLatency: number;
@@ -46,6 +50,10 @@ export interface SyncMetrics {
   duration: number;
 }
 
+/**
+ * Type definition for sync alert.
+ * @since 1.0.0
+ */
 export interface SyncAlert {
   type: 'latency' | 'consistency' | 'performance' | 'error';
   severity: 'warning' | 'critical';
@@ -371,6 +379,10 @@ class SyncMonitor {
 }
 
 // Singleton instance
+/**
+ * sync Monitor.
+ * @since 1.0.0
+ */
 export const syncMonitor = new SyncMonitor();
 
 /**

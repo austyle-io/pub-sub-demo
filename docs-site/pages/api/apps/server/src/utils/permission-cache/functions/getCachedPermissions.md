@@ -8,7 +8,7 @@
 
 > **getCachedPermissions**(`collection`, `docId`, `userId`, `computeFn`): `Promise`\<\{ `canRead`: `boolean`; `canWrite`: `boolean`; `canDelete`: `boolean`; `fromCache`: `boolean`; \}\>
 
-Defined in: [apps/server/src/utils/permission-cache.ts:244](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/utils/permission-cache.ts#L244)
+Defined in: [apps/server/src/utils/permission-cache.ts:256](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/utils/permission-cache.ts#L256)
 
 Helper function to get or compute permissions with caching
 

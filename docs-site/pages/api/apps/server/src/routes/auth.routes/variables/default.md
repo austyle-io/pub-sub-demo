@@ -8,6 +8,6 @@
 
 > `const` **default**: `Router`
 
-Defined in: [apps/server/src/routes/auth.routes.ts:18](https://github.com/austyle-io/pub-sub-demo/blob/facd25f09850fc4e78e94ce267c52e173d869933/apps/server/src/routes/auth.routes.ts#L18)
+Defined in: [apps/server/src/routes/auth.routes.ts:18](https://github.com/austyle-io/pub-sub-demo/blob/00b2f1e9b947d5e964db5c3be9502513c4374263/apps/server/src/routes/auth.routes.ts#L18)
 
 Authentication routes: signup, login, and token refresh endpoints.

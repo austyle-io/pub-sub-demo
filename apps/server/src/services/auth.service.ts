@@ -4,9 +4,9 @@ import {
   type CreateUserRequest,
   type JwtPayload,
   type LoginRequest,
+  type User,
   signAccessToken,
   signRefreshToken,
-  type User,
   verifyRefreshToken,
 } from '@collab-edit/shared';
 // Import password utilities directly
@@ -16,7 +16,21 @@ import {
 } from '../../node_modules/@collab-edit/shared/dist/auth/password.js';
 import { getUsersCollection } from '../utils/database';
 
+/**
+ * @summary Service class for handling authentication-related operations.
+ * @remarks
+ * This service provides methods for user creation (registration), login,
+ * token refreshing, and retrieving user data. It orchestrates interactions
+ * with the database and JWT utilities.
+ * @since 1.0.0
+ */
 export class AuthService {
+  /**
+   * @summary Creates a new user and returns authentication tokens.
+   * @param data - The user creation data, including email and password.
+   * @returns An authentication response containing access and refresh tokens, and user data.
+   * @throws {Error} If a user with the given email already exists.
+   */
   async createUser(data: CreateUserRequest): Promise<AuthResponse> {
     const users = getUsersCollection();
 
@@ -61,6 +75,12 @@ export class AuthService {
     };
   }
 
+  /**
+   * @summary Authenticates a user and returns new tokens.
+   * @param data - The login data, including email and password.
+   * @returns An authentication response with new tokens and user data.
+   * @throws {Error} If the credentials are invalid.
+   */
   async login(data: LoginRequest): Promise<AuthResponse> {
     const users = getUsersCollection();
 
@@ -96,6 +116,12 @@ export class AuthService {
     };
   }
 
+  /**
+   * @summary Refreshes authentication tokens using a valid refresh token.
+   * @param refreshToken - The refresh token to use for renewal.
+   * @returns A new authentication response with refreshed tokens.
+   * @throws {Error} If the refresh token is invalid or the user is not found.
+   */
   async refreshTokens(refreshToken: string): Promise<AuthResponse> {
     try {
       // Verify refresh token
@@ -132,6 +158,11 @@ export class AuthService {
     }
   }
 
+  /**
+   * @summary Retrieves a user by their unique ID.
+   * @param userId - The ID of the user to retrieve.
+   * @returns The full user object, or null if not found.
+   */
   async getUserById(userId: string): Promise<User | null> {
     const users = getUsersCollection();
     return users.findOne({ id: userId });

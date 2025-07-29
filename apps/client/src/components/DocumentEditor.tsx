@@ -6,6 +6,14 @@ import { sanitizeDocumentTitle } from '../utils/input-sanitizer';
 import { ErrorBoundary } from './ErrorBoundary';
 import { SecureTextArea } from './SecureTextArea';
 
+/**
+ * @summary A message component to display when access to a document is denied.
+ * @param props - The component props.
+ * @param props.docId - The ID of the document.
+ * @param props.error - An optional error message to display.
+ * @returns A JSX element.
+ * @private
+ */
 function AccessDeniedMessage({
   docId,
   error,
@@ -66,6 +74,11 @@ function AccessDeniedMessage({
   );
 }
 
+/**
+ * @summary A message component to display while the document is loading.
+ * @returns A JSX element.
+ * @private
+ */
 function LoadingMessage() {
   return (
     <div
@@ -89,6 +102,14 @@ function LoadingMessage() {
   );
 }
 
+/**
+ * @summary The main document editor component.
+ * @remarks
+ * This component provides a rich text editor for collaborative document editing.
+ * It uses ShareDB for real-time synchronization and handles document permissions.
+ * @returns A JSX element.
+ * @since 1.0.0
+ */
 export function DocumentEditor(): React.JSX.Element {
   const { docId } = useParams({ from: '/documents/$docId' });
   const doc = useShareDB(docId);
