@@ -1,0 +1,337 @@
+# Create Real-time ShareDB Component
+
+Create a production-ready React component that integrates with ShareDB for real-time collaboration.
+
+## Component Requirements
+
+### Core Features
+1. Real-time synchronization via ShareDB
+2. Optimistic updates with rollback
+3. Conflict resolution UI
+4. Connection status indicator
+5. Error recovery mechanisms
+
+### Technical Standards
+- TypeScript with strict typing
+- Zod validation for all external data
+- Custom hooks for ShareDB logic
+- Proper cleanup on unmount
+- Accessibility compliant
+
+## Implementation Template
+
+```typescript
+// types/[component-name].types.ts
+import { z } from 'zod';
+
+export const ComponentDataSchema = z.object({
+  id: z.string(),
+  // Define your data structure
+});
+
+export type ComponentData = z.infer<typeof ComponentDataSchema>;
+
+export type ComponentProps = {
+  documentId: string;
+  onError?: (error: Error) => void;
+  classNames?: {
+    containerClassName?: string;
+    // Add other style customization points
+  };
+};
+
+// hooks/use[ComponentName]ShareDB.ts
+import { useEffect, useState, useCallback, useRef } from 'react';
+import type { Doc } from 'sharedb';
+import { useShareDB } from '@/hooks/useShareDB';
+import { ComponentDataSchema } from '@/types/[component-name].types';
+
+export const use[ComponentName]ShareDB = (documentId: string) => {
+  const { connection, isConnected } = useShareDB();
+  const [doc, setDoc] = useState<Doc | null>(null);
+  const [data, setData] = useState<ComponentData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Track subscriptions for cleanup
+  const subscriptionRef = useRef<Doc | null>(null);
+
+  // Initialize document subscription
+  useEffect(() => {
+    if (!connection || !documentId) return;
+
+    const doc = connection.get('collection', documentId);
+    subscriptionRef.current = doc;
+
+    const handleSubscribe = (err: Error | null) => {
+      if (err) {
+        setError(err);
+        setIsLoading(false);
+        return;
+      }
+
+      // Validate document data
+      const parseResult = ComponentDataSchema.safeParse(doc.data);
+      if (parseResult.success) {
+        setData(parseResult.data);
+        setDoc(doc);
+      } else {
+        setError(new Error('Invalid document data structure'));
+      }
+      setIsLoading(false);
+    };
+
+    // Subscribe to document
+    doc.subscribe(handleSubscribe);
+
+    // Listen for remote operations
+    const handleOp = (op: any, source: boolean) => {
+      if (!source) { // Remote operation
+        const parseResult = ComponentDataSchema.safeParse(doc.data);
+        if (parseResult.success) {
+          setData(parseResult.data);
+          setHasUnsavedChanges(false);
+        }
+      }
+    };
+
+    doc.on('op', handleOp);
+
+    // Cleanup function
+    return () => {
+      doc.removeListener('op', handleOp);
+      doc.unsubscribe();
+      doc.destroy();
+      subscriptionRef.current = null;
+    };
+  }, [connection, documentId]);
+
+  // Submit operation with retry logic
+  const submitOp = useCallback(async (
+    path: string[],
+    value: any,
+    oldValue?: any
+  ) => {
+    if (!doc || doc.type === null) {
+      throw new Error('Document not initialized');
+    }
+
+    setHasUnsavedChanges(true);
+
+    const op = [{
+      p: path,
+      oi: value,
+      ...(oldValue !== undefined && { od: oldValue })
+    }];
+
+    try {
+      await new Promise<void>((resolve, reject) => {
+        doc.submitOp(op, (err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
+      setHasUnsavedChanges(false);
+    } catch (err) {
+      // Retry logic here
+      throw err;
+    }
+  }, [doc]);
+
+  return {
+    data,
+    isLoading,
+    error,
+    isConnected,
+    hasUnsavedChanges,
+    submitOp,
+  };
+};
+
+// components/[ComponentName].tsx
+import { memo, useCallback } from 'react';
+import { cn } from '@/lib/utils';
+import { use[ComponentName]ShareDB } from '@/hooks/use[ComponentName]ShareDB';
+import type { ComponentProps } from '@/types/[component-name].types';
+
+export const [ComponentName] = memo(({
+  documentId,
+  onError,
+  classNames = {},
+}: ComponentProps) => {
+  const {
+    data,
+    isLoading,
+    error,
+    isConnected,
+    hasUnsavedChanges,
+    submitOp,
+  } = use[ComponentName]ShareDB(documentId);
+
+  // Handle errors
+  useEffect(() => {
+    if (error && onError) {
+      onError(error);
+    }
+  }, [error, onError]);
+
+  // Example update handler
+  const handleUpdate = useCallback(async (field: string, value: any) => {
+    try {
+      const oldValue = data?.[field];
+      await submitOp([field], value, oldValue);
+    } catch (err) {
+      console.error('Update failed:', err);
+      // Show user-friendly error
+    }
+  }, [data, submitOp]);
+
+  if (isLoading) {
+    return (
+      <div className={cn('animate-pulse', classNames.containerClassName)}>
+        Loading...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={cn('text-red-500', classNames.containerClassName)}>
+        Error: {error.message}
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn('relative', classNames.containerClassName)}>
+      {/* Connection status indicator */}
+      <div className={cn(
+        'absolute top-2 right-2 w-2 h-2 rounded-full',
+        isConnected ? 'bg-green-500' : 'bg-red-500'
+      )} />
+
+      {/* Unsaved changes indicator */}
+      {hasUnsavedChanges && (
+        <div className="absolute top-2 left-2 text-xs text-yellow-600">
+          Saving...
+        </div>
+      )}
+
+      {/* Your component UI here */}
+      <div>
+        {/* Render your data */}
+      </div>
+    </div>
+  );
+});
+
+[ComponentName].displayName = '[ComponentName]';
+```
+
+## Testing Template
+
+```typescript
+// __tests__/[ComponentName].test.tsx
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { [ComponentName] } from '@/components/[ComponentName]';
+import { ShareDBProvider } from '@/providers/ShareDBProvider';
+import { mockShareDBConnection } from '@/test-utils/mock-sharedb';
+
+describe('[ComponentName]', () => {
+  it('should sync changes across multiple instances', async () => {
+    const mockConnection = mockShareDBConnection();
+    const documentId = 'test-doc-1';
+
+    // Render two instances
+    const { rerender } = render(
+      <ShareDBProvider connection={mockConnection}>
+        <[ComponentName] documentId={documentId} />
+        <[ComponentName] documentId={documentId} />
+      </ShareDBProvider>
+    );
+
+    // Wait for initial load
+    await waitFor(() => {
+      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+    });
+
+    // Make change in first instance
+    const firstInput = screen.getAllByRole('textbox')[0];
+    await userEvent.type(firstInput, 'Hello ShareDB');
+
+    // Verify sync to second instance
+    await waitFor(() => {
+      const secondInput = screen.getAllByRole('textbox')[1];
+      expect(secondInput).toHaveValue('Hello ShareDB');
+    });
+  });
+
+  it('should handle connection failures gracefully', async () => {
+    // Test error scenarios
+  });
+
+  it('should cleanup subscriptions on unmount', async () => {
+    // Test cleanup
+  });
+});
+```
+
+## Common Patterns
+
+### 1. Optimistic Updates
+```typescript
+const handleOptimisticUpdate = async (newValue: any) => {
+  // Update UI immediately
+  setOptimisticData(newValue);
+
+  try {
+    await submitOp(['field'], newValue, data.field);
+  } catch (err) {
+    // Rollback on failure
+    setOptimisticData(data.field);
+    showError('Update failed, changes reverted');
+  }
+};
+```
+
+### 2. Debounced Updates
+```typescript
+const debouncedSubmit = useMemo(
+  () => debounce((path: string[], value: any) => {
+    submitOp(path, value).catch(console.error);
+  }, 300),
+  [submitOp]
+);
+```
+
+### 3. Presence Indicator
+```typescript
+const presence = usePresence(documentId);
+
+return (
+  <div className="flex -space-x-2">
+    {presence.users.map(user => (
+      <Avatar key={user.id} user={user} />
+    ))}
+  </div>
+);
+```
+
+## Checklist
+
+Before considering the component complete:
+
+- [ ] TypeScript types are comprehensive
+- [ ] Zod validation for all external data
+- [ ] Proper error boundaries
+- [ ] Loading states handled
+- [ ] Connection status visible
+- [ ] Optimistic updates implemented
+- [ ] Debouncing for text inputs
+- [ ] Accessibility attributes added
+- [ ] Memory leaks prevented
+- [ ] Integration tests written
+- [ ] Performance optimized
+- [ ] Documentation complete

@@ -1,0 +1,59 @@
+{
+  "monorepo": {
+    "root": "../",
+    "packages": [
+      {
+        "name": "@collab-edit/shared",
+        "path": "packages/shared",
+        "priority": 1,
+        "categories": ["utilities", "types", "schemas"]
+      },
+      {
+        "name": "@collab-edit/server",
+        "path": "apps/server",
+        "priority": 2,
+        "categories": ["api", "services", "middleware"]
+      },
+      {
+        "name": "@collab-edit/client",
+        "path": "apps/client",
+        "priority": 3,
+        "categories": ["components", "hooks", "contexts"]
+      }
+    ]
+  },
+  "documentation": {
+    "standards": {
+      "minimumCoverage": 80,
+      "requiredTags": ["description", "param", "returns"],
+      "recommendedTags": ["example", "since", "see"],
+      "customTags": ["security", "performance", "sideEffects"]
+    },
+    "phases": [
+      {
+        "id": "phase-1",
+        "name": "Core Utilities & Types",
+        "targets": ["packages/shared/src/**/*.ts"],
+        "priority": "high"
+      },
+      {
+        "id": "phase-2",
+        "name": "React Components & Hooks",
+        "targets": [
+          "apps/client/src/components/**/*.tsx",
+          "apps/client/src/hooks/**/*.ts"
+        ],
+        "priority": "high"
+      },
+      {
+        "id": "phase-3",
+        "name": "Backend Services & API",
+        "targets": [
+          "apps/server/src/services/**/*.ts",
+          "apps/server/src/routes/**/*.ts"
+        ],
+        "priority": "medium"
+      }
+    ]
+  }
+}

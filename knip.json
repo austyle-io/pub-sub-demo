@@ -1,0 +1,62 @@
+{
+  "$schema": "https://unpkg.com/knip@5.61.2/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": [
+        "turbo.json",
+        "biome.json",
+        "collab-edit-demo.code-workspace",
+        "test/**/*.{ts,js}",
+        "scripts/**/*.{ts,js,sh}",
+        "Makefile"
+      ],
+      "project": ["scripts/**/*.{ts,js}", "test/**/*.{ts,js}"]
+    },
+    "apps/client": {
+      "entry": ["src/routes.tsx", "src/__tests__/**/*.{ts,tsx}"],
+      "project": ["src/**/*.{ts,tsx}"]
+    },
+    "apps/server": {
+      "entry": ["src/__tests__/**/*.{ts,js}", "debug-db.js"],
+      "project": ["src/**/*.{ts,js}"]
+    },
+    "packages/shared": {
+      "entry": ["src/__tests__/**/*.{ts,js}"],
+      "project": ["src/**/*.{ts,js}"]
+    }
+  },
+  "ignore": [
+    "node_modules/**",
+    "dist/**",
+    "build/**",
+    ".turbo/**",
+    ".next/**",
+    ".history/**",
+    ".logs/**",
+    "coverage/**",
+    "**/node_modules/**",
+    "**/*.tsbuildinfo",
+    ".devcontainer/**",
+    "docs/**",
+    "plans/**"
+  ],
+  "ignoreDependencies": ["@types/*"],
+  "ignoreExportsUsedInFile": true,
+  "biome": {
+    "entry": ["biome.json"]
+  },
+  "playwright": {
+    "entry": ["test/e2e/setup/playwright.config.ts", "test/**/*.e2e.{ts,tsx}"]
+  },
+  "vite": {
+    "entry": ["apps/client/vite.config.ts"]
+  },
+  "vitest": {
+    "entry": [
+      "apps/client/vitest.config.ts",
+      "apps/server/vitest.config.ts",
+      "packages/shared/vitest.config.ts",
+      "**/*.{test,spec}.{ts,tsx,js}"
+    ]
+  }
+}

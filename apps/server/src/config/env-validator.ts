@@ -1,4 +1,4 @@
-import { isString } from 'lodash';
+import isString from 'lodash.isstring';
 
 type RequiredEnvVars = {
   JWT_ACCESS_SECRET: string;
@@ -25,7 +25,9 @@ export const validateEnvironment = (): RequiredEnvVars => {
   // Check for missing variables
   if (missing.length > 0) {
     console.error('❌ Missing required environment variables:');
-    missing.forEach((var_) => console.error(`  - ${var_}`));
+    for (const var_ of missing) {
+      console.error(`  - ${var_}`);
+    }
     console.error(
       '\nPlease check your .env file and ensure all required variables are set.',
     );

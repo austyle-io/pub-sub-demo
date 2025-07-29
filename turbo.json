@@ -44,6 +44,18 @@
         "NODE_OPTIONS",
         "VITE_CJS_IGNORE_WARNING"
       ]
+    },
+    "generate-api": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", "typedoc.json"],
+      "outputs": ["pages/api/**"],
+      "cache": true
+    },
+    "build-docs": {
+      "dependsOn": ["generate-api"],
+      "inputs": ["$TURBO_DEFAULT$", "pages/**", "components/**", "public/**"],
+      "outputs": ["dist/**"],
+      "cache": true
     }
   }
 }

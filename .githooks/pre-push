@@ -1,0 +1,284 @@
+#!/bin/bash
+# Pre-push hook for Pub-Sub Collaborative Editing Demo
+# Final validation before pushing to remote
+
+set -euo pipefail
+
+# Declare and assign separately to avoid masking return values (SC2155)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+readonly PROJECT_ROOT
+
+# Source shared utilities
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/shared/colors.sh"
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/shared/utils.sh"
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/shared/config.sh"
+
+# Parse arguments
+parse_hook_args "$@"
+
+# Check if bypass is requested
+check_bypass
+
+# Start timer
+timer_start
+
+print_section "Pre-push Validation"
+print_info "Running final checks before push..."
+
+# Get remote and branch information
+REMOTE="$1"
+URL="$2"
+
+# Track overall status
+HOOK_STATUS=0
+
+# Read stdin to get commit range
+# Use read -r to avoid mangling backslashes (SC2162)
+while read -r local_ref local_sha remote_ref remote_sha; do
+    # Skip deleted branches
+    if [ "$local_sha" = "0000000000000000000000000000000000000000" ]; then
+        continue
+    fi
+
+    # Get list of commits to be pushed
+    if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
+        # New branch, check all commits
+        COMMITS=$(git rev-list "$local_sha" --not --remotes="$REMOTE")
+    else
+        # Existing branch, check new commits
+        COMMITS=$(git rev-list "$remote_sha..$local_sha")
+    fi
+
+    # Check commit messages
+    print_subsection "📝 Validating commit messages"
+    INVALID_COMMITS=""
+    for commit in $COMMITS; do
+        MSG=$(git log --format=%s -n 1 "$commit")
+        if ! echo "$MSG" | grep -qE "^(${COMMIT_TYPES})(\([^)]+\))?!?: .+"; then
+            INVALID_COMMITS="$INVALID_COMMITS\n  $commit: $MSG"
+        fi
+    done
+
+    if [ -n "$INVALID_COMMITS" ]; then
+        print_error "Invalid commit messages found:"
+        echo -e "$INVALID_COMMITS"
+        print_info "Use conventional commit format: type(scope): description"
+        HOOK_STATUS=1
+        if [ "$HOOK_FAIL_FAST" = "1" ]; then
+            exit 1
+        fi
+    else
+        print_check "All commit messages valid"
+    fi
+done
+
+# Run comprehensive tests
+print_subsection "🧪 Running test suite"
+if run_with_timeout "$HOOK_TIMEOUT_TEST" "make test"; then
+    print_check "Test suite passed"
+else
+    print_cross "Test suite failed"
+    HOOK_STATUS=1
+    if [ "$HOOK_FAIL_FAST" = "1" ]; then
+        exit 1
+    fi
+fi
+
+# Type check
+print_subsection "🔍 Type checking"
+if run_with_timeout "$HOOK_TIMEOUT_LINT" "make type-check"; then
+    print_check "Type check passed"
+else
+    print_cross "Type check failed"
+    HOOK_STATUS=1
+    if [ "$HOOK_FAIL_FAST" = "1" ]; then
+        exit 1
+    fi
+fi
+
+# Quality check (comprehensive linting)
+print_subsection "✨ Quality check"
+if run_with_timeout "$HOOK_TIMEOUT_LINT" "make quality"; then
+    print_check "Quality check passed"
+else
+    print_cross "Quality check failed"
+    HOOK_STATUS=1
+    if [ "$HOOK_FAIL_FAST" = "1" ]; then
+        exit 1
+    fi
+fi
+
+# Build check (ensure everything compiles)
+print_subsection "🏗️ Build verification"
+if run_with_timeout "$HOOK_TIMEOUT_BUILD" "pnpm build"; then
+    print_check "Build verification passed"
+else
+    print_cross "Build verification failed"
+    HOOK_STATUS=1
+    if [ "$HOOK_FAIL_FAST" = "1" ]; then
+        exit 1
+    fi
+fi
+
+# Project-specific checks
+print_subsection "🎯 Project-specific validation"
+
+# Check for console.log in production code (critical for Pino logging)
+print_progress "Checking for console.log statements"
+# Use find with -print0 and xargs -0 for safer file handling (SC2038)
+# Group find expressions to avoid SC2146 warning
+CONSOLE_LOGS=$(find apps packages \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \) -print0 | \
+               xargs -0 grep -l "console\\.log" 2>/dev/null | \
+               grep -v -E "(test|spec|__tests__|stories|\\.story\\.|development|debug)" || true)
+if [ -n "$CONSOLE_LOGS" ]; then
+    print_cross "console.log found in production code:"
+    echo "$CONSOLE_LOGS" | while read -r file; do
+        print_bullet "$file"
+    done
+    print_info "Use Pino logger instead of console.log"
+    HOOK_STATUS=1
+    if [ "$HOOK_FAIL_FAST" = "1" ]; then
+        exit 1
+    fi
+else
+    print_check "No console.log in production code"
+fi
+
+# Check TypeScript patterns
+print_progress "Validating TypeScript patterns"
+TS_VIOLATIONS=""
+
+# Check for 'any' usage
+# Use find with -print0 and xargs -0 for safer file handling (SC2038)
+# Group find expressions to avoid SC2146 warning
+ANY_USAGE=$(find apps packages \( -name "*.ts" -o -name "*.tsx" \) -print0 | \
+            xargs -0 grep -l ": any\|<any>\|any\[\]" 2>/dev/null || true)
+if [ -n "$ANY_USAGE" ]; then
+    TS_VIOLATIONS="$TS_VIOLATIONS\n• 'any' type usage found (use 'unknown' instead)"
+fi
+
+# Check for interface usage
+# Use find with -print0 and xargs -0 for safer file handling (SC2038)
+# Group find expressions to avoid SC2146 warning
+INTERFACE_USAGE=$(find apps packages \( -name "*.ts" -o -name "*.tsx" \) -print0 | \
+                  xargs -0 grep -l "^interface " 2>/dev/null || true)
+if [ -n "$INTERFACE_USAGE" ]; then
+    TS_VIOLATIONS="$TS_VIOLATIONS\n• 'interface' usage found (use 'type' instead)"
+fi
+
+if [ -n "$TS_VIOLATIONS" ]; then
+    print_cross "TypeScript pattern violations:"
+    echo -e "$TS_VIOLATIONS"
+    HOOK_STATUS=1
+    if [ "$HOOK_FAIL_FAST" = "1" ]; then
+        exit 1
+    fi
+else
+    print_check "TypeScript patterns validated"
+fi
+
+# Check for security issues
+print_subsection "🔒 Security scan"
+print_progress "Checking for known vulnerabilities"
+if pnpm audit --audit-level=high 2>/dev/null; then
+    print_check "No high severity vulnerabilities"
+else
+    print_warning "Security vulnerabilities detected"
+    print_info "Run 'pnpm audit' for details"
+    # Don't fail on audit issues, just warn
+fi
+
+# Check for secrets in staged files
+print_progress "Scanning for secrets"
+SECRETS_FOUND=""
+if command_exists git; then
+    # Check for common secret patterns
+    SECRET_PATTERNS="api[_-]?key|secret|password|token|credential"
+    SECRETS_FOUND=$(git diff --cached -G"$SECRET_PATTERNS" --name-only 2>/dev/null || true)
+fi
+
+if [ -n "$SECRETS_FOUND" ]; then
+    print_warning "Potential secrets detected in:"
+    echo "$SECRETS_FOUND" | while read -r file; do
+        print_bullet "$file"
+    done
+    print_info "Review these files for sensitive information"
+fi
+
+# Check branch protection
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ "$CURRENT_BRANCH" = "main" ] || [ "$CURRENT_BRANCH" = "master" ]; then
+    print_warning "Pushing directly to $CURRENT_BRANCH branch"
+    print_info "Consider creating a feature branch and pull request"
+fi
+
+# ShareDB specific checks (for this collaborative editing project)
+print_subsection "🔄 Collaborative editing validation"
+
+# Check for ShareDB operation consistency
+print_progress "Checking ShareDB integration"
+# Use find with -print0 and xargs -0 for safer file handling (SC2038)
+SHAREDB_FILES=$(find apps/server -name "*.ts" -print0 | xargs -0 grep -l "sharedb\|ShareDB" 2>/dev/null || true)
+if [ -n "$SHAREDB_FILES" ]; then
+    print_check "ShareDB integration files found"
+
+    # Check for proper error handling in ShareDB operations
+    # Use safer approach for files with spaces
+    SHAREDB_ERROR_HANDLING=""
+    if [ -n "$SHAREDB_FILES" ]; then
+        SHAREDB_ERROR_HANDLING=$(echo "$SHAREDB_FILES" | tr '\n' '\0' | xargs -0 grep -L "catch\|error" 2>/dev/null || true)
+    fi
+    if [ -n "$SHAREDB_ERROR_HANDLING" ]; then
+        print_warning "ShareDB files without error handling:"
+        echo "$SHAREDB_ERROR_HANDLING" | while read -r file; do
+            print_bullet "$file"
+        done
+    fi
+fi
+
+# Check WebSocket authentication
+print_progress "Checking WebSocket security"
+# Use find with -print0 and xargs -0 for safer file handling (SC2038)
+# Group find expressions to avoid SC2146 warning
+WS_FILES=$(find apps \( -name "*.ts" -o -name "*.tsx" \) -print0 | xargs -0 grep -l "websocket\|WebSocket\|ws:" 2>/dev/null || true)
+if [ -n "$WS_FILES" ]; then
+    # Check for authentication in WebSocket connections
+    # Use safer approach for files with spaces
+    WS_AUTH=""
+    if [ -n "$WS_FILES" ]; then
+        WS_AUTH=$(echo "$WS_FILES" | tr '\n' '\0' | xargs -0 grep -l "auth\|token\|jwt" 2>/dev/null || true)
+    fi
+    if [ -n "$WS_AUTH" ]; then
+        print_check "WebSocket authentication found"
+    else
+        print_warning "WebSocket connections without authentication detected"
+    fi
+fi
+
+# End timer and log
+DURATION=$(timer_end)
+print_info "Pre-push hook completed in ${DURATION}s"
+
+# Log execution
+if [ "$HOOK_STATUS" = "0" ]; then
+    log_hook_execution "pre-push" "$DURATION" "success"
+    print_success "All pre-push checks passed!"
+    print_info "Pushing to $REMOTE ($URL)..."
+else
+    log_hook_execution "pre-push" "$DURATION" "failed"
+    print_error "Pre-push checks failed!"
+    print_info "Fix the issues above or use 'git push --no-verify' to bypass (not recommended)"
+    echo ""
+    print_info "💡 Recommended actions:"
+    print_info "  • Fix failing tests: make test"
+    print_info "  • Resolve type errors: make type-check"
+    print_info "  • Fix quality issues: make quality"
+    print_info "  • Check build: pnpm build"
+fi
+
+exit $HOOK_STATUS

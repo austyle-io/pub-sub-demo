@@ -37,7 +37,7 @@ Comprehensive coding standards (41 rule files)
 
 **ShareDB Document Storage:**
 - Initial documents are stored with data in `create.data` field
-- Updated documents may have data in `data` field  
+- Updated documents may have data in `data` field
 - Use `doc.create?.data || doc.data` pattern for compatibility
 - Document ID is stored in the `d` field at root level
 - Query by `{ d: documentId }` not `{ 'data.id': documentId }`
@@ -117,6 +117,139 @@ Comprehensive coding standards (41 rule files)
 - Corrected document transformation to handle both `create.data` and `data` fields
 - Added extensive logging for debugging empty API responses
 - Fixed permission queries to use correct document ID field (`d` not `_id`)
+
+## Magic Value Refactoring Tool v2.0 (2025-01-23)
+
+### Overview
+Created a sophisticated AST-based magic value refactoring tool that properly handles edge cases that the original implementation failed on. The tool uses ts-morph for TypeScript AST analysis and Node.js v24's native TypeScript execution.
+
+### Key Implementation Details
+
+**Native TypeScript Execution:**
+- Uses Node.js v24's `--experimental-strip-types` flag
+- No build step required - direct `.ts` file execution
+- Must use `.ts` extensions in imports (not `.js`)
+- ES modules require `"type": "module"` in package.json
+- Parameter properties not supported - must expand to regular properties
+
+**Context-Aware Detection System:**
+- Analyzes full AST context including parent chain and scope
+- Detects semantic context: type definitions, JSX, tests, arrays, etc.
+- Preserves values that should remain as literals
+- Categorizes values heuristically (HTTP_STATUS, TIMEOUT, COLOR, etc.)
+
+**Edge Case Handlers:**
+1. **Type Context**: Preserves all type literals in unions, interfaces, type aliases
+2. **JSX Attributes**: Preserves HTML attributes requiring strings (type, name, id)
+3. **Test Descriptions**: Never transforms test names in describe/it/test
+4. **Array Indices**: Preserves common indices (0-10), transforms unusual ones
+5. **Dynamic Contexts**: Reports errors instead of breaking
+6. **Empty Values**: Context-aware handling of '' and 0
+
+**Safe Transformation Engine:**
+- Generates valid JavaScript identifiers (e.g., `3.1.0` → `V3_1_0`)
+- Handles JSX expressions with proper `{CONSTANT}` syntax
+- Manages imports intelligently to avoid circular dependencies
+- Validates transformations before applying
+
+**Whitelist System:**
+- Default rules for common patterns
+- Context-sensitive matching
+- Customizable per project
+- Regex pattern support
+
+**Heuristic Analysis:**
+- Categorizes values based on context hints
+- Suggests meaningful constant names
+- Confidence scoring
+- Pattern-based detection
+
+### Tool Architecture
+```
+scripts/magic-value-tool/
+├── core/           # Main refactoring engine
+├── analyzers/      # Context and heuristic analysis
+├── handlers/       # Edge case handlers
+├── transformers/   # Safe transformation logic
+├── config/         # Configuration and whitelists
+├── utils/          # Identifier generation, logging
+└── types/          # TypeScript interfaces
+```
+
+### Results & Verification
+- Successfully scanned 1,918 magic values across codebase
+- Detected 200 edge cases with proper categorization
+- Test file: 33/34 values correctly handled (1 dynamic context error as expected)
+- All original edge case issues resolved
+
+### Common Issues & Solutions
+
+**Original Tool Problems (All Fixed):**
+1. Type literals replaced → Now preserved via type context detection
+2. Test names replaced → Now preserved via test context detection
+3. Invalid identifiers (`STORAGE_KEY.3`) → Now generates valid names
+4. JSX syntax errors → Now handles JSX attributes correctly
+5. All array indices transformed → Now context-aware
+
+**Implementation Gotchas:**
+- `Node.isTypeParameter()` doesn't exist in ts-morph - use `getKind() === SyntaxKind.TypeParameter`
+- Native TypeScript strip doesn't support parameter properties - expand them manually
+- Import paths must use `.ts` extension with native TypeScript
+- String methods can receive non-string values - always use `String(value)`
+
+### Usage Examples
+```bash
+# Scan for magic values
+node --experimental-strip-types scripts/magic-value-tool/index.ts scan --path .
+
+# Dry run transformation
+node --experimental-strip-types scripts/magic-value-tool/index.ts transform --dry-run
+
+# Analyze edge cases
+node --experimental-strip-types scripts/magic-value-tool/index.ts analyze-edge-cases
+```
+
+### File Organization
+- Tool location: `scripts/magic-value-tool/`
+- Documentation: `docs/03_development/magic-value-refactoring/`
+- Reports: `reports/magic-value-analysis/`
+- Upgrade plan: `docs/03_development/magic-value-refactoring-tool-upgrade-plan.md`
+
+## Project File Organization Standards
+
+### Documentation (`/docs/`)
+- **Getting Started**: `/docs/01_getting-started/`
+- **Architecture**: `/docs/02_architecture/`
+- **Development Guides**: `/docs/03_development/`
+- **Testing**: `/docs/04_testing/`
+- **Deployment**: `/docs/05_deployment/`
+- **Session Updates**: `/docs/99_appendix/session-updates/`
+- **Tool Evaluations**: Save Biome reports, analysis docs here
+
+### Reports
+- **Code Analysis**: `/reports/` (e.g., magic-value analysis)
+- **Biome/Tool Reports**: `/docs/` (evaluation reports, compliance)
+- **Documentation Reports**: `/docs-site/reports/`
+
+### Configuration Files
+- **Root Level**: `biome.json`, `tsconfig.json`, `package.json`
+- **App-specific**: In respective app directories
+
+### Tests
+- **Integration**: `/test/integration/`
+- **E2E**: `/test/e2e/`
+- **Tooling Tests**: `/test/tooling/` (linting rule tests)
+
+### Scripts
+- **Development**: `/scripts/development/`
+- **Quality**: `/scripts/quality/`
+- **Tools**: `/scripts/magic-value-tool/`
+
+### Key Rules:
+- Never save files in project root unless they're configs
+- Reports go in `/docs/` or `/reports/` based on type
+- Test files for tooling go in `/test/tooling/`
+- Documentation in Markdown goes in `/docs/`
 
 ## Core TypeScript/JavaScript Patterns (16 rules)
 

@@ -1,5 +1,8 @@
 import type { Document } from '@collab-edit/shared';
-import { isArray, isNil, isObject, isString } from 'lodash';
+import isArray from 'lodash.isarray';
+import isNil from 'lodash.isnil';
+import isObject from 'lodash.isobject';
+import isString from 'lodash.isstring';
 import type { AuthenticatedRequest } from '../middleware/websocket-auth';
 
 // ShareDB snapshot type for type safety

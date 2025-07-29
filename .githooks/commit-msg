@@ -1,0 +1,163 @@
+#!/bin/bash
+# Commit message validation hook for Pub-Sub Collaborative Editing Demo
+# Ensures commit messages follow conventional commit format
+
+set -euo pipefail
+
+# Declare and assign separately to avoid masking return values (SC2155)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+readonly PROJECT_ROOT
+
+# Source shared utilities
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/shared/colors.sh"
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/shared/utils.sh"
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/shared/config.sh"
+
+# Get commit message file
+COMMIT_MSG_FILE="$1"
+
+# Check if bypass is requested
+check_bypass
+
+# Read commit message
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+# Skip merge commits
+if is_merge; then
+    print_info "Merge commit detected, skipping validation"
+    exit 0
+fi
+
+# Skip rebase commits
+if is_rebase; then
+    print_info "Rebase in progress, skipping validation"
+    exit 0
+fi
+
+print_section "Commit Message Validation"
+
+# Check if message is empty
+if [ -z "$COMMIT_MSG" ]; then
+    print_error "Empty commit message"
+    exit 1
+fi
+
+# Get first line of commit message
+FIRST_LINE=$(echo "$COMMIT_MSG" | head -n1)
+
+# Check message length
+MSG_LENGTH=${#FIRST_LINE}
+if [ "$MSG_LENGTH" -lt "$COMMIT_MSG_MIN_LENGTH" ]; then
+    print_error "Commit message too short (minimum $COMMIT_MSG_MIN_LENGTH characters)"
+    exit 1
+fi
+
+if [ "$MSG_LENGTH" -gt "$COMMIT_MSG_MAX_LENGTH" ]; then
+    print_error "First line of commit message too long (maximum $COMMIT_MSG_MAX_LENGTH characters)"
+    print_info "Current length: $MSG_LENGTH"
+    exit 1
+fi
+
+# Conventional commit format regex
+CONVENTIONAL_REGEX="^(${COMMIT_TYPES})(\(([^)]+)\))?!?: .{1,}$"
+
+# Check format
+if ! echo "$FIRST_LINE" | grep -qE "$CONVENTIONAL_REGEX"; then
+    print_error "Invalid commit message format!"
+    echo ""
+    echo "Expected format: <type>(<scope>): <subject>"
+    echo ""
+    echo "Valid types:"
+    echo "  • feat     - New feature"
+    echo "  • fix      - Bug fix"
+    echo "  • docs     - Documentation changes"
+    echo "  • style    - Code style changes (formatting, semicolons, etc)"
+    echo "  • refactor - Code refactoring"
+    echo "  • test     - Test additions or modifications"
+    echo "  • chore    - Build process or auxiliary tool changes"
+    echo "  • perf     - Performance improvements"
+    echo "  • ci       - CI/CD changes"
+    echo "  • build    - Build system changes"
+    echo "  • revert   - Revert a previous commit"
+    echo ""
+    echo "Valid scopes (optional) for collaborative editing:"
+    echo "  ${COMMIT_SCOPES//|/, }"
+    echo ""
+    echo "Examples:"
+    echo "  feat(editor): add real-time cursor tracking"
+    echo "  fix(sharedb): resolve document synchronization race"
+    echo "  docs(api): update authentication guide"
+    echo "  perf(collab): optimize operational transform batching"
+    echo "  chore(deps): update dependencies"
+    echo ""
+    echo "Your message: $FIRST_LINE"
+    exit 1
+fi
+
+# Extract type and scope
+TYPE=$(echo "$FIRST_LINE" | sed -E "s/^([^(:]+).*$/\1/")
+SCOPE=""
+if echo "$FIRST_LINE" | grep -qE "^[^(]+\([^)]+\)"; then
+    SCOPE=$(echo "$FIRST_LINE" | sed -E "s/^[^(]+\(([^)]+)\).*$/\1/")
+fi
+
+# Validate scope if provided
+if [ -n "$SCOPE" ]; then
+    # Check if scope matches allowed scopes
+    if ! echo "$SCOPE" | grep -qE "^(${COMMIT_SCOPES})$"; then
+        print_warning "Non-standard scope: '$SCOPE'"
+        print_info "Consider using one of: ${COMMIT_SCOPES//|/, }"
+        # This is a warning, not an error - allow custom scopes for flexibility
+    fi
+fi
+
+# Check for WIP commits
+if echo "$FIRST_LINE" | grep -qi "wip\|work in progress"; then
+    print_warning "WIP commit detected"
+    print_info "Consider completing the work before committing"
+fi
+
+# Check for issue references (optional but recommended)
+if ! echo "$COMMIT_MSG" | grep -qE "#[0-9]+|[A-Z]+-[0-9]+"; then
+    print_info "No issue reference found in commit message"
+    print_info "Consider adding an issue reference (e.g., #123 or PROJ-456)"
+fi
+
+# Project-specific validations for collaborative editing
+# Check for breaking change indicators
+if echo "$FIRST_LINE" | grep -q "!:"; then
+    print_warning "Breaking change detected (!) - ensure CHANGELOG.md is updated"
+fi
+
+# Validate collaborative editing specific patterns
+case "$TYPE" in
+    "feat")
+        if echo "$FIRST_LINE" | grep -qE "(collab|editor|sharedb|realtime)"; then
+            print_check "Collaborative feature detected"
+        fi
+        ;;
+    "fix")
+        if echo "$FIRST_LINE" | grep -qE "(sync|race|conflict|consistency)"; then
+            print_check "Collaboration bug fix detected"
+        fi
+        ;;
+    "perf")
+        if echo "$FIRST_LINE" | grep -qE "(sharedb|websocket|realtime|collab)"; then
+            print_check "Performance improvement for collaboration"
+        fi
+        ;;
+esac
+
+print_success "Commit message validation passed"
+print_check "Type: $TYPE"
+[ -n "$SCOPE" ] && print_check "Scope: $SCOPE"
+
+# Log successful validation
+log_hook_execution "commit-msg" "0" "success"
+
+exit 0

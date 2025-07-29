@@ -34,14 +34,14 @@ async function testRateLimiting() {
             rateLimitedCount++;
             console.log(`❌ Request ${i}: Rate limited (429)`);
             return { status: 429, body: text };
-          } else if (response.status === 201) {
+          }
+          if (response.status === 201) {
             successCount++;
             console.log(`✅ Request ${i}: Success (201)`);
             return { status: 201, body: text };
-          } else {
-            console.log(`⚠️  Request ${i}: Status ${response.status}`);
-            return { status: response.status, body: text };
           }
+          console.log(`⚠️  Request ${i}: Status ${response.status}`);
+          return { status: response.status, body: text };
         })
         .catch((error) => {
           console.log(`💥 Request ${i}: Error - ${error.message}`);
@@ -55,7 +55,7 @@ async function testRateLimiting() {
   console.log('\n📊 Results:');
   console.log(`✅ Successful requests: ${successCount}`);
   console.log(`❌ Rate limited requests: ${rateLimitedCount}`);
-  console.log(`📝 Total requests: 10`);
+  console.log('📝 Total requests: 10');
 
   if (process.env.NODE_ENV === 'test' && rateLimitedCount > 0) {
     console.log(

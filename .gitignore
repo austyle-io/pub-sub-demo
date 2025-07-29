@@ -70,3 +70,4 @@ openapi.json
 *.log
 .logs
 tmp/
+reports/magic-value-analysis/scan-results-*.json

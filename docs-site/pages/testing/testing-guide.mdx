@@ -1,0 +1,82 @@
+---
+title: "Testing Guide - Collaborative Document Editor"
+description: "Testing Guide - Collaborative Document Editor"
+---
+
+# Testing Guide - Collaborative Document Editor
+
+## Rate Limiting Issue Resolution
+
+### Problem
+
+When running user acceptance tests or multiple test scripts, you may encounter "Too many requests" errors due to rate limiting in the Express server.
+
+### Solution
+
+The server now automatically disables rate limiting when `NODE_ENV=test`. Here are the recommended approaches:
+
+## Option 1: Use the Helper Script (Recommended)
+
+```bash
+# Run tests with rate limiting disabled
+./run-tests-no-rate-limit.sh
+```
+
+## Option 2: Manual Environment Setup
+
+```bash
+# Set test environment and run specific tests
+NODE_ENV=test node apps/server/test-user-workflows.js
+
+# Or run multiple tests
+NODE_ENV=test node test-list.js
+NODE_ENV=test node test-direct.js
+```
+
+## Option 3: Automated Test Suites
+
+The Vitest test suites automatically set `NODE_ENV=test` via the setup files:
+
+```bash
+# These will run without rate limiting issues
+pnpm test
+pnpm turbo run test
+```
+
+## Testing Workflow
+
+1. **Start Development Server**: `pnpm run dev`
+2. **Verify Server Health**: `curl http://localhost:3001/health`
+3. **Run Tests**: Use one of the options above
+
+## What Changed
+
+- Modified `apps/server/src/server.ts` to conditionally apply rate limiting
+- Rate limiting is only active in production and development environments
+- Test environment bypasses all rate limiting middleware
+
+## Rate Limiting Settings (Non-Test Environments)
+
+- **General API**: 100 requests per 15 minutes
+- **Auth Endpoints**: 5 requests per 15 minutes
+- **Environment Check**: `if (env.NODE_ENV !== 'test')`
+
+## Debugging Rate Limiting
+
+If you still encounter rate limiting issues:
+
+1. Check the server console for rate limiting status messages
+2. Verify `NODE_ENV` is properly set to 'test'
+3. Restart the server if environment changes aren't taking effect
+
+---
+
+## Next Steps After Rate Limiting Fix
+
+With rate limiting resolved, you can now focus on debugging the actual API issues:
+
+1. **List Documents API** - Returns empty array (transformation issue)
+2. **Update Permissions** - 404 error (wrong query field)
+3. **Real-time Collaboration** - Ready for testing
+
+Run `./run-tests-no-rate-limit.sh` to proceed with debugging these remaining issues.

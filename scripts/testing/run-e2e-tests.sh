@@ -2,9 +2,13 @@
 # scripts/testing/run-e2e-tests.sh
 set -euo pipefail
 
-readonly SCRIPT_NAME="$(basename "$0")"
-readonly PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-readonly LOG_FILE="${PROJECT_ROOT}/.logs/e2e-tests-$(date +%s).log"
+# Declare and assign separately to avoid masking return values (SC2155)
+SCRIPT_NAME="$(basename "$0")"
+readonly SCRIPT_NAME
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+readonly PROJECT_ROOT
+LOG_FILE="${PROJECT_ROOT}/.logs/e2e-tests-$(date +%s).log"
+readonly LOG_FILE
 readonly TIMEOUT=300 # 5 minutes for E2E tests
 
 # Colors

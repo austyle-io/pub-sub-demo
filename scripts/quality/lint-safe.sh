@@ -121,9 +121,9 @@ run_lint_check() {
 run_format_check() {
     log_info "Checking code formatting..."
 
-    # Check if biome format is available
+    # Check if biome is available
     if command -v pnpm >/dev/null 2>&1 && pnpm list --depth=0 2>/dev/null | grep -q "@biomejs/biome"; then
-        if timeout 30s pnpm biome format --check . 2>&1 | tee -a "$LOG_FILE"; then
+        if timeout 30s pnpm biome check --formatter-enabled=true --linter-enabled=false . 2>&1 | tee -a "$LOG_FILE"; then
             log_success "✅ Code formatting is correct"
             return 0
         else
@@ -205,7 +205,8 @@ run_markdownlint() {
     log_info "Found $md_count markdown file(s) to check"
 
     # Run markdownlint (all issues treated as errors)
-    if timeout 30s bash -c "${markdownlint_cmd}" 2>&1 | tee -a "$LOG_FILE"; then
+    # Use configuration file to ensure proper exclusions
+    if timeout 30s bash -c "${markdownlint_cmd} --config .markdownlint-cli2.yaml" 2>&1 | tee -a "$LOG_FILE"; then
         log_success "✅ All markdown files passed markdownlint"
         return 0
     else

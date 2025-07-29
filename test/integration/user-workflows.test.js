@@ -58,10 +58,9 @@ async function verifyDocumentInDb(docId) {
       console.log('✅ Document found in DB:');
       console.log(JSON.stringify(doc, null, 2));
       return doc;
-    } else {
-      console.error('❌ Document NOT found in DB.');
-      return null;
     }
+    console.error('❌ Document NOT found in DB.');
+    return null;
   } catch (error) {
     console.error('❌ Error verifying document in DB:', error.message);
     throw error;

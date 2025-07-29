@@ -248,23 +248,16 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 #### Implementation:
 ```typescript
 // apps/server/src/utils/audit-logger.ts
-import winston from 'winston';
+import { type AppLogger, createAppLogger } from '@collab-edit/shared';
 
-const auditLogger = winston.createLogger({
+// Create dedicated audit logger with file output for production
+const auditLogger: AppLogger = createAppLogger('audit', {
+  enableFile: true,
+  filePath: 'logs/audit.log',
   level: 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  ),
-  transports: [
-    new winston.transports.File({ filename: 'logs/audit.log' }),
-    new winston.transports.Console({
-      format: winston.format.simple()
-    })
-  ],
 });
 
-export interface AuditEvent {
+export type AuditEvent = {
   userId?: string;
   action: string;
   resource: string;
@@ -317,7 +310,7 @@ export const checkDocumentPermission = async (
 - `apps/server/src/utils/audit-logger.ts` - New audit logging system
 - `apps/server/src/utils/permissions.ts` - Add logging to all permission checks
 - `apps/server/src/middleware/websocket-auth.ts` - Log WebSocket auth events
-- `apps/server/package.json` - Add winston dependency
+- `apps/server/package.json` - Use Pino logging (already available via shared package)
 
 ---
 

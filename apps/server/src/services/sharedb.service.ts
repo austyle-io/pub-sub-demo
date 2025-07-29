@@ -249,16 +249,16 @@ export class ShareDBService {
   }
 }
 
-export function initializeShareDB(): ShareDBService {
+export const initializeShareDB = (): ShareDBService => {
   if (!shareDBService) {
     shareDBService = new ShareDBService();
   }
   return shareDBService;
-}
+};
 
-export function getShareDB() {
+export const getShareDB = (): InstanceType<typeof ShareDB> => {
   if (!shareDBService) {
     throw new Error('ShareDB service has not been initialized');
   }
   return shareDBService.getShareDB();
-}
+};

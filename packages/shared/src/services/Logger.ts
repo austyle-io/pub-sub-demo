@@ -1,4 +1,4 @@
-import isNil from 'lodash/isNil';
+import isNil from 'lodash.isnil';
 import pino, { type Logger as PinoLogger } from 'pino';
 
 export const LOG_LEVEL = {

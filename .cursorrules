@@ -1,0 +1,96 @@
+# Pub-Sub Demo Cursor Configuration
+
+You are working on a real-time collaborative document editing system with comprehensive tooling.
+
+## Primary Systems
+
+- **Agent System**: Use `.agent/` for progress tracking and handoffs
+- **Onboarding**: Follow project documentation in `docs/`
+- **Rules**: Apply all rules in `.cursor/rules/`
+- **Tools**: Leverage `make` commands and `pnpm` scripts
+- **AI Prompts**: Use `.cursor/prompts/` for personas and workflows
+
+## Quick Commands
+
+- `make up` - Check current progress
+- `make ho` - Generate handoff report
+- `make test` - Run all tests
+- `make lint` - Run linting checks
+- `make dev` - Start development servers
+
+## Working Context
+
+When starting work, always:
+
+1. Run `make up` to check current state
+2. Review `.agent/current/state.md`
+3. Check `.agent/current/blockers.md`
+4. Generate handoff when done: `make ho "session notes"`
+
+## Integration Points
+
+- Progress: `.agent/current/progress.json`
+- State: `.agent/current/state.md`
+- Metrics: `.agent/current/metrics.md`
+- Feedback: `.agent/feedback/`
+
+## Critical Rules
+
+1. **ALWAYS use pnpm**, never npm
+2. **NO console.log** - use structured logging (Pino)
+3. **NO any types** - use unknown or proper types [[memory:3829289]]
+4. **NO interfaces** - always use type declarations [[memory:3829289]]
+5. **USE nullish coalescing** (`??`) over logical OR (`||`) [[memory:3829289]]
+6. **USE optional chaining** (`?.`) instead of manual guards [[memory:3829289]]
+7. **USE satisfies operator** - avoid unsafe casting [[memory:3829289]]
+8. **USE Lodash type helpers** for clear type checks [[memory:3829289]]
+9. **ALWAYS add runtime type guards** for external data [[memory:3820036]]
+10. **USE TypeScript best practices** for strict typing [[memory:3829289]]
+
+## Architecture Context
+
+This is a collaborative document editing system with:
+- **Frontend**: React + TypeScript + Vite (apps/client)
+- **Backend**: Node.js + TypeScript + ShareDB (apps/server)
+- **Shared**: Common types and utilities (packages/shared)
+- **Real-time**: WebSocket-based collaboration
+- **Security**: JWT authentication, input sanitization
+- **Testing**: Vitest, Playwright E2E tests
+
+## Testing Commands
+
+- `make test` - Run all tests
+- `make test-unit` - Unit tests only
+- `make test-e2e` - E2E tests only
+- `make test-integration` - Integration tests only
+
+## Development Workflow
+
+1. **Feature Development**: Work in feature branches
+2. **Quality Gates**: All tests must pass, coverage >80%
+3. **Type Safety**: Use tsc for type checking [[memory:3825779]]
+4. **Code Reviews**: Include runtime type guards [[memory:3820036]]
+5. **Documentation**: Update relevant docs in `docs/`
+
+## Key Directories
+
+- `apps/client/` - React frontend application
+- `apps/server/` - Node.js backend with ShareDB
+- `packages/shared/` - Shared types and utilities
+- `docs/` - Project documentation
+- `test/` - E2E and integration tests
+- `.agent/` - Agent system for progress tracking
+
+## Analysis Modes & Personas
+
+- **Security Analyst**: Focus on authentication, authorization, input validation
+- **Performance Analyst**: ShareDB optimization, WebSocket efficiency
+- **Type Safety Analyst**: TypeScript patterns, runtime validation
+- **Testing Specialist**: Comprehensive test coverage, E2E scenarios
+
+## Node.js Context
+
+- **Version**: Node.js 24 [[memory:3835223]]
+- **Package Manager**: pnpm only (never npm)
+- **Runtime**: TypeScript with tsx/tsc compilation
+- **Logging**: Structured logging with appropriate framework

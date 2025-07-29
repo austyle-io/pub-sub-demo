@@ -45,13 +45,13 @@ jobs:
     - name: Setup Biome
       uses: biomejs/setup-biome@v2
       with:
-        version: latest
+        version: 2.1.2
 
     - name: Build packages
       run: pnpm run build
 
-    - name: Run linter
-      run: pnpm run lint
+    - name: Run Biome check
+      run: pnpm lint
 
     - name: Run type check
       run: pnpm run type-check
@@ -61,8 +61,9 @@ jobs:
       env:
         # Force test environment to optimize bcrypt performance
         NODE_ENV: test
-        # Provide JWT secret for tests
-        JWT_SECRET: ${{ secrets.JWT_SECRET || 'test-secret-key-for-ci-environment' }}
+        # Provide JWT secrets for tests
+        JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET || 'test-access-secret-key-for-ci-environment' }}
+        JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET || 'test-refresh-secret-key-for-ci-environment' }}
         # Increase Node.js memory limit for CI
         NODE_OPTIONS: '--max-old-space-size=4096'
         # Suppress Vite CJS deprecation warnings

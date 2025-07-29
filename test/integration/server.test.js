@@ -71,10 +71,9 @@ async function testRateLimitingDisabled() {
     if (rateLimitedCount === 0) {
       console.log('✅ Rate limiting correctly disabled in test environment');
       return true;
-    } else {
-      console.log('⚠️  Rate limiting may still be active');
-      return true; // Don't fail the test, just warn
     }
+    console.log('⚠️  Rate limiting may still be active');
+    return true; // Don't fail the test, just warn
   } catch (error) {
     console.error('❌ Rate limiting test error:', error.message);
     return false;

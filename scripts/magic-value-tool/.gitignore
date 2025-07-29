@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+.logs/
+
+# Reports
+*.json
+reports/
+
+# Test files
+test-*.ts
+test-*.tsx
+
+# Configuration overrides
+.magic-refactor.json
+.magic-refactor.config.json
+magic-refactor.config.json
+
+# Generated constants (while testing)
+constants.ts
+constants/
+
+# OS files
+.DS_Store
+Thumbs.db

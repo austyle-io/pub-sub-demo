@@ -205,6 +205,9 @@ All scripts generate detailed logs in `.logs/` directory:
 
 ## Related Documentation
 
+- [Documentation System Implementation](documentation-system-implementation.md) - Comprehensive plan for Nextra + TypeDoc migration
+- [Magic Value Refactoring Tool](magic-value-refactoring/magic-value-refactoring-tool-upgrade-plan.md) - Advanced AST-based refactoring tool
+- [Edge Case Analysis Report](magic-value-refactoring/edge-case-analysis-report.md) - Comprehensive edge case handling verification
 - [Testing Guide](../04_testing/00_INDEX.md) - Comprehensive testing documentation
 - [Getting Started](../01_getting-started/00_INDEX.md) - Setup and onboarding
 - [Implementation Plans](../../plans/) - Future development roadmaps

@@ -1,22 +1,25 @@
 import type { User } from '@collab-edit/shared';
 import { type Collection, type Db, MongoClient } from 'mongodb';
+import { dbLogger } from '../services/logger';
 
 let client: MongoClient | null = null;
 let db: Db | null = null;
 
-export async function connectToDatabase(): Promise<Db> {
+export const connectToDatabase = async (): Promise<Db> => {
   if (db) return db;
 
   const mongoUrl =
     process.env['MONGO_URL'] ?? 'mongodb://localhost:27017/collab_demo';
-  console.log('Attempting to connect to MongoDB with URL:', mongoUrl);
+  dbLogger.info('Attempting to connect to MongoDB', {
+    mongoUrl: mongoUrl.replace(/\/\/.*@/, '//***:***@'), // Hide credentials in logs
+  });
 
   try {
     client = new MongoClient(mongoUrl);
     await client.connect();
     db = client.db();
 
-    console.log('Connected to MongoDB');
+    dbLogger.info('Successfully connected to MongoDB');
 
     // Create indexes
     const users = db.collection<User>('users');
@@ -24,33 +27,36 @@ export async function connectToDatabase(): Promise<Db> {
 
     return db;
   } catch (error) {
-    console.error('Failed to connect to MongoDB:', error);
+    dbLogger.error('Failed to connect to MongoDB', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     throw error;
   }
-}
+};
 
-export async function closeDatabaseConnection(): Promise<void> {
+export const closeDatabaseConnection = async (): Promise<void> => {
   if (client) {
     await client.close();
     client = null;
     db = null;
   }
-}
+};
 
-export async function disconnectFromDatabase(): Promise<void> {
+export const disconnectFromDatabase = async (): Promise<void> => {
   return closeDatabaseConnection();
-}
+};
 
-export function getUsersCollection(): Collection<User> {
+export const getUsersCollection = (): Collection<User> => {
   if (!db) {
     throw new Error('Database not connected');
   }
   return db.collection<User>('users');
-}
+};
 
-export function getDatabase(): Db {
+export const getDatabase = (): Db => {
   if (!db) {
     throw new Error('Database not connected');
   }
   return db;
-}
+};

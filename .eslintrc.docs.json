@@ -1,0 +1,75 @@
+{
+  "extends": ["./.eslintrc.json"],
+  "plugins": ["tsdoc", "jsdoc"],
+  "rules": {
+    "tsdoc/syntax": "error",
+    "jsdoc/require-jsdoc": [
+      "error",
+      {
+        "require": {
+          "FunctionDeclaration": true,
+          "MethodDefinition": true,
+          "ClassDeclaration": true,
+          "FunctionExpression": true,
+          "ArrowFunctionExpression": true
+        },
+        "contexts": [
+          "ExportNamedDeclaration > VariableDeclaration",
+          "TSInterfaceDeclaration",
+          "TSTypeAliasDeclaration",
+          "TSEnumDeclaration"
+        ],
+        "publicOnly": true
+      }
+    ],
+    "jsdoc/require-description": [
+      "error",
+      {
+        "contexts": ["any"]
+      }
+    ],
+    "jsdoc/require-param": "error",
+    "jsdoc/require-param-description": "error",
+    "jsdoc/require-param-type": "off",
+    "jsdoc/require-returns": "error",
+    "jsdoc/require-returns-description": "error",
+    "jsdoc/require-returns-type": "off",
+    "jsdoc/check-alignment": "error",
+    "jsdoc/check-indentation": "error",
+    "jsdoc/check-param-names": "error",
+    "jsdoc/check-syntax": "error",
+    "jsdoc/check-tag-names": [
+      "error",
+      {
+        "definedTags": [
+          "security",
+          "performance",
+          "sideEffects",
+          "precondition",
+          "postcondition",
+          "fires",
+          "listens"
+        ]
+      }
+    ],
+    "jsdoc/require-example": [
+      "warn",
+      {
+        "contexts": [
+          "FunctionDeclaration",
+          "ClassDeclaration",
+          "TSInterfaceDeclaration"
+        ]
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["*.test.ts", "*.test.tsx", "*.spec.ts", "*.spec.tsx"],
+      "rules": {
+        "jsdoc/require-jsdoc": "off",
+        "jsdoc/require-example": "off"
+      }
+    }
+  ]
+}

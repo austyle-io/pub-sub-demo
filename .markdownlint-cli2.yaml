@@ -11,6 +11,7 @@ globs:
   - "!**/dist/**"
   - "!**/build/**"
   - "!coverage/**"
+  - "!.agent/**"
 
 # Rule configuration
 config:

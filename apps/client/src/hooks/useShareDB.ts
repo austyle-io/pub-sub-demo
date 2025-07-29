@@ -1,8 +1,12 @@
-import { isFunction, isNil, isObject, isString } from 'lodash';
+import isFunction from 'lodash.isfunction';
+import isNil from 'lodash.isnil';
+import isObject from 'lodash.isobject';
+import isString from 'lodash.isstring';
 import { useEffect, useRef, useState } from 'react';
 import ReconnectingWebSocketLib from 'reconnecting-websocket';
 import { Connection } from 'sharedb/lib/client';
 import { useAuth } from '../contexts/AuthContext';
+import { cookieManager } from '../utils/cookie-manager';
 
 // ShareDB Document type with proper typing
 type ShareDBDocument = {
@@ -45,33 +49,43 @@ export function useShareDB(docId: string) {
   useEffect(() => {
     if (!accessToken) return;
 
-    // Pass JWT token in WebSocket connection URL as query parameter
-    const socket = new ReconnectingWebSocketLib(
-      `ws://localhost:3001?token=${encodeURIComponent(accessToken)}`,
-    );
-    // ShareDB Connection expects a specific Socket interface
-    // We need to cast to the proper type since ReconnectingWebSocket is compatible
-    const connection = new Connection(socket as never);
-    connectionRef.current = connection;
+    // Set secure cookie for WebSocket authentication using modern Cookie Store API
+    // This prevents token exposure in server access logs while maintaining security
+    const setupWebSocketAuth = async () => {
+      await cookieManager.setWebSocketToken(accessToken);
 
-    const sdbDoc = connection.get('documents', docId);
-    sdbDoc.subscribe((err) => {
-      if (err) {
-        console.error(err);
-        return;
-      }
+      // Create WebSocket connection without query parameters (secure)
+      const socket = new ReconnectingWebSocketLib('ws://localhost:3001');
 
-      // Validate the document before setting it
-      if (isShareDBDocument(sdbDoc)) {
-        setDoc(sdbDoc);
-      } else {
-        console.error('Invalid ShareDB document received');
-      }
-    });
+      // ShareDB Connection expects a specific Socket interface
+      // We need to cast to the proper type since ReconnectingWebSocket is compatible
+      const connection = new Connection(socket as never);
+      connectionRef.current = connection;
+
+      const sdbDoc = connection.get('documents', docId);
+      sdbDoc.subscribe((err) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+
+        // Validate the document before setting it
+        if (isShareDBDocument(sdbDoc)) {
+          setDoc(sdbDoc);
+        } else {
+          console.error('Invalid ShareDB document received');
+        }
+      });
+    };
+
+    setupWebSocketAuth().catch(console.error);
 
     return () => {
-      sdbDoc.destroy();
-      connection.close();
+      if (connectionRef.current) {
+        connectionRef.current.close();
+      }
+      // Clear the WebSocket token cookie on cleanup using secure cookie manager
+      cookieManager.clearWebSocketToken().catch(console.error);
     };
   }, [docId, accessToken]);
 

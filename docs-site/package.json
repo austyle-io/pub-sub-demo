@@ -1,0 +1,31 @@
+{
+  "name": "@collab-edit/docs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Documentation site for Collaborative Document Editing Demo",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "generate-api": "typedoc --options typedoc.json",
+    "build-docs": "pnpm run generate-api && pnpm run build"
+  },
+  "dependencies": {
+    "next": "^14.2.20",
+    "nextra": "^3.2.8",
+    "nextra-theme-docs": "^3.2.8",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "clsx": "^2.1.0",
+    "mermaid": "^10.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "@types/react": "^18.3.13",
+    "@types/react-dom": "^18.3.3",
+    "glob": "^10.3.10",
+    "typedoc": "^0.26.14",
+    "typedoc-plugin-markdown": "^4.3.2",
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,0 +1,1 @@
+../../scripts/hooks/quick-check.sh

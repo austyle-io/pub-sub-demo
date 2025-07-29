@@ -1,0 +1,24 @@
+---
+title: "Generating Code Documentation with JSDoc"
+description: "Generating Code Documentation with JSDoc"
+---
+
+# Generating Code Documentation with JSDoc
+
+This project uses JSDoc comments to document TypeScript/TSX source files and generates HTML docs via the JSDoc CLI.
+
+## Setup
+```bash
+pnpm install --save-dev jsdoc
+```
+
+## Configuration
+The JSDoc settings are defined in `jsdoc.json` at the repository root.
+
+## Generate Docs
+Run:
+```bash
+pnpm run docs:jsdoc
+```
+
+This will output documentation to `docs/jsdoc`.
