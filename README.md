@@ -119,7 +119,7 @@ make test-no-rate-limit      # Run tests without rate limiting
 
 Tests are now organized in a structured directory:
 
-```mermaid
+```bash
 test/
 ├── integration/             # API integration tests
 ├── e2e/                    # End-to-end tests (planned)
@@ -131,7 +131,7 @@ test/
 
 The project now follows DevX best practices with organized directories:
 
-```mermaid
+```bash
 pub-sub-demo/
 ├── docs/                    # 📚 Comprehensive documentation
 │   ├── 00_INDEX.md         # Main navigation hub
